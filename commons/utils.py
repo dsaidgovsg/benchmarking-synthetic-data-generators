@@ -7,15 +7,15 @@ from sdv.metadata import SingleTableMetadata
 
 def get_execution_scores_obj():
     return {
-        'Synthesizer': [],
-        'Dataset': [],
-        # 'Dataset_Size_MB': [],
-        'Train_Time': [],
-        'Peak_Memory_MB': [],
-        'Synthesizer_Size_MB': [],
-        'Sample_Time': [],
-        'Device': []
-        # 'Evaluate_Time': [],
+        "Synthesizer": [],
+        "Dataset": [],
+        # "Dataset_Size_MB": [],
+        "Train_Time": [],
+        "Peak_Memory_MB": [],
+        "Synthesizer_Size_MB": [],
+        "Sample_Time": [],
+        "Device": []
+        # "Evaluate_Time": [],
     }
 
 

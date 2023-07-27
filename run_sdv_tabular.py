@@ -36,7 +36,7 @@ SYNTHESIZER_MAPPING = {
 tabular = DataModalities.TABULAR.value
 
 
-def run_tabular_models(base_data_path, num_epochs, use_gpu, test_local):
+def run_tabular_models(num_epochs, use_gpu, data_folder, output_folder):
     synthesizers = EXP_SYNTHESIZERS[tabular]
     datasets = EXP_DATASETS[tabular]
     execution_scores = get_execution_scores_obj()
@@ -46,11 +46,7 @@ def run_tabular_models(base_data_path, num_epochs, use_gpu, test_local):
 
         for dataset_name in datasets:
 
-            if test_local:
-                dataset_path = f"{base_data_path}/{tabular}/{dataset_name}/{dataset_name}.csv"
-            else:
-                # TODO: @syahri: Add path to Azure
-                ...
+            dataset_path = f"{data_folder}/{tabular}/{dataset_name}/{dataset_name}.csv"
 
             data = pd.read_csv(dataset_path)
             real_data = data.copy()
@@ -93,18 +89,14 @@ def run_tabular_models(base_data_path, num_epochs, use_gpu, test_local):
             execution_scores["Sample_Time"].append(sampling_time - train_time)
             execution_scores["Device"].append("GPU" if use_gpu else "CPU")
 
-            if test_local:
-                output_path = f"output/{tabular}/{synthesizer_name}/{dataset_name}/"
-            else:
-                # TODO: @syahri: Add path to Azure
-                ...
+            output_path = f"{output_folder}/{tabular}/{synthesizer_name}/{dataset_name}/"
 
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
 
             # save model
             synthesizer.save(
-                filepath=f'{output_path}{dataset_name}_{synthesizer_name}_synthesizer.pkl'
+                filepath=f"{output_path}{dataset_name}_{synthesizer_name}_synthesizer.pkl"
             )
 
             # save synthetic data
@@ -112,7 +104,8 @@ def run_tabular_models(base_data_path, num_epochs, use_gpu, test_local):
                 f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv")
 
     execution_scores_df = pd.DataFrame(execution_scores)
-    execution_scores_df.to_csv(f"output/{tabular}/execution_scores.csv")
+    execution_scores_df.to_csv(
+        f"{output_folder}/{tabular}/execution_scores.csv")
 
 
 #     quality_report_obj = evaluate_quality(
