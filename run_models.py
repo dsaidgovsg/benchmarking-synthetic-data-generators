@@ -1,21 +1,35 @@
+import argparse
 from commons.static_vals import VALID_DATA_MODALITIES, DataModalities
 
-# -----------------------------------------------------------------------------
-# configurarions
-# -----------------------------------------------------------------------------
-exp_data_modality = "tabular"  # valid values -- sequential, free_text
-# cuda (bool or str):
-#    If ``True``, use CUDA. If a ``str``, use the indicated device.
-#    If ``False``, do not use cuda at all.
-use_gpu = False
-num_epochs = 2
 
-test_local = True
-base_data_path = "data"
+if __name__ == "__main__":
 
-assert exp_data_modality in VALID_DATA_MODALITIES
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--modality", "--m", type=str, default="tabular",
+                        help="enter data modality. \
+                        Possible values - {tabular, sequential, text}")
+    parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
+                        help="whether to use GPU device(s)")
+    parser.add_argument("--num_epochs", "--e", type=int, default=2)
+    parser.add_argument("--data_folder", "--d", type=str, default="data")
+    parser.add_argument("--output_folder", "--o", type=str, default="output")
 
-if exp_data_modality == DataModalities.TABULAR.value:
-    from run_sdv_tabular import run_tabular_models
+    args = parser.parse_args()
 
-    run_tabular_models(base_data_path, num_epochs, use_gpu, test_local)
+    # -----------------------------------------------------------------------------
+    # configurarions
+    # -----------------------------------------------------------------------------
+    exp_data_modality = args.modality
+    use_gpu = args.use_gpu
+    num_epochs = args.num_epochs
+    # test_local=args.test_local
+    data_folder = args.data_folder
+    output_folder = args.output_folder
+
+    assert exp_data_modality in VALID_DATA_MODALITIES
+
+    if exp_data_modality == DataModalities.TABULAR.value:
+        from run_sdv_tabular import run_tabular_models
+
+        run_tabular_models(num_epochs,
+                           use_gpu, data_folder, output_folder)
