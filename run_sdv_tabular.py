@@ -10,8 +10,10 @@ import pandas as pd
 from commons.static_vals import (EXP_DATASETS, EXP_SYNTHESIZERS, N_BYTES_IN_MB,
                                  DataModalities)
 from commons.utils import detect_metadata, get_execution_scores_obj
-from synthesizers.tabular.sdv.synthesizer import (CTGANSynthesizer,
-                                                  TVAESynthesizer)
+from synthesizers.tabular.sdv.copulas_synthesizer import \
+    GaussianCopulaSynthesizer
+from synthesizers.tabular.sdv.gen_synthesizer import (CTGANSynthesizer,
+                                                      TVAESynthesizer)
 
 # from sdv.evaluation.single_table import evaluate_quality, run_diagnostic
 
@@ -29,8 +31,8 @@ LOGGER = logging.getLogger(__name__)
 
 SYNTHESIZER_MAPPING = {
     "ctgan": CTGANSynthesizer,
-    "tvae": TVAESynthesizer
-    # "gaussian_copula": GaussianCopulaSynthesizer
+    "tvae": TVAESynthesizer,
+    "gaussian_copula": GaussianCopulaSynthesizer
 }
 
 tabular = DataModalities.TABULAR.value
@@ -56,8 +58,11 @@ def run_tabular_models(num_epochs, use_gpu, data_folder, output_folder):
 
             tracemalloc.start()
 
-            synthesizer = synthesizer_class(
-                metadata, epochs=num_epochs, cuda=use_gpu)
+            if synthesizer_name == "gaussian_copula":
+                synthesizer = synthesizer_class(metadata)
+            else:
+                synthesizer = synthesizer_class(
+                    metadata, epochs=num_epochs, cuda=use_gpu)
 
             begin_time = time.time()  # datetime.utcnow()
             # ---------------------
@@ -75,10 +80,12 @@ def run_tabular_models(num_epochs, use_gpu, data_folder, output_folder):
             tracemalloc.stop()
             tracemalloc.clear_traces()
 
+            print("#"*10)
             # TODO: replace with logs
             print(
                 f"Model {synthesizer_name} trained on {dataset_name} and sampled.")
-
+            print("#"*10)
+            
             synthesizer_size = len(pickle.dumps(synthesizer)) / N_BYTES_IN_MB
 
             execution_scores["Synthesizer"].append(synthesizer_name)

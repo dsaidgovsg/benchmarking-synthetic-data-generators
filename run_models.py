@@ -1,6 +1,6 @@
 import argparse
-from commons.static_vals import VALID_DATA_MODALITIES, DataModalities
 
+from commons.static_vals import VALID_DATA_MODALITIES, DataModalities
 
 if __name__ == "__main__":
 
