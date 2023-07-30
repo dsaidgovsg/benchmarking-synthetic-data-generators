@@ -15,7 +15,7 @@ VALID_DATA_MODALITIES = [DataModalities.TABULAR.value,
                          DataModalities.TEXT.value]
 
 EXP_SYNTHESIZERS = {
-    DataModalities.TABULAR.value: ["ctgan", "tvae"],  # "gaussian_copula"],
+    DataModalities.TABULAR.value: ["ctgan", "tvae", "gaussian_copula"],
     DataModalities.SEQUENTIAL.value: ["par", "dgan"],
     DataModalities.TEXT.value: ["gpt", "lstm"]
 }
