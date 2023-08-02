@@ -15,7 +15,7 @@ from sdv.utils import cast_to_iterable, groupby_list
 # from deepecho import PARModel
 from synthesizers.sequential.sdv.par import PARModel
 from synthesizers.sequential.sdv.sequences import assemble_sequences
-from synthesizers.tabular.sdv.base_model import BaseSynthesizer
+from synthesizers.tabular.sdv.base_synthesizer import BaseSynthesizer
 from synthesizers.tabular.sdv.copulas_synthesizer import \
     GaussianCopulaSynthesizer
 

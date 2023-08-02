@@ -627,10 +627,11 @@ class DGAN:
         )
         self.feature_outputs = feature_outputs
 
-        if self.config.cuda and torch.cuda.is_available():
-            self.device = "cuda"
-        else:
-            self.device = "cpu"
+        # TODO: @anshu undo the below lines of code
+        # if self.config.cuda and torch.cuda.is_available():
+        #     self.device = "cuda"
+        # else:
+        self.device = "cpu"
 
         self.generator = Generator(
             attribute_outputs,

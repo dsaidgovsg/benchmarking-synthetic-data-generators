@@ -3,8 +3,8 @@ from enum import Enum
 
 N_BYTES_IN_MB = 1000 * 1000
 
-
 class DataModalities(Enum):
+    """"""
     TABULAR = "tabular"
     SEQUENTIAL = "sequential"
     TEXT = "text"
@@ -24,6 +24,6 @@ EXP_SYNTHESIZERS = {
 # datasets for each modality
 EXP_DATASETS = {
     DataModalities.TABULAR.value: ["adult"],
-    DataModalities.SEQUENTIAL.value: [],
+    DataModalities.SEQUENTIAL.value: ["nasdaq"],
     DataModalities.TEXT.value: []
 }
