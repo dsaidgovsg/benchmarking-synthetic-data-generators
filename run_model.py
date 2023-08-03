@@ -7,10 +7,6 @@ from commons.static_vals import DEFAULT_EPOCH_VALUES
 from commons.utils import get_dataset_with_sdv
 
 if __name__ == "__main__":
-    # ------------------------------------
-    # configurarions
-    # ------------------------------------
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--library", "--l", type=str, default="sdv",
                         help="enter library. \
@@ -19,16 +15,22 @@ if __name__ == "__main__":
                         help="enter dataset modality. \
                         Possible values - {tabular, sequential, text}")
     parser.add_argument("--synthesizer", "--s", type=str, default="ctgan",
-                        help="enter synthesizer name")
+                        help="enter synthesizer name \
+                            Possible values - {ctgan, tvae, gaussian_copula, par}")
     parser.add_argument("--data", type=str, default="adult",
                         help="enter dataset name.")
     
     parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
                         help="whether to use GPU device(s)")
+    # deafult epoch is set as 0 as statistical models do not need epochs
     parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
     parser.add_argument("--output_folder", "--o", type=str, default="output")
 
+
+    # -----------------------------------------------------------
+    # parsing inputs
+    # -----------------------------------------------------------
     args = parser.parse_args()
 
     exp_library: str = args.library
@@ -57,9 +59,9 @@ if __name__ == "__main__":
         os.makedirs(output_path)
 
     logging.basicConfig(filename=f"{output_path}{exp_synthesizer}_{exp_dataset_name}.log",
-                    format='%(asctime)s [%(filename)s:%(lineno)d] %(message)s ',
-                    datefmt='%Y-%m-%d:%H:%M:%S',
-                    filemode='w')
+                    format="%(asctime)s [%(filename)s:%(lineno)d] %(message)s ",
+                    datefmt="%Y-%m-%d:%H:%M:%S",
+                    filemode="w")
     LOGGER = logging.getLogger(__name__)
     LOGGER.setLevel(logging.DEBUG)
 
@@ -85,8 +87,6 @@ if __name__ == "__main__":
         # data = pd.read_csv(dataset_path)
         ...
 
-    LOGGER.info((f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
-
     # --------------
     # Run models
     # --------------
@@ -94,9 +94,11 @@ if __name__ == "__main__":
         from run_sdv_model import run_model
 
         if not num_epochs:
-            num_epochs = DEFAULT_EPOCH_VALUES[exp_synthesizer]
+            num_epochs = DEFAULT_EPOCH_VALUES["sdv"][exp_synthesizer]
 
         print("Selected Synthesizer Library: SDV")
+        LOGGER.info((f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,
@@ -105,7 +107,6 @@ if __name__ == "__main__":
             num_epochs=num_epochs,
             real_dataset=real_dataset,
             metadata=metadata,
-            data_folder=data_folder,
             output_path=output_path,
             sequential_details=sequential_details)
 
@@ -114,14 +115,14 @@ if __name__ == "__main__":
         from run_gretel_model import run_model
         
         print("Selected Synthesizer Library: Gretel")
-        run_model(
-            exp_data_modality=exp_data_modality,
-            exp_synthesizer=exp_synthesizer,
-            exp_data=exp_dataset_name,
-            use_gpu=use_gpu,
-            num_epochs=num_epochs,
-            real_dataset=real_dataset,
-            metadata=metadata,
-            data_folder=data_folder,
-            output_path=output_path,
-            sequential_details=sequential_details)
+        # run_model(
+        #     exp_data_modality=exp_data_modality,
+        #     exp_synthesizer=exp_synthesizer,
+        #     exp_data=exp_dataset_name,
+        #     use_gpu=use_gpu,
+        #     num_epochs=num_epochs,
+        #     real_dataset=real_dataset,
+        #     metadata=metadata,
+        #     data_folder=data_folder,
+        #     output_path=output_path,
+        #     sequential_details=sequential_details)

@@ -33,7 +33,8 @@ DEFAULT_EPOCH_VALUES = {
     "sdv": {
         "par": 128, 
         "ctgan": 300,
-        "tvae": 300 
+        "tvae": 300, 
+        "gaussian_copula": 0 
     },
     "gretel-synthetics": {}
 }
