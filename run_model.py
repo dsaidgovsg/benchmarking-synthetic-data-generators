@@ -1,10 +1,10 @@
-import os
-import logging
 import argparse
+import logging
+import os
 from datetime import datetime
 
+from commons.static_vals import DEFAULT_EPOCH_VALUES
 from commons.utils import get_dataset_with_sdv
-from commons.static_vals import VALID_DATA_MODALITIES, DataModalities
 
 if __name__ == "__main__":
     # ------------------------------------
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
                         help="whether to use GPU device(s)")
-    parser.add_argument("--num_epochs", "--e", type=int, default=2)
+    parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
     parser.add_argument("--output_folder", "--o", type=str, default="output")
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     output_folder: str = args.output_folder
 
     # TODO: Add assertions to validate the inputs
-    assert exp_data_modality in VALID_DATA_MODALITIES
+    # assert exp_data_modality in VALID_DATA_MODALITIES
     # assert exp_synthesizer in VALID_MODALITY_SYNTHESIZER 
     # assert exp_data in VALID_MODALITY_DATA
 
@@ -66,20 +66,18 @@ if __name__ == "__main__":
     # --------------
     # Get dataset
     # --------------
+    sequential_details = None
     if exp_dataset_name == "adult":
-        real_dataset, metadata = get_dataset_with_sdv("single-table", "adult")
+        real_dataset, metadata = get_dataset_with_sdv("single_table", "adult")
     elif exp_dataset_name == "nasdaq":
-        print("getting nasdaq")
-        # context_columns
-
         real_dataset, metadata = get_dataset_with_sdv("sequential", "nasdaq100_2019")
         sequential_details = {
             "num_sequences": 103,
             "max_sequence_length": 252,
-            "fixed_attributes": ["Sector", "Industry"] 
+            "fixed_attributes": ["Sector", "Industry"] # context_columns
         }
     elif exp_dataset_name == "census":
-        real_dataset, metadata = get_dataset_with_sdv("single-table", "census")
+        real_dataset, metadata = get_dataset_with_sdv("single_table", "census")
     else: 
         # @TODO
         # real_dataset = load_dataset_df("")
@@ -87,16 +85,18 @@ if __name__ == "__main__":
         # data = pd.read_csv(dataset_path)
         ...
 
+    LOGGER.info((f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+
     # --------------
     # Run models
     # --------------
     if exp_library == "sdv":
         from run_sdv_model import run_model
-        
+
+        if not num_epochs:
+            num_epochs = DEFAULT_EPOCH_VALUES[exp_synthesizer]
+
         print("Selected Synthesizer Library: SDV")
-
-        LOGGER.info((f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
-
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,
@@ -112,4 +112,16 @@ if __name__ == "__main__":
 
     elif exp_library == "gretel":
         from run_gretel_model import run_model
-        ...
+        
+        print("Selected Synthesizer Library: Gretel")
+        run_model(
+            exp_data_modality=exp_data_modality,
+            exp_synthesizer=exp_synthesizer,
+            exp_data=exp_dataset_name,
+            use_gpu=use_gpu,
+            num_epochs=num_epochs,
+            real_dataset=real_dataset,
+            metadata=metadata,
+            data_folder=data_folder,
+            output_path=output_path,
+            sequential_details=sequential_details)

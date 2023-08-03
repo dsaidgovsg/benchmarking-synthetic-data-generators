@@ -27,3 +27,13 @@ EXP_DATASETS = {
     DataModalities.SEQUENTIAL.value: ["nasdaq"],
     DataModalities.TEXT.value: []
 }
+
+
+DEFAULT_EPOCH_VALUES = {
+    "sdv": {
+        "par": 128, 
+        "ctgan": 300,
+        "tvae": 300 
+    },
+    "gretel-synthetics": {}
+}

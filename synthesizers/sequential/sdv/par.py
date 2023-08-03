@@ -334,6 +334,7 @@ class PARModel(DeepEcho):
             loss.backward()
             if self.verbose:
                 iterator.set_description(f'Epoch {epoch +1} | Loss {loss.item()}')
+                print(f'Epoch {epoch +1} | Loss {loss.item()}')
 
             optimizer.step()
 
