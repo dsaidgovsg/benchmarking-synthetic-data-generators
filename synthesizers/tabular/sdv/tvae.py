@@ -166,6 +166,7 @@ class TVAE(BaseSynthesizer):
             weight_decay=self.l2scale)
 
         for i in range(self.epochs):
+            total_loss = 0
             for id_, data in enumerate(loader):
                 optimizerAE.zero_grad()
                 real = data[0].to(self._device)
@@ -178,9 +179,11 @@ class TVAE(BaseSynthesizer):
                     self.transformer.output_info_list, self.loss_factor
                 )
                 loss = loss_1 + loss_2
+                total_loss += loss.detach().cpu().numpy()
                 loss.backward()
                 optimizerAE.step()
                 self.decoder.sigma.data.clamp_(0.01, 1.0)
+            print(f"Epoch {i} | Loss: ", total_loss/(id_+1))
 
     @random_state
     def sample(self, samples):

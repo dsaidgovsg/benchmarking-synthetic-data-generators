@@ -1,3 +1,5 @@
 .DS_Store
-/output
 **/__pycache__
+
+/data
+/output
