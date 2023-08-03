@@ -61,17 +61,15 @@ def run_model(**kwargs):
     dataset_name=kwargs["exp_data"]
     use_gpu=kwargs["use_gpu"]
     num_epochs=kwargs["num_epochs"]
-    # data_folder=kwargs["data_folder"]
     output_path=kwargs["output_path"]
     real_dataset=kwargs["real_dataset"]
     metadata=kwargs["metadata"]
     # num_samples=kwargs["num_samples"]
 
-
     if kwargs["sequential_details"]:
         num_sequences = kwargs["sequential_details"]["num_sequences"] 
         max_sequence_length = kwargs["sequential_details"]["max_sequence_length"] 
-        seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"] 
+        seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"]
 
     synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
     num_samples = len(real_dataset)
@@ -90,10 +88,10 @@ def run_model(**kwargs):
         # Link to the paper: https://dai.lids.mit.edu/wp-content/uploads/2018/03/SDV.pdf
         # Params:
         # numerical_distributions = {
-        #     <column name>: 'norm',
+        #     <column name>: "norm",
         # },
-        # One of: 'norm' 'beta', 'truncnorm', 'uniform', 'gamma' or 'gaussian_kde'
-        # default_distribution <str> ='beta'
+        # One of: "norm" "beta", "truncnorm", "uniform", "gamma" or "gaussian_kde"
+        # default_distribution <str> ="beta"
         synthesizer = synthesizer_class(metadata)
     elif synthesizer_name == "par": # sequential
         # ---------------------------------------------
@@ -135,18 +133,19 @@ def run_model(**kwargs):
 
     LOGGER.info(synthesizer.get_parameters())
 
+    #  Store the print statements in a variable
     captured_print_out = StringIO()
     sys.stdout = captured_print_out
 
-    begin_time = time.time()
+    begin_train_time = time.time()
     # ---------------------
     # Train
     # ---------------------
     synthesizer.fit(real_dataset)
-    
+    end_train_time = time.time()
+
     if synthesizer_name == "gaussian_copula":
         LOGGER.info(synthesizer.get_learned_distributions())
-    train_time = time.time()
     # ---------------------
     # Sample
     # ---------------------
@@ -157,43 +156,56 @@ def run_model(**kwargs):
         #     An integer >0 describing the length of each sequence.
         #     If you provide None, the synthesizer will determine the lengths algorithmically
         #     , and the length may be different for each sequence. Defaults to None.
+        begin_sampling_time = time.time()
         synthetic_dataset = synthesizer.sample(num_sequences=num_sequences,
                                             sequence_length=max_sequence_length)
     else:
+        begin_sampling_time = time.time()
         synthetic_dataset = synthesizer.sample(num_rows=num_samples)
-    sampling_time = time.time()
+    end_sampling_time = time.time()
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
     tracemalloc.stop()
     tracemalloc.clear_traces()
     
     # ---------------------
-    # Outputs
+    # Prepare Outputs
     # ---------------------
     synthesizer_size = len(pickle.dumps(synthesizer)) / N_BYTES_IN_MB
 
-    # Get the memory usage of the real and synthetic DataFrame in bytes
-    real_dataset_size = real_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
-    synthetic_dataset_size = synthetic_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
+    # Get the memory usage of the real and synthetic dataFrame in MB
+    real_dataset_size_deep = real_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
+    synthetic_dataset_size_deep = synthetic_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
+
+    real_dataset_size = real_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
+    synthetic_dataset_size = synthetic_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
 
     execution_scores = {
         # "Date": [today_date],
         "lib": f"SDV_{sdv.__version__}", 
         "modality": data_modality, 
         "synthesizer": synthesizer_name, 
+        
         "dataset": dataset_name,
         "num_rows": real_dataset.shape[0], 
         "num_cols": real_dataset.shape[1], 
+        
+        "device": "GPU" if use_gpu else "CPU",
         "num_epochs": num_epochs if num_epochs else 0,
         # "num_cat": len(dataset_name), 
         # "num_numeric": len(dataset_name), 
-        "train_time_sec": train_time - begin_time, 
-        "sample_time_sec": sampling_time - train_time, 
+        
+        "train_time_sec": end_train_time - begin_train_time, 
+        "sample_time_sec": end_sampling_time - begin_sampling_time, 
+        
         "peak_memory_mb": peak_memory,
-        "synthesizer_size_mb": synthesizer_size,
-        "real_dataset_size_mb": real_dataset_size,
-        "synthetic_dataset_size_mb": synthetic_dataset_size,  
-        "device": "GPU" if use_gpu else "CPU"
+        "synthesizer_size": synthesizer_size, 
+        
+        "synthetic_dataset_size_mb_deep": synthetic_dataset_size_deep,
+        "real_dataset_size_mb_deep": real_dataset_size_deep,
+        
+        "synthetic_dataset_size_mb": synthetic_dataset_size,
+        "real_dataset_size_mb": real_dataset_size
     }
 
     # execution_scores = get_execution_scores_obj()
@@ -213,9 +225,13 @@ def run_model(**kwargs):
     sys.stdout = sys.__stdout__
     captured_print_out = captured_print_out.getvalue()
 
+    
+    # ---------------------
+    # Dump output to files
+    # ---------------------
     # save print statements 
-    with open(f"{output_path}{dataset_name}_{synthesizer_name}_out.txt", "w") as json_file:
-        json.dump(captured_print_out, json_file)
+    with open(f"{output_path}{dataset_name}_{synthesizer_name}_out.txt", "w") as log_file:
+        json.dump(captured_print_out, log_file)
 
     # save model
     synthesizer.save(
@@ -230,9 +246,9 @@ def run_model(**kwargs):
         json.dump(execution_scores, json_file)
 
 
-    print("-"*30)
+    print("-"*100)
     print(f"{synthesizer_name.upper()} trained  on {dataset_name.upper()} dataset| {num_samples} sampled | Files saved!")
-    print("-"*30)
+    print("-"*100)
 
 
     # execution_scores_df = pd.DataFrame(execution_scores)
@@ -255,7 +271,7 @@ def run_model(**kwargs):
     # print("diagnostic_report_obj: ", diagnostic_report_obj)
 
 # df = pd.read_csv("/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/data/sequential/nasdaq100_2019.csv")
-# groups = df.groupby('Symbol').size().reset_index(name='Count')
+# groups = df.groupby("Symbol").size().reset_index(name="Count")
 # print(groups, min(list(groups["Count"])),  max(list(groups["Count"])))
 # # for Symbol, Count in zip(list(groups["Symbol"]), list(groups["Count"])):
 # #     print(Symbol, Count)
