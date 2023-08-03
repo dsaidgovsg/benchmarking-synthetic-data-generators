@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    logging.basicConfig(filename=f"{output_path}{exp_synthesizer}_{exp_dataset_name}.log",
+    logging.basicConfig(filename=f"{output_path}{exp_dataset_name}_{exp_synthesizer}.log",
                     format="%(asctime)s [%(filename)s:%(lineno)d] %(message)s ",
                     datefmt="%Y-%m-%d:%H:%M:%S",
                     filemode="w")
