@@ -13,10 +13,10 @@ from sdv.metadata.single_table import SingleTableMetadata
 from sdv.utils import cast_to_iterable, groupby_list
 
 # from deepecho import PARModel
-from synthesizers.sequential.sdv.par import PARModel
-from synthesizers.sequential.sdv.sequences import assemble_sequences
-from synthesizers.tabular.sdv.base_synthesizer import BaseSynthesizer
-from synthesizers.tabular.sdv.copulas_synthesizer import \
+from synthesizers.sdv.sequential.par import PARModel
+from synthesizers.sdv.sequential.sequences import assemble_sequences
+from synthesizers.sdv.tabular.base_synthesizer import BaseSynthesizer
+from synthesizers.sdv.tabular.copulas_synthesizer import \
     GaussianCopulaSynthesizer
 
 # from deepecho.sequences import assemble_sequences

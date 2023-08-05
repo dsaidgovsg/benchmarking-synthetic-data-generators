@@ -11,11 +11,11 @@ from io import StringIO
 import sdv
 
 from commons.static_vals import N_BYTES_IN_MB, DataModalities
-from synthesizers.sequential.sdv.par_synthesizer import PARSynthesizer
+from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
 # SDV synthesizers 
-from synthesizers.tabular.sdv.copulas_synthesizer import \
+from synthesizers.sdv.tabular.copulas_synthesizer import \
     GaussianCopulaSynthesizer
-from synthesizers.tabular.sdv.gen_synthesizer import (CTGANSynthesizer,
+from synthesizers.sdv.tabular.gen_synthesizer import (CTGANSynthesizer,
                                                       TVAESynthesizer)
 
 # from sdv.evaluation.single_table import evaluate_quality, run_diagnostic
@@ -225,6 +225,7 @@ def run_model(**kwargs):
 
     sys.stdout = sys.__stdout__
     captured_print_out = captured_print_out.getvalue()
+    print(captured_print_out)
 
     
     # ---------------------

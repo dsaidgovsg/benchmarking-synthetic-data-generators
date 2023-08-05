@@ -9,9 +9,9 @@ from torch import optim
 from torch.nn import (BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU,
                       Sequential, functional)
 
-from synthesizers.tabular.sdv.base_model import BaseSynthesizer, random_state
-from synthesizers.tabular.sdv.data_sampler import DataSampler
-from synthesizers.tabular.sdv.data_transformer import DataTransformer
+from synthesizers.sdv.tabular.base_model import BaseSynthesizer, random_state
+from synthesizers.sdv.tabular.data_sampler import DataSampler
+from synthesizers.sdv.tabular.data_transformer import DataTransformer
 
 
 class Discriminator(Module):

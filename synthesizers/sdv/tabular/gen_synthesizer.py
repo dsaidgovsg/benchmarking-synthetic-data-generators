@@ -1,9 +1,9 @@
 """Wrapper around CTGAN model."""
 
-from synthesizers.tabular.sdv.base_synthesizer import \
+from synthesizers.sdv.tabular.base_synthesizer import \
     BaseSingleTableSynthesizer
-from synthesizers.tabular.sdv.ctgan import CTGAN
-from synthesizers.tabular.sdv.tvae import TVAE
+from synthesizers.sdv.tabular.ctgan import CTGAN
+from synthesizers.sdv.tabular.tvae import TVAE
 
 
 def detect_discrete_columns(metadata, data):

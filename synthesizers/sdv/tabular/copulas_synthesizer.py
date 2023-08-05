@@ -16,7 +16,7 @@ from sdv.single_table.utils import (flatten_dict,
                                     unflatten_dict,
                                     validate_numerical_distributions)
 
-from synthesizers.tabular.sdv.base_synthesizer import \
+from synthesizers.sdv.tabular.base_synthesizer import \
     BaseSingleTableSynthesizer
 
 # from sdv.single_table.base import BaseSingleTableSynthesizer

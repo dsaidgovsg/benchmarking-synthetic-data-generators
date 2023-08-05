@@ -36,5 +36,7 @@ DEFAULT_EPOCH_VALUES = {
         "tvae": 300, 
         "gaussian_copula": 0 
     },
-    "gretel-synthetics": {}
+    "gretel": {
+        "dgan": 400
+    }
 }

@@ -6,8 +6,8 @@ from typing import Iterable, List, Optional, Tuple, Union, cast
 import numpy as np
 import torch
 
-from synthesizers.sequential.gretel_synthetics.config import Normalization
-from synthesizers.sequential.gretel_synthetics.transformations import (
+from synthesizers.gretel_synthetics.sequential.config import Normalization
+from synthesizers.gretel_synthetics.sequential.transformations import (
     BinaryEncodedOutput, ContinuousOutput, OneHotEncodedOutput, Output)
 
 

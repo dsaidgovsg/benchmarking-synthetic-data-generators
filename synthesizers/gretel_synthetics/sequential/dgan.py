@@ -57,16 +57,16 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 
-from synthesizers.sequential.gretel_synthetics.config import (DfStyle,
+from synthesizers.gretel_synthetics.sequential.config import (DfStyle,
                                                               DGANConfig,
                                                               OutputType)
-from synthesizers.sequential.gretel_synthetics.errors import (DataError,
+from synthesizers.gretel_synthetics.sequential.errors import (DataError,
                                                               InternalError,
                                                               ParameterError)
-from synthesizers.sequential.gretel_synthetics.structures import ProgressInfo
-from synthesizers.sequential.gretel_synthetics.torch_modules import (
+from synthesizers.gretel_synthetics.sequential.structures import ProgressInfo
+from synthesizers.gretel_synthetics.sequential.torch_modules import (
     Discriminator, Generator)
-from synthesizers.sequential.gretel_synthetics.transformations import (
+from synthesizers.gretel_synthetics.sequential.transformations import (
     Output, create_additional_attribute_outputs, create_outputs_from_data,
     inverse_transform, transform)
 
