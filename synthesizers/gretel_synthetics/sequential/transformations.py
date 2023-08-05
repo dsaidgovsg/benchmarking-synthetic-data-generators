@@ -8,7 +8,7 @@ import numpy as np
 from category_encoders import BinaryEncoder, OneHotEncoder
 from scipy.stats import mode
 
-from synthesizers.sequential.gretel_synthetics.config import (Normalization,
+from synthesizers.gretel_synthetics.sequential.config import (Normalization,
                                                               OutputType)
 
 

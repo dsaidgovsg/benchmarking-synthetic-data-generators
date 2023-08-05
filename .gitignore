@@ -1,5 +1,10 @@
 .DS_Store
 **/__pycache__
 
+# testing folders
+/az*
+/outputs
 /data
-/output
+
+# temporary
+**.ipynb

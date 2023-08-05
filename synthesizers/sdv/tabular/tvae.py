@@ -9,8 +9,8 @@ from torch.nn.functional import cross_entropy
 from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
 
-from synthesizers.tabular.sdv.base_model import BaseSynthesizer, random_state
-from synthesizers.tabular.sdv.data_transformer import DataTransformer
+from synthesizers.sdv.tabular.base_model import BaseSynthesizer, random_state
+from synthesizers.sdv.tabular.data_transformer import DataTransformer
 
 
 class Encoder(Module):
