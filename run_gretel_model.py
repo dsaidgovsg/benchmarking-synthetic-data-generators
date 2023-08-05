@@ -1,4 +1,3 @@
-# import os
 import os 
 import sys
 import json
@@ -29,7 +28,6 @@ LOGGER.setLevel(logging.DEBUG)
 #     # "actgan": ACTGAN
 #     # "lstm": LSTM
 # }
-
 
 def run_model(**kwargs):
     """"""
@@ -77,13 +75,12 @@ def run_model(**kwargs):
         # Params:
         # max_sequence_len – length of time series sequences, variable length sequences are not supported,
         #                    so all training and generated data will have the same length sequences.
-        # 
-
-        print("STARTED ----- TRAINEDDDDD")
         config = DGANConfig(
                 max_sequence_len=max_sequence_length,
                 # sample_len : time series steps to generate from each LSTM cell in DGAN, 
                 # must be a divisor of max_sequence_len
+
+                # TODO: remove 1, 2, 3, 4, 6, 7, 9, 12, 14, 18, 21, 28, 36, 42, 63, 84, 126, 252
                 sample_len=1,
                 # apply_feature_scaling: bool = True,
                 # apply_example_scaling: bool = True,
@@ -98,7 +95,6 @@ def run_model(**kwargs):
         LOGGER.info("DGAN Configuration")
         LOGGER.info(config.to_dict())
 
-        
         # Interface for training model and generating data based on configuration in an DGANConfig instance.
         synthesizer = DGAN(config)
 
@@ -111,12 +107,14 @@ def run_model(**kwargs):
         # - “Wide” format uses one row for each example with 0 or more attribute columns and 
         # 1 column per time point in the time series. “Wide” format is restricted to 1 feature variable. 
         # - “Long” format uses one row per time point, supports multiple feature variables, and uses
-        # additional example id to split into examples and time column to sort.
-        df_style  = "long"
-        
+        # additional example id to split into examples and time column to sort.        
         # ---------------------
         # Train
         # ---------------------
+        #  Store the print statements in a variable
+        captured_print_out = StringIO()
+        sys.stdout = captured_print_out
+
         begin_train_time = time.time()
         synthesizer.train_dataframe(real_dataset,
                     attribute_columns=seq_fixed_attributes,
@@ -124,12 +122,9 @@ def run_model(**kwargs):
                     example_id_column=entity,
                     time_column=time_attribute,
                     discrete_columns=discrete_attributes,
-                    df_style=df_style)
+                    df_style="long")
         end_train_time = time.time()
-
-        print("TRAINEDDDDD")
         
-        # LOGGER.info(synthesizer.get_parameters())
         # Store the print statements in a variable
         # captured_print_out = StringIO()
         # sys.stdout = captured_print_out
@@ -141,8 +136,6 @@ def run_model(**kwargs):
         # num_sequences: An integer >0 describing the number of sequences to sample
         begin_sampling_time = time.time()
         synthetic_dataset = synthesizer.generate_dataframe(num_sequences)
-        # synthetic_dataset = synthesizer.sample(num_sequences=num_sequences,
-        #                                     sequence_length=max_sequence_length)
         end_sampling_time = time.time()
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
@@ -153,7 +146,16 @@ def run_model(**kwargs):
     # Prepare Outputs
     # ---------------------
 
-    # synthesizer_size = len(pickle.dumps(synthesizer)) / N_BYTES_IN_MB
+    sys.stdout = sys.__stdout__
+    captured_print_out = captured_print_out.getvalue()
+    print(captured_print_out)
+
+    # ---------------------
+    # Dump output to files
+    # ---------------------
+    # save print statements 
+    with open(f"{output_path}{dataset_name}_{synthesizer_name}_out.txt", "w") as log_file:
+        json.dump(captured_print_out, log_file)
 
     # Get the memory usage of the real and synthetic dataFrame in MB
     real_dataset_size_deep = real_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
@@ -162,12 +164,11 @@ def run_model(**kwargs):
     real_dataset_size = real_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
     synthetic_dataset_size = synthetic_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
 
-
-    # save model as Pytroch checkpoint
+    # Save model as Pytorch checkpoint
     synthesizer.save(f"{output_path}{dataset_name}_{synthesizer_name}_synthesizer.pth")
 
     # Compute the size of the file in megabytes (MB)
-    synthesizer_size = os.path.getsize(f"{output_path}{dataset_name}_{synthesizer_name}_synthesizer.pth") / (1024 * 1024)
+    synthesizer_size = os.path.getsize(f"{output_path}{dataset_name}_{synthesizer_name}_synthesizer.pth") / N_BYTES_IN_MB
 
     execution_scores = {
         # "Date": [today_date],
@@ -197,11 +198,6 @@ def run_model(**kwargs):
         "synthetic_dataset_size_mb": synthetic_dataset_size,
         "real_dataset_size_mb": real_dataset_size
     }
-
-    # sys.stdout = sys.__stdout__
-    # captured_print_out = captured_print_out.getvalue()
-    # print(captured_print_out)
-
     
     # ---------------------
     # Dump output to files

@@ -793,6 +793,8 @@ class DGAN:
         for epoch in range(self.config.epochs):
             logger.info(f"epoch: {epoch}")
 
+            print("EPOCH: ", epoch)
+
             for batch_idx, real_batch in enumerate(loader):
                 global_step += 1
 
@@ -835,6 +837,7 @@ class DGAN:
                             + self.config.gradient_penalty_coef * loss_gradient_penalty
                         )
 
+                    print("D Loss: ", loss.item())
                     scaler.scale(loss).backward(retain_graph=True)
                     scaler.step(opt_discriminator)
                     scaler.update()
@@ -865,7 +868,7 @@ class DGAN:
                                 + self.config.attribute_gradient_penalty_coef
                                 * loss_gradient_penalty
                             )
-
+                        # print("Attribute discriminator Loss: ", loss.item())
                         scaler.scale(attribute_loss).backward(retain_graph=True)
                         scaler.step(opt_attribute_discriminator)
                         scaler.update()
@@ -891,7 +894,7 @@ class DGAN:
                             )
                         else:
                             loss = -torch.mean(generated_output)
-
+                    print("G Loss: ", loss.item())
                     scaler.scale(loss).backward()
                     scaler.step(opt_generator)
                     scaler.update()
