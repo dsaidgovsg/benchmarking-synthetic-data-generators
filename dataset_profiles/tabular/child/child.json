@@ -1,0 +1,244 @@
+{
+    "table": {
+        "n": 20000,
+        "n_var": 21,
+        "memory_size": 3360128,
+        "record_size": 168.0064,
+        "n_cells_missing": 8327,
+        "n_vars_with_missing": 2,
+        "n_vars_all_missing": 0,
+        "p_cells_missing": 0.019826190476190476,
+        "types": {
+            "Numeric": 1,
+            "Boolean": 6,
+            "Categorical": 14
+        },
+        "n_duplicates": 0,
+        "p_duplicates": 0.0
+    },
+    "alerts": [
+        "[HypDistrib] is highly overall correlated with [DuctFlow]",
+        "[CO2] is highly overall correlated with [CO2Report]",
+        "[ChestXray] is highly overall correlated with [XrayReport] and 2 other fields",
+        "[Grunting] is highly overall correlated with [GruntingReport] and 1 other fields",
+        "[LVHreport] is highly overall correlated with [Disease] and 1 other fields",
+        "[CO2Report] is highly overall correlated with [CO2]",
+        "[XrayReport] is highly overall correlated with [ChestXray]",
+        "[Disease] is highly overall correlated with [LVHreport] and 4 other fields",
+        "[GruntingReport] is highly overall correlated with [Grunting]",
+        "[LVH] is highly overall correlated with [LVHreport] and 1 other fields",
+        "[DuctFlow] is highly overall correlated with [HypDistrib] and 1 other fields",
+        "[CardiacMixing] is highly overall correlated with [Disease]",
+        "[LungParench] is highly overall correlated with [ChestXray] and 1 other fields",
+        "[LungFlow] is highly overall correlated with [ChestXray] and 1 other fields",
+        "[BirthAsphyxia] is highly imbalanced (0.5245395405873582)",
+        "[HypDistrib] is highly imbalanced (0.5359371352705042)",
+        "[DuctFlow] 7248 (36.2%) missing values",
+        "[CardiacMixing] 1079 (5.4%) missing values",
+        "[Unnamed: 0] is uniformly distributed",
+        "[Unnamed: 0] has unique values"
+    ],
+    "variables": {
+        "Unnamed: 0": {
+            "type": "Numeric",
+            "n_distinct": 20000,
+            "n_missing": 0,
+            "kurtosis": -1.2000000000000002,
+            "skewness": 0.0,
+            "monotonic": 2
+        },
+        "BirthAsphyxia": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.5245395405873582
+        },
+        "HypDistrib": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "freq_counts": {
+                "equal": 18031,
+                "unequal": 1969
+            },
+            "imbalance": 0.5359371352705042
+        },
+        "HypoxiaInO2": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "moderate": 10338,
+                "severe": 7443,
+                "mild": 2219
+            },
+            "imbalance": 0.13263018072737087
+        },
+        "CO2": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "normal": 14397,
+                "high": 3862,
+                "low": 1741
+            },
+            "imbalance": 0.3021209858790701
+        },
+        "ChestXray": {
+            "type": "Categorical",
+            "n_distinct": 5,
+            "n_missing": 0,
+            "freq_counts": {
+                "oligaemic": 7020,
+                "normal": 4326,
+                "plethoric": 4298,
+                "asy/patch": 2548,
+                "grd_glass": 1808
+            },
+            "imbalance": 0.0624910139640259
+        },
+        "Grunting": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.2334030752301085
+        },
+        "LVHreport": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.13439920497768576
+        },
+        "LowerBodyO2": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "5-12": 9686,
+                "5": 7564,
+                "12": 2750
+            },
+            "imbalance": 0.09731927300819787
+        },
+        "RUQO2": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "5-12": 9816,
+                "5": 7115,
+                "12": 3069
+            },
+            "imbalance": 0.08556238153572338
+        },
+        "CO2Report": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "freq_counts": {
+                "7.5": 20000
+            },
+            "imbalance": 0.17842773825199365
+        },
+        "XrayReport": {
+            "type": "Categorical",
+            "n_distinct": 5,
+            "n_missing": 0,
+            "freq_counts": {
+                "oligaemic": 6082,
+                "normal": 4917,
+                "plethoric": 4326,
+                "asy/patchy": 3049,
+                "grd_glass": 1626
+            },
+            "imbalance": 0.0500485461121164
+        },
+        "Disease": {
+            "type": "Categorical",
+            "n_distinct": 6,
+            "n_missing": 0,
+            "freq_counts": {
+                "tga": 6602,
+                "fallot": 5842,
+                "paivs": 4572,
+                "lung": 1010,
+                "pfc": 993,
+                "tapvd": 981
+            },
+            "imbalance": 0.15699670211505734
+        },
+        "GruntingReport": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.18027473022266272
+        },
+        "Age": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "0-3_days": 12971,
+                "4-10_days": 3553,
+                "11-30_days": 3476
+            },
+            "imbalance": 0.1881347717552363
+        },
+        "LVH": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.14584686249858292
+        },
+        "DuctFlow": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 7248,
+            "freq_counts": {
+                "lt_to_rt": 10585,
+                "rt_to_lt": 2167
+            },
+            "imbalance": 0.34244593073208585
+        },
+        "CardiacMixing": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 1079,
+            "freq_counts": {
+                "complete": 10759,
+                "transp": 5588,
+                "mild": 2574
+            },
+            "imbalance": 0.132921242459771
+        },
+        "LungParench": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "normal": 14429,
+                "abnormal": 3811,
+                "congested": 1760
+            },
+            "imbalance": 0.30337010702373435
+        },
+        "LungFlow": {
+            "type": "Categorical",
+            "n_distinct": 3,
+            "n_missing": 0,
+            "freq_counts": {
+                "low": 9744,
+                "high": 6272,
+                "normal": 3984
+            },
+            "imbalance": 0.05754136285033018
+        },
+        "Sick": {
+            "type": "Boolean",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "imbalance": 0.09846838748932274
+        }
+    }
+}

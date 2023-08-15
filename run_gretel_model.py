@@ -8,7 +8,9 @@ import warnings
 from io import StringIO
 
 from commons.static_vals import N_BYTES_IN_MB
-from synthesizers.gretel_synthetics.sequential.dgan import DGAN, DGANConfig
+from synthesizers.gretel_synthetics.sequential.dgan.dgan import DGAN, DGANConfig
+from synthesizers.gretel_synthetics.tabular.actgan.actgan_wrapper import ACTGAN
+
 
 # time varying features, fixed attributes, categorical variables, a
 # and works well with many time sequence examples to train on.
@@ -137,6 +139,44 @@ def run_model(**kwargs):
         begin_sampling_time = time.time()
         synthetic_dataset = synthesizer.generate_dataframe(num_sequences)
         end_sampling_time = time.time()
+
+    elif synthesizer_name == "actgan": # sequential 
+
+        model = ACTGAN(
+                    verbose=True,
+                    # binary_encoder_cutoff=10, # use a binary encoder for data transforms if the cardinality of a column is below this value
+                    epochs=2)
+            # epoch_callback=epoch_tracker.add)   
+  
+        # ---------------------
+        # Train
+        # ---------------------
+        #  Store the print statements in a variable
+        captured_print_out = StringIO()
+        sys.stdout = captured_print_out
+
+        begin_train_time = time.time()
+        model.fit(real_dataset)
+        end_train_time = time.time()
+        
+        print("@"*100)
+        breakpoint()
+        # Store the print statements in a variable
+        # captured_print_out = StringIO()
+        # sys.stdout = captured_print_out
+
+        # ---------------------
+        # Sample
+        # ---------------------
+        # Params: 
+        # num_sequences: An integer >0 describing the number of sequences to sample
+        begin_sampling_time = time.time()
+        synthetic_dataset = model.sample(num_samples)
+        end_sampling_time = time.time()
+
+
+
+
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
     tracemalloc.stop()

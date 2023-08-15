@@ -3,6 +3,7 @@ from enum import Enum
 
 N_BYTES_IN_MB = 1000 * 1000
 
+
 class DataModalities(Enum):
     """"""
     TABULAR = "tabular"
@@ -20,23 +21,22 @@ EXP_SYNTHESIZERS = {
     DataModalities.TEXT.value: ["gpt", "lstm"]
 }
 
-# TODO: incomplete listing
-# datasets for each modality
 EXP_DATASETS = {
-    DataModalities.TABULAR.value: ["adult"],
-    DataModalities.SEQUENTIAL.value: ["nasdaq"],
+    DataModalities.TABULAR.value: ["adult", "census", "alarm", "child", "covtype", "credit",
+                                   "expedia_hotel_logs", "insurance", "itrusion", "drugs"],
+    DataModalities.SEQUENTIAL.value: ["nasdaq", "asu", "taxi"],
     DataModalities.TEXT.value: []
 }
 
-
 DEFAULT_EPOCH_VALUES = {
     "sdv": {
-        "par": 128, 
+        "par": 128,
         "ctgan": 300,
-        "tvae": 300, 
-        "gaussian_copula": 0 
+        "tvae": 300,
+        "gaussian_copula": 0
     },
     "gretel": {
-        "dgan": 400
+        "dgan": 400,
+        "actgan": 300
     }
 }
