@@ -16,10 +16,3 @@ Loss tracking
 
 Details (e.g., parameters)
 - {exp_synthesizer}_{exp_dataset_name}.log
-
-# tabular datasets 
-
-
-# https://hackernoon.com/10-best-datasets-for-time-series-analysis
-# sequential datasets 
-
