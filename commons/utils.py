@@ -1,38 +1,37 @@
 "Utility functions"
+import pandas as pd
 from sdv.datasets.demo import download_demo
 from sdv.metadata import SingleTableMetadata
 
-# def get_execution_scores_obj():
-#     return {
-#         "Synthesizer": [],
-#         "Dataset": [],
-#         # "Dataset_Size_MB": [],
-#         "Train_Time": [],
-#         "Peak_Memory_MB": [],
-#         "Synthesizer_Size_MB": [],
-#         "Sample_Time": [],
-#         "Device": []
-#         # "Evaluate_Time": [],
-#     }
 
-
-def detect_metadata_with_sdv(real_data_df):
+def detect_metadata_with_sdv(real_data_df: pd.DataFrame):
     """
+    Automatically detect the metadata based on your actual data using SDV API.
+    Args:
+        real_data_df: pandas.DataFrame 
+    Returns: 
+        metadata: SingleTableMetadata
     """
     metadata = SingleTableMetadata()
     metadata.detect_from_dataframe(data=real_data_df)
-    # pprint(metadata.to_dict())
 #     python_dict = metadata.to_dict()
     return metadata
 
 
-def get_dataset_with_sdv(modality, dataset_name):
+def get_dataset_with_sdv(modality: str, dataset_name: str):
     """
+    Get dataset from the SDV's public repository.
+    Args:
+        modality: valid values {"single_table", "sequential"}
+        dataset_name: valid datasets are listed below
+    Returns:
+        real_data: pandas.Dataframe
+        metadata: SingleTableMetadata
     ------------------------
     single-table: 
     ------------------------
     >> from sdv.datasets.demo import get_available_demos 
-    >> get_available_demos(modality='single_table')
+    >> get_available_demos(modality="single_table")
                         dataset_name  size_MB num_tables
         0                   KRK_v1     0.07          1
         1                    adult     3.91          1
@@ -61,7 +60,7 @@ def get_dataset_with_sdv(modality, dataset_name):
     sequential:
     ------------------------
     >> from sdv.datasets.demo import get_available_demos 
-    >> get_available_demos(modality='sequential')
+    >> get_available_demos(modality=sequential")
                                 dataset_name  size_MB num_tables
             0   ArticularyWordRecognition     8.61          1
             1          AtrialFibrillation     0.92          1

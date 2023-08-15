@@ -1,10 +1,12 @@
 .DS_Store
 **/__pycache__
+.ipynb_checkpoints
+.vscode
 
 # testing folders
 /az*
-/outputs
+/output*
 /data
 
 # temporary
-**.ipynb
+# **.ipynb
