@@ -7,8 +7,13 @@ from datetime import datetime
 
 import pandas as pd
 
-from commons.static_vals import DEFAULT_EPOCH_VALUES
-from commons.utils import detect_metadata_with_sdv, get_dataset_with_sdv
+from commons.static_vals import DEFAULT_EPOCH_VALUES, \
+    ML_CLASSIFICATION_TASK_DATASETS, \
+    ML_TASKS_TARGET_CLASS
+from commons.utils import detect_metadata_with_sdv, \
+    get_dataset_with_sdv, \
+    shuffle_and_split_dataframe, \
+    stratified_split_dataframe
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -23,8 +28,8 @@ if __name__ == "__main__":
                             Possible values - {ctgan, tvae, gaussian_copula, par, dgan, actgan}")
     parser.add_argument("--data", type=str, default="adult",
                         help="enter dataset name. \
-                        Possible values - {adult, census, alarm, child, covtype, \
-                        credit, expedia_hotel_logs, insurance, itrusion, drugs, \
+                        Possible values - {adult, census, child, covtype, \
+                        credit, insurance, intrusion, health_insurance, drugs, loan, \
                         nasdaq, taxi, asu}")
 
     parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
@@ -131,9 +136,32 @@ if __name__ == "__main__":
         real_dataset = pd.read_csv(
             f"sample_datasets/accidential_drug_deaths.csv")
         metadata = detect_metadata_with_sdv(real_dataset)
+    elif exp_dataset_name == "health_insurance":
+        real_dataset = pd.read_csv(
+            f"sample_datasets/health_insurance.csv")
+        metadata = detect_metadata_with_sdv(real_dataset)
+    elif exp_dataset_name == "loan":
+        real_dataset = pd.read_csv(
+            f"sample_datasets/personal_loan.csv")
+        metadata = detect_metadata_with_sdv(real_dataset)
     else:
         real_dataset, metadata = get_dataset_with_sdv(
             "single_table", exp_dataset_name)
+
+    train_dataset = real_dataset
+
+    # --------------
+    # Split and get training dataset
+    # -------------
+    if exp_data_modality == "tabular":
+        if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
+            (X_train, y_train) = stratified_split_dataframe(real_dataset,
+                                                            ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                                            True)
+            # Merge X_train and y_train columns horizontally
+            train_dataset = pd.concat([X_train, y_train], axis=1)
+        else:
+            train_dataset = shuffle_and_split_dataframe(real_dataset, True)
 
     # --------------
     # Run models
@@ -148,13 +176,16 @@ if __name__ == "__main__":
         LOGGER.info(
             (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
 
+        # print(real_dataset.shape, train_dataset.shape)
+        LOGGER.info(f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}"
+
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,
             exp_data=exp_dataset_name,
             use_gpu=use_gpu,
             num_epochs=num_epochs,
-            real_dataset=real_dataset,
+            train_dataset=train_dataset,
             metadata=metadata,
             output_path=output_path,
             sequential_details=sequential_details,
@@ -177,7 +208,7 @@ if __name__ == "__main__":
             exp_data=exp_dataset_name,
             use_gpu=use_gpu,
             num_epochs=num_epochs,
-            real_dataset=real_dataset,
+            train_dataset=train_dataset,
             metadata=metadata,
             output_path=output_path,
             sequential_details=sequential_details)

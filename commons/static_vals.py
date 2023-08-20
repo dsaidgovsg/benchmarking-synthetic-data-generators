@@ -40,3 +40,18 @@ DEFAULT_EPOCH_VALUES = {
         "actgan": 300
     }
 }
+
+ML_CLASSIFICATION_TASK_DATASETS = [
+    "adult", "census", "credit", "covtype", "loan", "intrusion"]
+ML_REGRESSION_TASK_DATASETS = ["health_insurance"]
+# drugs, child, car insurance
+
+ML_TASKS_TARGET_CLASS = {
+    "adult": "label",
+    "census": "label",
+    "credit": "label",
+    "covtype": "label",
+    "loan": "Personal Loan",
+    "intrusion": "label",
+    "health_insurance": "charges",
+}

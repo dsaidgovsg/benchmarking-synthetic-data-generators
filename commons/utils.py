@@ -147,7 +147,7 @@ def detect_distribution(column):
     return detected_distribution
 
 
-def stratified_split_dataframe(df, target_column, return_only_train=True, test_size=0.2, random_state=42):
+def stratified_split_dataframe(df, target_column, return_only_train_data=True, test_size=0.2, random_state=42):
     """
     Perform stratified splitting of a pandas DataFrame.
 
@@ -170,13 +170,13 @@ def stratified_split_dataframe(df, target_column, return_only_train=True, test_s
         X, y, test_size=test_size, stratify=y, random_state=random_state
     )
 
-    if return_only_train:
+    if return_only_train_data:
         return (X_train, y_train)
     else:
         return (X_train, y_train), (X_test, y_test)
 
 
-def shuffle_and_split_dataframe(df, return_only_train=True, test_size=0.2, random_state=42):
+def shuffle_and_split_dataframe(df, return_only_train_data=True, test_size=0.2, random_state=42):
     """
     Shuffle and split a pandas DataFrame into training and testing subsets.
 
@@ -199,7 +199,7 @@ def shuffle_and_split_dataframe(df, return_only_train=True, test_size=0.2, rando
         X, test_size=test_size, random_state=random_state
     )
 
-    if return_only_train:
+    if return_only_train_data:
         return X_train
     else:
         return (X_train, X_test)
