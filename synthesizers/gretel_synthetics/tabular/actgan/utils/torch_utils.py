@@ -2,7 +2,6 @@
 Utils for PyTorch
 """
 import pickle
-
 from io import BytesIO
 from typing import BinaryIO
 

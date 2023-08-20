@@ -5,13 +5,14 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
     import numpy as np
-
-    from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import ColumnEncoding
     from rdt.transformers.base import BaseTransformer
+
+    from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import \
+        ColumnEncoding
 
 
 class ColumnType(str, Enum):

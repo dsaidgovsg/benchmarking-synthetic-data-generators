@@ -1,36 +1,26 @@
 import logging
-
 from typing import Callable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
 import torch
-
-from synthesizers.gretel_synthetics.tabular.actgan.base import BaseSynthesizer, random_state
-from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import (
-    BinaryColumnEncoding,
-    FloatColumnEncoding,
-    OneHotColumnEncoding,
-)
-
-from synthesizers.gretel_synthetics.tabular.actgan.data_sampler import DataSampler
-from synthesizers.gretel_synthetics.tabular.actgan.data_transformer import DataTransformer
-from synthesizers.gretel_synthetics.tabular.actgan.structures import ColumnType, EpochInfo
-from synthesizers.gretel_synthetics.tabular.actgan.train_data import TrainData
 # from synthesizers.gretel_synthetics.typing import DFLike
 from packaging import version
 from torch import optim
-from torch.nn import (
-    BatchNorm1d,
-    Dropout,
-    functional,
-    LeakyReLU,
-    Linear,
-    Module,
-    ReLU,
-    Sequential,
-)
+from torch.nn import (BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU,
+                      Sequential, functional)
 
+from synthesizers.gretel_synthetics.tabular.actgan.base import (
+    BaseSynthesizer, random_state)
+from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import (
+    BinaryColumnEncoding, FloatColumnEncoding, OneHotColumnEncoding)
+from synthesizers.gretel_synthetics.tabular.actgan.data_sampler import \
+    DataSampler
+from synthesizers.gretel_synthetics.tabular.actgan.data_transformer import \
+    DataTransformer
+from synthesizers.gretel_synthetics.tabular.actgan.structures import (
+    ColumnType, EpochInfo)
+from synthesizers.gretel_synthetics.tabular.actgan.train_data import TrainData
 from synthesizers.gretel_synthetics.tabular.actgan.typing import DFLike
 
 logging.basicConfig()

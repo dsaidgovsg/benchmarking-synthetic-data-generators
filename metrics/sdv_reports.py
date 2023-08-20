@@ -1,8 +1,9 @@
 "Quality and dignostic reports from SDV"
 
 import pandas as pd
-from sdmetrics.reports.single_table import QualityReport
+# from sdmetrics.reports.single_table import QualityReport
 from sdmetrics.reports.single_table import DiagnosticReport
+from sdv.evaluation.single_table import evaluate_quality, run_diagnostic
 
 
 def get_sdv_quality_report(
@@ -13,17 +14,18 @@ def get_sdv_quality_report(
         The quality report captures the Column Shapes, Column Pair Trends and Cardinality.
         Ref: https://docs.sdv.dev/sdmetrics/reports/quality-report
     """
-    report = QualityReport()
-    report.generate(real_data, synthetic_data, metadata)
+    report = evaluate_quality(real_data, synthetic_data, metadata)
     # score = report.get_score()
     # properties = report.get_properties()
     # column_shapes = report.get_details(property_name='Column Shapes')
     # column_pair_trends = report.get_details(property_name='Column Pair Trends')
     return {
         "score": report.get_score(),
-        "properties": report.get_properties(),
-        "column_shapes": report.get_details(property_name='Column Shapes'),
-        "column_pair_trends": report.get_details(property_name='Column Pair Trends')
+        # "properties": report.get_properties(),  # DF
+        # # DF
+        # "column_shapes": report.get_details(property_name='Column Shapes'),
+        # # DF
+        # "column_pair_trends": report.get_details(property_name='Column Pair Trends')
     }
 
 
@@ -37,8 +39,7 @@ def get_sdv_diagnostic_report(real_data: pd.DataFrame,
         - Boundaries: Does the synthetic data respect the boundaries set by the real data?
         Ref: https://docs.sdv.dev/sdmetrics/reports/diagnostic-report
     """
-    report = DiagnosticReport()
-    report.generate(real_data, synthetic_data, metadata)
+    report = run_diagnostic(real_data, synthetic_data, metadata)
     # results = report.get_results()
     # properties = report.get_properties()
     # synthesis = report.get_details(property_name='Synthesis')
@@ -47,7 +48,7 @@ def get_sdv_diagnostic_report(real_data: pd.DataFrame,
     return {
         "results": report.get_results(),
         "properties":  report.get_properties(),
-        "synthesis": report.get_details(property_name='Synthesis'),
-        "coverage": report.get_details(property_name='Coverage'),
-        "boundaries": report.get_details(property_name='Boundaries')
+        # "synthesis": report.get_details(property_name='Synthesis'),  # DF
+        # "coverage": report.get_details(property_name='Coverage'),  # DF
+        # "boundaries": report.get_details(property_name='Boundaries')  # DF
     }

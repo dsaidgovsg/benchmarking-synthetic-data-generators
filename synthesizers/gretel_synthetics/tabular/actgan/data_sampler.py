@@ -2,16 +2,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import numpy as np
 
-from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import OneHotColumnEncoding
+from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import \
+    OneHotColumnEncoding
 from synthesizers.gretel_synthetics.tabular.actgan.structures import ColumnType
 from synthesizers.gretel_synthetics.tabular.actgan.train_data import TrainData
 
 if TYPE_CHECKING:
-    from synthesizers.gretel_synthetics.tabular.actgan.structures import ColumnIdInfo, ColumnTransformInfo
+    from synthesizers.gretel_synthetics.tabular.actgan.structures import (
+        ColumnIdInfo, ColumnTransformInfo)
 
 
 @dataclass

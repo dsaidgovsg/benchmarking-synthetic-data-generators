@@ -4,8 +4,8 @@ from contextlib import contextmanager
 
 import numpy as np
 import pandas as pd
-
-from rdt.transformers.numerical import FloatFormatter, INTEGER_BOUNDS, MAX_DECIMALS
+from rdt.transformers.numerical import (INTEGER_BOUNDS, MAX_DECIMALS,
+                                        FloatFormatter)
 
 
 @contextmanager

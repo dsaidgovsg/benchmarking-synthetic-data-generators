@@ -2,30 +2,34 @@
 from __future__ import annotations
 
 import logging
-
 from contextlib import contextmanager
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING, Union
+from typing import (TYPE_CHECKING, Callable, Dict, List, Optional, Sequence,
+                    Tuple, Union)
 
 import numpy as np
 import pandas as pd
-
-from synthesizers.gretel_synthetics.tabular.actgan.actgan import ACTGANSynthesizer
-from synthesizers.gretel_synthetics.tabular.actgan.columnar_df import ColumnarDF
-from synthesizers.gretel_synthetics.tabular.actgan.sdv_detector import SDVTableMetadata
-from synthesizers.gretel_synthetics.tabular.actgan.utils import rdt_patches, torch_utils
-
 from rdt.transformers import BaseTransformer
 
+from synthesizers.gretel_synthetics.tabular.actgan.actgan import \
+    ACTGANSynthesizer
+from synthesizers.gretel_synthetics.tabular.actgan.columnar_df import \
+    ColumnarDF
+from synthesizers.gretel_synthetics.tabular.actgan.sdv_detector import \
+    SDVTableMetadata
+from synthesizers.gretel_synthetics.tabular.actgan.utils import (rdt_patches,
+                                                                 torch_utils)
 from synthesizers.sdv.tabular.base_model import BaseSynthesizer
 
 # from sdv.tabular.base import BaseTabularModel
 
 if TYPE_CHECKING:
-    from synthesizers.gretel_synthetics.tabular.actgan.structures import EpochInfo
     from numpy.random import RandomState
     from sdv.constraints import Constraint
     from sdv.metadata import Metadata
     from torch import Generator
+
+    from synthesizers.gretel_synthetics.tabular.actgan.structures import \
+        EpochInfo
 
 EPOCH_CALLBACK = "epoch_callback"
 
