@@ -39,7 +39,7 @@ def run_model(**kwargs):
     use_gpu=kwargs["use_gpu"]
     num_epochs=kwargs["num_epochs"]
     output_path=kwargs["output_path"]
-    real_dataset=kwargs["real_dataset"]
+    train_dataset=kwargs["train_dataset"]
     metadata=kwargs["metadata"]
     # num_samples=kwargs["num_samples"]
     
@@ -53,7 +53,7 @@ def run_model(**kwargs):
         discrete_attributes = kwargs["sequential_details"]["discrete_attributes"]
 
     # synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
-    num_samples = len(real_dataset)
+    num_samples = len(train_dataset)
 
     # TODO: Might need to save metadata JSON file for some datasets
     # metadata = detect_metadata(real_data)
@@ -118,7 +118,7 @@ def run_model(**kwargs):
         sys.stdout = captured_print_out
 
         begin_train_time = time.time()
-        synthesizer.train_dataframe(real_dataset,
+        synthesizer.train_dataframe(train_dataset,
                     attribute_columns=seq_fixed_attributes,
                     feature_columns=seq_varying_attributes,
                     example_id_column=entity,
@@ -156,7 +156,7 @@ def run_model(**kwargs):
         sys.stdout = captured_print_out
 
         begin_train_time = time.time()
-        model.fit(real_dataset)
+        model.fit(train_dataset)
         end_train_time = time.time()
         
         print("@"*100)
@@ -198,10 +198,10 @@ def run_model(**kwargs):
         json.dump(captured_print_out, log_file)
 
     # Get the memory usage of the real and synthetic dataFrame in MB
-    real_dataset_size_deep = real_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
+    train_dataset_size_deep = train_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
     synthetic_dataset_size_deep = synthetic_dataset.memory_usage(deep=True).sum() / N_BYTES_IN_MB
 
-    real_dataset_size = real_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
+    train_dataset_size = train_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
     synthetic_dataset_size = synthetic_dataset.memory_usage(deep=False).sum() / N_BYTES_IN_MB
 
     # Save model as Pytorch checkpoint
@@ -217,8 +217,8 @@ def run_model(**kwargs):
         "synthesizer": synthesizer_name, 
         
         "dataset": dataset_name,
-        "num_rows": real_dataset.shape[0], 
-        "num_cols": real_dataset.shape[1], 
+        "num_rows": train_dataset.shape[0], 
+        "num_cols": train_dataset.shape[1], 
         "num_sampled_rows": num_samples,
         
         "device": "GPU" if use_gpu else "CPU",
@@ -233,10 +233,10 @@ def run_model(**kwargs):
         "synthesizer_size": synthesizer_size, 
         
         "synthetic_dataset_size_mb_deep": synthetic_dataset_size_deep,
-        "real_dataset_size_mb_deep": real_dataset_size_deep,
+        "train_dataset_size_mb_deep": train_dataset_size_deep,
         
         "synthetic_dataset_size_mb": synthetic_dataset_size,
-        "real_dataset_size_mb": real_dataset_size
+        "train_dataset_size_mb": train_dataset_size
     }
     
     # ---------------------
