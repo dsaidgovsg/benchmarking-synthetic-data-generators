@@ -177,8 +177,10 @@ if __name__ == "__main__":
             (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
 
         # print(real_dataset.shape, train_dataset.shape)
-        LOGGER.info(f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}"
+        LOGGER.info(
+            f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
+        num_samples = len(real_dataset)
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,
@@ -187,6 +189,7 @@ if __name__ == "__main__":
             num_epochs=num_epochs,
             train_dataset=train_dataset,
             metadata=metadata,
+            num_samples=num_samples,
             output_path=output_path,
             sequential_details=sequential_details,
             get_quality_report=get_quality_report,
