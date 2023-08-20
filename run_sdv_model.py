@@ -57,6 +57,7 @@ def run_model(**kwargs):
     output_path = kwargs["output_path"]
     train_dataset = kwargs["train_dataset"]
     metadata = kwargs["metadata"]
+    num_samples = kwargs["num_samples"]
     generate_sdv_quality_report = kwargs["get_quality_report"]
     generate_sdv_diagnostic_report = kwargs["get_diagnostic_report"]
     # num_samples=kwargs["num_samples"]
@@ -67,7 +68,7 @@ def run_model(**kwargs):
         seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"]
 
     synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
-    num_samples = len(train_dataset)
+    # num_samples = len(train_dataset)
 
     # TODO: Might need to save metadata JSON file for some datasets
     # metadata = detect_metadata(real_data)
