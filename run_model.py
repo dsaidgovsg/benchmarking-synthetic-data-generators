@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 
 from commons.static_vals import DEFAULT_EPOCH_VALUES
-from commons.utils import get_dataset_with_sdv, detect_metadata_with_sdv
+from commons.utils import detect_metadata_with_sdv, get_dataset_with_sdv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -29,6 +29,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
                         help="whether to use GPU device(s)")
+    parser.add_argument("--get_quality_report", "--qr", type=bool, default=False,
+                        help="whether to generate SDV quality report")
+    parser.add_argument("--get_diagnostic_report", "--dr", type=bool, default=False,
+                        help="whether to generate SDV diagnostic report")
     # default epoch is set as 0 as statistical models do not need epochs
     parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
@@ -48,6 +52,9 @@ if __name__ == "__main__":
     num_epochs: int = args.num_epochs
     data_folder: str = args.data_folder
     output_folder: str = args.output_folder
+
+    get_quality_report: bool = args.get_quality_report
+    get_diagnostic_report: bool = args.get_diagnostic_report
 
     # TODO: Add assertions to validate the inputs
     # assert exp_data_modality in VALID_DATA_MODALITIES
@@ -150,7 +157,9 @@ if __name__ == "__main__":
             real_dataset=real_dataset,
             metadata=metadata,
             output_path=output_path,
-            sequential_details=sequential_details)
+            sequential_details=sequential_details,
+            get_quality_report=get_quality_report,
+            get_diagnostic_report=get_diagnostic_report)
 
     elif exp_library == "gretel":
         from run_gretel_model import run_model

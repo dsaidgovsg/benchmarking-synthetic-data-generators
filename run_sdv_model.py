@@ -8,10 +8,11 @@ import tracemalloc
 import warnings
 from io import StringIO
 
-
 import sdv
-from commons.static_vals import N_BYTES_IN_MB, DataModalities
 
+from commons.static_vals import N_BYTES_IN_MB, DataModalities
+from metrics.sdv_reports import (get_sdv_diagnostic_report,
+                                 get_sdv_quality_report)
 # SDV synthesizers
 from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
 from synthesizers.sdv.tabular.copulas_synthesizer import \
@@ -56,6 +57,8 @@ def run_model(**kwargs):
     output_path = kwargs["output_path"]
     real_dataset = kwargs["real_dataset"]
     metadata = kwargs["metadata"]
+    generate_sdv_quality_report = kwargs["get_quality_report"]
+    generate_sdv_diagnostic_report = kwargs["get_diagnostic_report"]
     # num_samples=kwargs["num_samples"]
 
     if kwargs["sequential_details"]:
@@ -226,6 +229,41 @@ def run_model(**kwargs):
     synthetic_dataset.to_csv(
         f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv")
 
+    if generate_sdv_quality_report:
+        print("Generating Quality Report", "#"*10)
+
+        start_time = time.time()
+        quality_report_obj = get_sdv_quality_report(
+            real_dataset,
+            synthetic_dataset,
+            metadata
+        )
+        execution_scores["quality_report_time_sec"] = time.time() - start_time
+
+        print("Quality: ", quality_report_obj["score"])
+        LOGGER.info("Quality: ", quality_report_obj["score"])
+
+        # save execution data
+        with open(f"{output_path}{dataset_name}_{synthesizer_name}_quality_report.json", "w") as json_file:
+            json.dump(quality_report_obj, json_file)
+
+    if generate_sdv_diagnostic_report:
+        print("Generating Diagnostic Report",  "#"*10)
+        start_time = time.time()
+        diagnostic_report_obj = get_sdv_diagnostic_report(
+            real_dataset,
+            synthetic_dataset,
+            metadata
+        )
+        execution_scores["diagnostic_report_time_sec"] = time.time() - \
+            start_time
+        print("Diagnostics: ", diagnostic_report_obj["results"])
+        LOGGER.info("Diagnostics: ", diagnostic_report_obj["results"])
+
+        # save execution data
+        with open(f"{output_path}{dataset_name}_{synthesizer_name}_diagnostic_report.json", "w") as json_file:
+            json.dump(diagnostic_report_obj, json_file)
+
     # save execution data
     with open(f"{output_path}{dataset_name}_{synthesizer_name}_execution_scores.json", "w") as json_file:
         json.dump(execution_scores, json_file)
@@ -233,17 +271,3 @@ def run_model(**kwargs):
     print("-"*100)
     print(f"{synthesizer_name.upper()} trained  on {dataset_name.upper()} dataset| {num_samples} sampled | Files saved!")
     print("-"*100)
-
-    # quality_report_obj = get_sdv_quality_report(
-    #     real_dataset,
-    #     synthetic_dataset,
-    #     metadata
-    # )
-    # print("quality_report_obj: ", quality_report_obj)
-
-    # diagnostic_report_obj = get_sdv_diagnostic_report(
-    #     real_dataset,
-    #     synthetic_dataset,
-    #     metadata
-    # )
-    # print("diagnostic_report_obj: ", diagnostic_report_obj)

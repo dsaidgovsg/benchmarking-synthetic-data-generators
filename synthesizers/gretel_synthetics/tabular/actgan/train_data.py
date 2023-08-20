@@ -4,7 +4,8 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
-from synthesizers.gretel_synthetics.tabular.actgan.structures import ColumnTransformInfo
+from synthesizers.gretel_synthetics.tabular.actgan.structures import \
+    ColumnTransformInfo
 
 
 class TrainData:

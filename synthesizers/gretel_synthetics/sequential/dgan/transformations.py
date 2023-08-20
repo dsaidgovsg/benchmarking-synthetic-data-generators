@@ -8,8 +8,8 @@ import numpy as np
 from category_encoders import BinaryEncoder, OneHotEncoder
 from scipy.stats import mode
 
-from synthesizers.gretel_synthetics.sequential.dgan.config import (Normalization,
-                                                              OutputType)
+from synthesizers.gretel_synthetics.sequential.dgan.config import (
+    Normalization, OutputType)
 
 
 def _new_uuid() -> str:

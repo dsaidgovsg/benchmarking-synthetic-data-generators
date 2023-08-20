@@ -58,12 +58,12 @@ import torch
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 
 from synthesizers.gretel_synthetics.sequential.dgan.config import (DfStyle,
-                                                              DGANConfig,
-                                                              OutputType)
-from synthesizers.gretel_synthetics.sequential.dgan.errors import (DataError,
-                                                              InternalError,
-                                                              ParameterError)
-from synthesizers.gretel_synthetics.sequential.dgan.structures import ProgressInfo
+                                                                   DGANConfig,
+                                                                   OutputType)
+from synthesizers.gretel_synthetics.sequential.dgan.errors import (
+    DataError, InternalError, ParameterError)
+from synthesizers.gretel_synthetics.sequential.dgan.structures import \
+    ProgressInfo
 from synthesizers.gretel_synthetics.sequential.dgan.torch_modules import (
     Discriminator, Generator)
 from synthesizers.gretel_synthetics.sequential.dgan.transformations import (

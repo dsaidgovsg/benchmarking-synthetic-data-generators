@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-
 from typing import Dict, List, Union
 
 import numpy as np

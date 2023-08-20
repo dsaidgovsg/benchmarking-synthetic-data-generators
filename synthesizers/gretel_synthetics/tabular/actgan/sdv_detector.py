@@ -3,17 +3,19 @@ Helpers for interacting with the SDV package.
 """
 from __future__ import annotations
 
-from typing import Dict, FrozenSet, Optional, Tuple, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Dict, FrozenSet, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-
-from synthesizers.gretel_synthetics.tabular.actgan.dates_detector import detect_datetimes
 from rdt.transformers import BaseTransformer
 from rdt.transformers.datetime import UnixTimestampEncoder
 
+from synthesizers.gretel_synthetics.tabular.actgan.dates_detector import \
+    detect_datetimes
+
 if TYPE_CHECKING:
-    from synthesizers.gretel_synthetics.tabular.actgan.dates_detector import DateTimeColumn
+    from synthesizers.gretel_synthetics.tabular.actgan.dates_detector import \
+        DateTimeColumn
 
 # Matches the expected dictionary schemas for SDV metadata
 FieldTypesT = Dict[str, Dict[str, str]]

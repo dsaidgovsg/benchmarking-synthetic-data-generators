@@ -1,29 +1,19 @@
 import logging
 import warnings
-
 from typing import Any, Dict, FrozenSet, List, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
+from rdt.transformers import BinaryEncoder, OneHotEncoder
 
 from synthesizers.gretel_synthetics.tabular.actgan.column_encodings import (
-    BinaryColumnEncoding,
-    FloatColumnEncoding,
-    OneHotColumnEncoding,
-)
+    BinaryColumnEncoding, FloatColumnEncoding, OneHotColumnEncoding)
 from synthesizers.gretel_synthetics.tabular.actgan.structures import (
-    ColumnIdInfo,
-    ColumnTransformInfo,
-    ColumnType,
-)
+    ColumnIdInfo, ColumnTransformInfo, ColumnType)
 from synthesizers.gretel_synthetics.tabular.actgan.train_data import TrainData
 from synthesizers.gretel_synthetics.tabular.actgan.transformers import (
-    BinaryEncodingTransformer,
-    ClusterBasedNormalizer,
-)
-
+    BinaryEncodingTransformer, ClusterBasedNormalizer)
 from synthesizers.gretel_synthetics.tabular.actgan.typing import DFLike
-from rdt.transformers import BinaryEncoder, OneHotEncoder
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

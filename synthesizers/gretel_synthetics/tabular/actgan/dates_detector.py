@@ -3,7 +3,6 @@ Automatic datetime detection for tabluar data
 """
 import itertools
 import re
-
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta

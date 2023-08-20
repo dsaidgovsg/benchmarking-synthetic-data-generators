@@ -1,16 +1,16 @@
-import os 
-import sys
 import json
 import logging
+import os
+import sys
 import time
 import tracemalloc
 import warnings
 from io import StringIO
 
 from commons.static_vals import N_BYTES_IN_MB
-from synthesizers.gretel_synthetics.sequential.dgan.dgan import DGAN, DGANConfig
+from synthesizers.gretel_synthetics.sequential.dgan.dgan import (DGAN,
+                                                                 DGANConfig)
 from synthesizers.gretel_synthetics.tabular.actgan.actgan_wrapper import ACTGAN
-
 
 # time varying features, fixed attributes, categorical variables, a
 # and works well with many time sequence examples to train on.

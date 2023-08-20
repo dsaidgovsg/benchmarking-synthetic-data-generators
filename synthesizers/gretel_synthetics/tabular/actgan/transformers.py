@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import re
 import uuid
-
 from functools import partial
 from typing import Any, Dict, FrozenSet, List, Optional
 
 import numpy as np
 import pandas as pd
-
 from category_encoders import BaseNEncoder, BinaryEncoder
-from synthesizers.gretel_synthetics.tabular.actgan.typing import ListOrSeriesOrDF, SeriesOrDFLike
 from rdt.transformers import BaseTransformer
-from rdt.transformers import ClusterBasedNormalizer as RDTClusterBasedNormalizer
+from rdt.transformers import \
+    ClusterBasedNormalizer as RDTClusterBasedNormalizer
 from rdt.transformers import FloatFormatter
+
+from synthesizers.gretel_synthetics.tabular.actgan.typing import (
+    ListOrSeriesOrDF, SeriesOrDFLike)
 
 MODE = "mode"
 VALID_ROUNDING_MODES = (MODE,)

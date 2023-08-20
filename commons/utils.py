@@ -1,7 +1,11 @@
 "Utility functions"
+import numpy as np
 import pandas as pd
+from scipy import stats
 from sdv.datasets.demo import download_demo
 from sdv.metadata import SingleTableMetadata
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KernelDensity
 
 
 def detect_metadata_with_sdv(real_data_df: pd.DataFrame):
@@ -100,3 +104,102 @@ def get_dataset_with_sdv(modality: str, dataset_name: str):
         dataset_name=dataset_name,
     )
     return real_data, metadata
+
+
+def detect_distribution(column):
+    """
+    Detects the distribution that best fits the data in a given column.
+
+    Args:
+    - column (pandas.Series): The input column containing numerical data.
+
+    Returns:
+    - detected_distribution (str): The name of the detected distribution.
+    """
+
+    # Removing NaN values from the column
+    data = column.dropna()
+
+    # Calculate basic statistics
+    mean = data.mean()
+    std = data.std()
+    skewness = data.skew()
+
+    # Fit different distributions and calculate goodness of fit scores
+    distribution_scores = {
+        'norm': np.abs(stats.norm.fit(data)[1] - std),
+        'beta': np.abs(stats.beta.fit(data)[1] - std),
+        'truncnorm': np.abs(stats.truncnorm.fit(data)[1] - std),
+        'uniform': np.abs(stats.uniform.fit(data)[1] - std),
+        'gamma': np.abs(stats.gamma.fit(data)[1] - std)
+    }
+
+    # Fit Gaussian KDE and calculate log-likelihood
+    kde = KernelDensity(bandwidth=0.2).fit(data.values.reshape(-1, 1))
+    log_likelihood = kde.score_samples(data.values.reshape(-1, 1)).sum()
+
+    distribution_scores['gaussian_kde'] = -log_likelihood
+
+    # Find the distribution with the smallest score
+    detected_distribution = min(
+        distribution_scores, key=distribution_scores.get)
+
+    return detected_distribution
+
+
+def stratified_split_dataframe(df, target_column, return_only_train=True, test_size=0.2, random_state=42):
+    """
+    Perform stratified splitting of a pandas DataFrame.
+
+    Args:
+    - df (pandas.DataFrame): The input DataFrame.
+    - target_column (str): The name of the target column containing class labels.
+    - test_size (float): The proportion of the dataset to include in the test split.
+    - random_state (int or None): Seed for the random number generator.
+
+    Returns:
+    - X_train (pandas.DataFrame): Training features.
+    - X_test (pandas.DataFrame): Test features.
+    - y_train (pandas.Series): Training target.
+    - y_test (pandas.Series): Test target.
+    """
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, stratify=y, random_state=random_state
+    )
+
+    if return_only_train:
+        return (X_train, y_train)
+    else:
+        return (X_train, y_train), (X_test, y_test)
+
+
+def shuffle_and_split_dataframe(df, return_only_train=True, test_size=0.2, random_state=42):
+    """
+    Shuffle and split a pandas DataFrame into training and testing subsets.
+
+    Args:
+    - df (pandas.DataFrame): The input DataFrame.
+    - test_size (float): The proportion of the dataset to include in the test split.
+    - random_state (int or None): Seed for the random number generator.
+
+    Returns:
+    - X_train (pandas.DataFrame): Training features.
+    - X_test (pandas.DataFrame): Test features.
+    """
+    # Shuffle the DataFrame
+    shuffled_df = df.sample(
+        frac=1, random_state=random_state).reset_index(drop=True)
+
+    X = shuffled_df
+
+    X_train, X_test = train_test_split(
+        X, test_size=test_size, random_state=random_state
+    )
+
+    if return_only_train:
+        return X_train
+    else:
+        return (X_train, X_test)
