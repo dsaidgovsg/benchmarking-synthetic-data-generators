@@ -52,7 +52,8 @@ if __name__ == "__main__":
     exp_data_modality: str = args.modality
     exp_synthesizer: str = args.synthesizer
     exp_dataset_name: str = args.data
-
+    
+    print("args.use_gpu:  ------> ", args.use_gpu)
     use_gpu: bool = args.use_gpu
     num_epochs: int = args.num_epochs
     data_folder: str = args.data_folder
@@ -181,6 +182,7 @@ if __name__ == "__main__":
             f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
         num_samples = len(real_dataset)
+        print("******use_gpu*********: ", use_gpu)
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,

@@ -11,3 +11,5 @@
 # temporary
 # **.ipynb
 kddcup.csv
+metrics/backup
+chicago_taxi_trips/
