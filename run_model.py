@@ -182,7 +182,6 @@ if __name__ == "__main__":
             f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
         num_samples = len(real_dataset)
-        print("******use_gpu*********: ", use_gpu)
         run_model(
             exp_data_modality=exp_data_modality,
             exp_synthesizer=exp_synthesizer,
