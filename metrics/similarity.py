@@ -53,7 +53,7 @@ def compute_correlation_similarity(real_data, synthetic_data, cols):
     # real_log_corr = np.sign(real_corr) * np.log(abs(real_corr))
     # synthetic_log_corr = np.sign(synthetic_corr) * np.log(abs(synthetic_corr))
 
-    return corr_dist
+    return corr_dist, real_corr["ax"], synthetic_corr["ax"]
 
 
 def compute_statistic_similarity(real_col, synthetic_col, statistic):
