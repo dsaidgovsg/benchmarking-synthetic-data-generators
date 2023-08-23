@@ -1,10 +1,9 @@
 """Get Machine learing efficacy"""
-from sdmetrics.single_table import \
-    BinaryAdaBoostClassifier, \
-    BinaryDecisionTreeClassifier, \
-    BinaryLogisticRegression, \
-    BinaryMLPClassifier
-from sdmetrics.single_table import LinearRegression, MLPRegressor
+from sdmetrics.single_table import (BinaryAdaBoostClassifier,
+                                    BinaryDecisionTreeClassifier,
+                                    BinaryLogisticRegression,
+                                    BinaryMLPClassifier, LinearRegression,
+                                    MLPRegressor)
 
 
 def compute_ml_classification(test_data, train_data, target_column, metadata, ml_model):

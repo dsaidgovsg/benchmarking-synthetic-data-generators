@@ -1,11 +1,10 @@
 import numpy as np
 # import pandas as pd
 from dython.nominal import associations
-from scipy.stats import wasserstein_distance
 from scipy.spatial.distance import jensenshannon
-from sklearn.preprocessing import MinMaxScaler
-
+from scipy.stats import wasserstein_distance
 from sdmetrics.single_column import StatisticSimilarity
+from sklearn.preprocessing import MinMaxScaler
 
 
 def compute_correlation_similarity(real_data, synthetic_data, cols):
