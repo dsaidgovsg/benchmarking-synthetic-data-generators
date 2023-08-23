@@ -4,7 +4,7 @@ from sdmetrics.single_column import CategoryCoverage
 from sdmetrics.single_column import MissingValueSimilarity
 
 
-def get_domain_coverage(real_col, synthetic_col, col_data_type):
+def compute_domain_coverage(real_col, synthetic_col, col_data_type):
     """
     Calculate the domain coverage score for a given column.
 
@@ -32,7 +32,7 @@ def get_domain_coverage(real_col, synthetic_col, col_data_type):
     return domain_coverage_score
 
 
-def get_missing_values_coverage_score(real_col, synthetic_col):
+def compute_missing_values_coverage(real_col, synthetic_col):
     """
     Calculate the missing values coverage score for a given column.
 
@@ -90,7 +90,7 @@ def _calculate_num_outliers(data):
     return num_outliers, total_points
 
 
-def get_outlier_coverage_score(real_col, synthetic_col):
+def compute_outlier_coverage(real_col, synthetic_col):
     """
     Calculate the outlier coverage score between real and synthetic datasets.
 

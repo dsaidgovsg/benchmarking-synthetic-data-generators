@@ -2,7 +2,7 @@
 from enum import Enum
 
 N_BYTES_IN_MB = 1000 * 1000
-
+ROUNDING_VAL = 6
 
 class DataModalities(Enum):
     """"""
@@ -55,3 +55,8 @@ ML_TASKS_TARGET_CLASS = {
     "intrusion": "label",
     "health_insurance": "charges",
 }
+
+ML_CLASSIFICATION_MODELS = ["adaboost", "decision_tree", "logistic", "mlp"]
+ML_REGRESSION_MODELS = ["linear", "mlp"]
+
+SIMILARITY_CHECK_STATISTICS = ["mean", "median", "std"]

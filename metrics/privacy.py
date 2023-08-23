@@ -4,7 +4,39 @@ from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 
 
-def calculate_nearest_neighbor_metrics(distances):
+from sdmetrics.single_table import NewRowSynthesis
+
+def compute_new_row_synthesis(real_data, synthetic_data, metadata, 
+                                    numerical_match_tolerance=0.01, 
+                                    synthetic_sample_size=None):
+    """
+    Compute the New Row Synthesis score between real and synthetic datasets.
+
+    Parameters:
+        real_data (pd.DataFrame): Real dataset.
+        synthetic_data (pd.DataFrame): Synthetic dataset.
+        metadata (dict): Metadata describing the columns.
+        numerical_match_tolerance (float, optional): Tolerance for numerical value matching.
+            Defaults to 0.01 (1%).
+        synthetic_sample_size (int, optional): Number of synthetic rows to sample before computing.
+            If None, use all synthetic data. Defaults to None.
+
+    Returns:
+        new_row_synthesis_score (float): The computed New Row Synthesis score.
+    """
+    # Calculate the New Row Synthesis score using the metric
+    new_row_synthesis_score = NewRowSynthesis.compute(
+        real_data=real_data,
+        synthetic_data=synthetic_data,
+        metadata=metadata,
+        numerical_match_tolerance=numerical_match_tolerance,
+        synthetic_sample_size=synthetic_sample_size
+    )
+    
+    return new_row_synthesis_score
+
+
+def _compute_nearest_neighbor_metrics(distances):
     """
     Calculate nearest neighbor ratios and fifth percentiles of distances.
 
@@ -24,7 +56,7 @@ def calculate_nearest_neighbor_metrics(distances):
     return nn_ratios, fifth_percentiles
 
 
-def calculate_distance_to_closest_records_metrics(real_data, synthetic_data, data_percent=15):
+def compute_distance_to_closest_records(real_data, synthetic_data, data_percent=15):
     """
     Calculate distance to closest records metrics.
 
@@ -60,9 +92,9 @@ def calculate_distance_to_closest_records_metrics(real_data, synthetic_data, dat
         df_fake_scaled, Y=None, metric='minkowski', n_jobs=-1)
 
     # Calculate nearest neighbor metrics
-    nn_ratios_rf, fifth_perc_rf = calculate_nearest_neighbor_metrics(dist_rf)
-    nn_ratios_rr, fifth_perc_rr = calculate_nearest_neighbor_metrics(dist_rr)
-    nn_ratios_ff, fifth_perc_ff = calculate_nearest_neighbor_metrics(dist_ff)
+    nn_ratios_rf, fifth_perc_rf = _compute_nearest_neighbor_metrics(dist_rf)
+    nn_ratios_rr, fifth_perc_rr = _compute_nearest_neighbor_metrics(dist_rr)
+    nn_ratios_ff, fifth_perc_ff = _compute_nearest_neighbor_metrics(dist_ff)
 
     # Store results in a dictionary
     results = {
