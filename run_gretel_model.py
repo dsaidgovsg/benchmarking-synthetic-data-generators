@@ -129,7 +129,7 @@ def run_model(**kwargs):
         end_train_time = time.time()
 
         # Store the print statements in a variable
-        # captured_print_out = StringIO()
+        # captured_print_out = StringsklearnIO()
         # sys.stdout = captured_print_out
 
         # ---------------------

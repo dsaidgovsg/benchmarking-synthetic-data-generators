@@ -13,3 +13,5 @@
 kddcup.csv
 metrics/backup
 chicago_taxi_trips/
+test.py
+metrics_output

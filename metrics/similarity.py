@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sdmetrics.single_column import StatisticSimilarity
 
 
-def get_correlation_similarity_score(real_data, synthetic_data, metadata):
+def compute_correlation_similarity(real_data, synthetic_data, cols):
     """
     Calculate similarity scores between real and synthetic datasets.
 
@@ -24,35 +24,39 @@ def get_correlation_similarity_score(real_data, synthetic_data, metadata):
         - Pearson's R for continuous-continuous cases
         - Correlation Ratio for categorical-continuous cases
         - Cramer's V or Theil's U for categorical-categorical cases
+        - Ref: https://shakedzy.xyz/dython/modules/nominal/
     """
     # TODO: Compute nominal and numerical columns from metadata
-    nominal_columns = []  # List of nominal columns
-    numerical_columns = []  # List of numerical columns
+    nominal_columns = cols["categorical"]  # List of nominal columns
+    # numerical_columns = []  # List of numerical columns
 
     # Compute correlation matrices for real and synthetic datasets
     real_corr = associations(real_data,
                              nominal_columns=nominal_columns,
                              nom_nom_assoc='theil',
                              nom_num_assoc='correlation_ratio',
-                             num_num_assoc='pearson')
+                             num_num_assoc='pearson',
+                             plot=False)
 
-    fake_corr = associations(synthetic_data,
-                             nominal_columns=nominal_columns,
-                             nom_nom_assoc='theil',
-                             nom_num_assoc='correlation_ratio',
-                             num_num_assoc='pearson')
+    # {'corr': , 'ax': <Axes: >}
+    synthetic_corr = associations(synthetic_data,
+                                  nominal_columns=nominal_columns,
+                                  nom_nom_assoc='theil',
+                                  nom_num_assoc='correlation_ratio',
+                                  num_num_assoc='pearson',
+                                  plot=False)
 
     # Calculate the Euclidean distance between the correlation matrices
-    corr_dist = np.linalg.norm(real_corr - fake_corr)
+    corr_dist = np.linalg.norm(real_corr['corr'] - synthetic_corr['corr'])
 
     # TODO: Uncomment these lines if log-transformed correlations are needed
     # real_log_corr = np.sign(real_corr) * np.log(abs(real_corr))
-    # fake_log_corr = np.sign(fake_corr) * np.log(abs(fake_corr))
+    # synthetic_log_corr = np.sign(synthetic_corr) * np.log(abs(synthetic_corr))
 
     return corr_dist
 
 
-def get_statistic_similarity_score(real_col, synthetic_col, statistic):
+def compute_statistic_similarity(real_col, synthetic_col, statistic):
     """
     Calculate the statistic similarity score for a given column.
 
@@ -74,7 +78,7 @@ def get_statistic_similarity_score(real_col, synthetic_col, statistic):
     return statistic_similarity_score
 
 
-def get_distance_score(real_col, synthetic_col, col_data_type):
+def compute_distance(real_col, synthetic_col, col_data_type):
     """
     Compute the appropriate distance (Wasserstein or Jensen-Shannon) based on data type.
 

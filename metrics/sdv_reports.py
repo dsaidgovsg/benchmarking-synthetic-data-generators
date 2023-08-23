@@ -6,7 +6,7 @@ import pandas as pd
 from sdv.evaluation.single_table import evaluate_quality, run_diagnostic
 
 
-def get_sdv_quality_report(
+def compute_sdv_quality_report(
         real_data: pd.DataFrame,
         synthetic_data: pd.DataFrame,
         metadata: dict):
@@ -38,19 +38,19 @@ def get_sdv_quality_report(
     report = evaluate_quality(real_data, synthetic_data, metadata)
 
     # Extract required information from the quality report
-    quality_report = {
-        "score": report.get_score(),  # Overall quality score
-        "properties": report.get_properties(),  # Properties and their scores
-        # Column Shapes details
-        "column_shapes": report.get_details(property_name='Column Shapes'),
-        # Column Pair Trends details
-        "column_pair_trends": report.get_details(property_name='Column Pair Trends')
-    }
+    # quality_report = {
+    #     "score": report.get_score(),  # Overall quality score
+    #     "properties": report.get_properties(),  # Properties and their scores
+    #     # Column Shapes details
+    #     "column_shapes": report.get_details(property_name='Column Shapes'),
+    #     # Column Pair Trends details
+    #     "column_pair_trends": report.get_details(property_name='Column Pair Trends')
+    # }
 
-    return quality_report
+    return report
 
 
-def get_sdv_diagnostic_report(real_data: pd.DataFrame,
+def compute_sdv_diagnostic_report(real_data: pd.DataFrame,
                               synthetic_data: pd.DataFrame,
                               metadata: dict):
     """

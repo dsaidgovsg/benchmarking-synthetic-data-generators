@@ -1,4 +1,4 @@
-"""Get Machine learing efficacy scores"""
+"""Get Machine learing efficacy"""
 from sdmetrics.single_table import \
     BinaryAdaBoostClassifier, \
     BinaryDecisionTreeClassifier, \
@@ -7,13 +7,13 @@ from sdmetrics.single_table import \
 from sdmetrics.single_table import LinearRegression, MLPRegressor
 
 
-def get_ml_classification_score(real_data, synthetic_data, target_column, metadata, ml_model):
+def compute_ml_classification(test_data, train_data, target_column, metadata, ml_model):
     """
     Get the classification score using a specified machine learning model.
 
     Parameters:
-        real_data (pandas.DataFrame): Real dataset.
-        synthetic_data (pandas.DataFrame): Synthetic dataset.
+        test_data (pandas.DataFrame): Test dataset.
+        train_data (pandas.DataFrame): Train dataset.
         target_column (str): Name of the target column to predict.
         metadata (dict): Additional metadata for the model.
         ml_model (str): Machine learning model identifier.
@@ -33,8 +33,8 @@ def get_ml_classification_score(real_data, synthetic_data, target_column, metada
 
     # Compute classification score using the selected classifier
     classification_score = classifier.compute(
-        test_data=real_data,
-        train_data=synthetic_data,
+        test_data=test_data,
+        train_data=train_data,
         target=target_column,
         metadata=metadata
     )
@@ -42,13 +42,13 @@ def get_ml_classification_score(real_data, synthetic_data, target_column, metada
     return classification_score
 
 
-def get_ml_regression_score(real_data, synthetic_data, target_column, metadata, ml_model):
+def compute_ml_regression(test_data, train_data, target_column, metadata, ml_model):
     """
     Get the R2 regression score using a specified machine learning model.
 
     Parameters:
-        real_data (pandas.DataFrame): Real dataset.
-        synthetic_data (pandas.DataFrame): Synthetic dataset.
+        test_data (pandas.DataFrame): Test dataset.
+        train_data (pandas.DataFrame): Train dataset.
         target_column (str): Name of the target column to predict.
         metadata (dict): Additional metadata for the model.
         ml_model (str): Machine learning model identifier.
@@ -64,8 +64,8 @@ def get_ml_regression_score(real_data, synthetic_data, target_column, metadata, 
 
     # Compute R2 regression score using the selected regressor
     regression_score = regressor.compute(
-        test_data=real_data,
-        train_data=synthetic_data,
+        test_data=test_data,
+        train_data=train_data,
         target=target_column,
         metadata=metadata
     )
