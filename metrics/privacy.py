@@ -1,10 +1,9 @@
 """Privacy metrics"""
 import numpy as np
+from sdmetrics.single_table import NewRowSynthesis
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 
-
-from sdmetrics.single_table import NewRowSynthesis
 
 def compute_new_row_synthesis(real_data, synthetic_data, metadata, 
                                     numerical_match_tolerance=0.01, 

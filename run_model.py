@@ -7,13 +7,12 @@ from datetime import datetime
 
 import pandas as pd
 
-from commons.static_vals import DEFAULT_EPOCH_VALUES, \
-    ML_CLASSIFICATION_TASK_DATASETS, \
-    ML_TASKS_TARGET_CLASS
-from commons.utils import detect_metadata_with_sdv, \
-    get_dataset_with_sdv, \
-    shuffle_and_split_dataframe, \
-    stratified_split_dataframe
+from commons.static_vals import (DEFAULT_EPOCH_VALUES,
+                                 ML_CLASSIFICATION_TASK_DATASETS,
+                                 ML_TASKS_TARGET_CLASS)
+from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
+                           shuffle_and_split_dataframe,
+                           stratified_split_dataframe)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

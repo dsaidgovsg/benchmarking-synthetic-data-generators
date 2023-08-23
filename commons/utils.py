@@ -7,7 +7,6 @@ from sdv.metadata import SingleTableMetadata
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KernelDensity
 
-
 # https://docs.sdv.dev/sdmetrics/metrics/metrics-in-beta/outliercoverage
 
 def detect_metadata_with_sdv(real_data_df: pd.DataFrame):

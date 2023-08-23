@@ -1,7 +1,6 @@
 # from sdmetrics.single_column import BoundaryAdherence
-from sdmetrics.single_column import RangeCoverage
-from sdmetrics.single_column import CategoryCoverage
-from sdmetrics.single_column import MissingValueSimilarity
+from sdmetrics.single_column import (CategoryCoverage, MissingValueSimilarity,
+                                     RangeCoverage)
 
 
 def compute_domain_coverage(real_col, synthetic_col, col_data_type):

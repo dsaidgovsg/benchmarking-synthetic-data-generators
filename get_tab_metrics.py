@@ -1,17 +1,22 @@
+import argparse
+import json
+import logging
 import os
 import time
-import json
-import pandas as pd
-import argparse
+
 import matplotlib.pyplot as plt
-import logging
-from metrics import coverage, privacy, ml_efficacy, similarity, sdv_reports
-from commons.static_vals import SIMILARITY_CHECK_STATISTICS, \
-    ML_CLASSIFICATION_MODELS, ML_REGRESSION_MODELS, \
-    ML_CLASSIFICATION_TASK_DATASETS, ML_REGRESSION_TASK_DATASETS, \
-    ML_TASKS_TARGET_CLASS, ROUNDING_VAL
-from commons.utils import detect_metadata_with_sdv, \
-    get_dataset_with_sdv, shuffle_and_split_dataframe, stratified_split_dataframe
+import pandas as pd
+
+from commons.static_vals import (ML_CLASSIFICATION_MODELS,
+                                 ML_CLASSIFICATION_TASK_DATASETS,
+                                 ML_REGRESSION_MODELS,
+                                 ML_REGRESSION_TASK_DATASETS,
+                                 ML_TASKS_TARGET_CLASS, ROUNDING_VAL,
+                                 SIMILARITY_CHECK_STATISTICS)
+from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
+                           shuffle_and_split_dataframe,
+                           stratified_split_dataframe)
+from metrics import coverage, ml_efficacy, privacy, sdv_reports, similarity
 
 
 def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", lib="sdv"):
@@ -95,6 +100,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         results["coverage"]["domain_coverage"] = {}
         results["coverage"]["missing_values_coverage"] = {}
         results["coverage"]["outlier_coverage"] = {}
+        begin_time = time.time()
         for k, v in col_md.items():
             real_col = real_data_test[k]
             synthetic_col = synthetic_data[k]
@@ -106,7 +112,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
                 results["coverage"]["domain_coverage"][k] = round(
                     domain_coverage, ROUNDING_VAL)
             except Exception as e:
-                print(f"compute_domain_coverage error: {e}")
+                LOGGER.error(f"compute_domain_coverage error: {e}")
 
             try:
                 missing_values_coverage = coverage.compute_missing_values_coverage(
@@ -114,7 +120,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
                 results["coverage"]["missing_values_coverage"][k] = round(
                     missing_values_coverage, ROUNDING_VAL)
             except Exception as e:
-                print(f"compute_missing_values_coverageerror: {e}")
+                LOGGER.error(f"compute_missing_values_coverageerror: {e}")
 
             try:
                 if col_type == "numerical":
@@ -122,9 +128,9 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
                         real_col, synthetic_col)
                     results["coverage"]["outlier_coverage"][k] = outlier_coverage
             except Exception as e:
-                print(f"compute_outlier_coverage error: {e}")
+                LOGGER.error(f"compute_outlier_coverage error: {e}")
+        results["coverage"]["timing"] = time.time() - begin_time
     except Exception as e:
-        print("YOO"*100)
         LOGGER.error(e)
 
     # ------------------
@@ -135,6 +141,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         results["similarity"]["statistic"] = {}
         results["similarity"]["distance"] = {}
 
+        begin_time = time.time()
         # Loop over columns
         for k, v in col_md.items():
             real_col = real_data_test[k]
@@ -176,6 +183,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
 
         except Exception as e:
             LOGGER.error(f"Correlation similarity error: {e}")
+        results["similarity"]["timing"] = time.time() - begin_time
     except Exception as e:
         LOGGER.error(e)
 
@@ -184,6 +192,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # ------------------
     try:
         results["ml_efficacy"] = {}
+        begin_time = time.time()
         if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
             for ml_model in ML_CLASSIFICATION_MODELS:
                 f1_real = ml_efficacy.compute_ml_classification(
@@ -202,6 +211,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
                 results["ml_efficacy"][f"{ml_model}_regression"] = {
                     "synthetic_r2": round(r2_synthetic, ROUNDING_VAL),
                     "real_r2": round(r2_real, ROUNDING_VAL)}
+        results["ml_efficacy"]["timing"] = time.time() - begin_time
     except Exception as e:
         LOGGER.error(e)
 
@@ -209,6 +219,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # SDV Quality Report Metrics
     # --------------------------
     try:
+        begin_time = time.time()
         q_report = sdv_reports.compute_sdv_quality_report(
             real_data_test, synthetic_data, metadata_class)
         results["sdv_quality_report"]["score"] = q_report.get_score()
@@ -232,6 +243,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         q_report_corr_df.to_csv(
             f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_correlation.csv", index=False)
 
+        results["sdv_quality_report"]["timing"] = time.time() - begin_time
         LOGGER.info(f"q_report: {results['sdv_quality_report']['score']}")
         LOGGER.info(f"q_report: {q_report.get_properties()}")
     except Exception as e:
@@ -258,7 +270,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    exp_data_set: str = args.data_set
+    exp_data_set_name: str = args.data_set
     exp_synthesizer: str = args.synthesizer
 
     # exp_synthesizer = "ctgan"  # gaussian_copula, tvae
@@ -268,9 +280,9 @@ if __name__ == "__main__":
     #     os.makedirs(BASE_OUTPUT_PATH)
 
     # temp naming
-    if exp_data_set == "s1":
+    if exp_data_set_name == "s1":
         exp_data_set = ["adult", "drugs", "intrusion"]
-    elif exp_data_set == "s2":
+    elif exp_data_set_name == "s2":
         exp_data_set = ["loan", "covtype", "child"]
     else:
         exp_data_set = ["loan", "health_insurance"]
@@ -279,7 +291,7 @@ if __name__ == "__main__":
     if not os.path.exists(BASE_OUTPUT_PATH):
         os.makedirs(BASE_OUTPUT_PATH)
 
-    logging.basicConfig(filename=f"{BASE_OUTPUT_PATH}/{exp_synthesizer}.log",
+    logging.basicConfig(filename=f"{BASE_OUTPUT_PATH}/{exp_synthesizer}_{exp_data_set_name}.log",
                         format="%(asctime)s [%(filename)s:%(lineno)d] %(message)s ",
                         datefmt="%Y-%m-%d:%H:%M:%S",
                         filemode="w")
