@@ -81,16 +81,16 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # ------------------
     # Privacy Metrics
     # ------------------
-    try:
-        begin_time = time.time()
-        new_row_synthesis = privacy.compute_new_row_synthesis(
-            real_dataset, synthetic_data, metadata_dict)
-        results["privacy"]["new_row_synthesis"] = round(
-            new_row_synthesis, ROUNDING_VAL)
-        LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
-        results["privacy"]["timing"] = time.time() - begin_time
-    except Exception as e:
-        LOGGER.error(e)
+    # try:
+    #     begin_time = time.time()
+    #     new_row_synthesis = privacy.compute_new_row_synthesis(
+    #         real_dataset, synthetic_data, metadata_dict)
+    #     results["privacy"]["new_row_synthesis"] = round(
+    #         new_row_synthesis, ROUNDING_VAL)
+    #     LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
+    #     results["privacy"]["timing"] = time.time() - begin_time
+    # except Exception as e:
+    #     LOGGER.error(e)
 
     # ------------------
     # Coverage Metrics
@@ -267,26 +267,28 @@ if __name__ == "__main__":
     parser.add_argument("--synthesizer", "--s", type=str, default="ctgan",
                         help="enter synthesizer name \
                             Possible values - {ctgan, tvae, gaussian_copula}")
+    parser.add_argument("--output_folder", "--o", type=str, default="outputs")
 
     args = parser.parse_args()
 
     exp_data_set_name: str = args.data_set
     exp_synthesizer: str = args.synthesizer
+    output_folder: str = args.output_folder
 
     # exp_synthesizer = "ctgan"  # gaussian_copula, tvae
-    BASE_OUTPUT_PATH = f"metrics_output/{exp_synthesizer}"
+    BASE_OUTPUT_PATH = f"{output_folder}/{exp_synthesizer}"
 
     # if not os.path.exists(BASE_OUTPUT_PATH):
     #     os.makedirs(BASE_OUTPUT_PATH)
 
     # temp naming
-    if exp_data_set_name == "s1":
-        exp_data_set = ["adult", "drugs", "intrusion"]
+    if exp_data_set_name == "s4":
+        # exp_data_set = ["adult", "drugs", "intrusion"]
+        exp_data_set = ["adult", "drugs"]
     elif exp_data_set_name == "s2":
         exp_data_set = ["loan", "covtype", "child"]
     else:
-        exp_data_set = ["loan", "health_insurance"]
-        # exp_data_set = ["health_insurance", "census", "credit"]
+        exp_data_set = ["health_insurance", "census", "credit"]
 
     if not os.path.exists(BASE_OUTPUT_PATH):
         os.makedirs(BASE_OUTPUT_PATH)
