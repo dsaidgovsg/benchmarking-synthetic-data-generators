@@ -108,7 +108,7 @@ if __name__ == "__main__":
     
     
         train_time = time.time()
-        model.fit(data)
+        model.fit(train_dataset)
         results["train_time"] = time.time() - train_time
     
         peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
