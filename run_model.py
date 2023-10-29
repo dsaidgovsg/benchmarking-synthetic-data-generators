@@ -18,13 +18,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--library", "--l", type=str, default="sdv",
                         help="enter library. \
-                        Possible values - {sdv, gretel}")
+                        Possible values - {sdv, gretel, synthcity}")
     parser.add_argument("--modality", "--m", type=str, default="tabular",
                         help="enter dataset modality. \
                         Possible values - {tabular, sequential, text}")
     parser.add_argument("--synthesizer", "--s", type=str, default="ctgan",
                         help="enter synthesizer name \
-                            Possible values - {ctgan, tvae, gaussian_copula, par, dgan, actgan}")
+                            Possible values - {ctgan, tvae, gaussian_copula, par, dgan, actgan, goggle}")
     parser.add_argument("--data", type=str, default="adult",
                         help="enter dataset name. \
                         Possible values - {adult, census, child, covtype, \
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     exp_data_modality: str = args.modality
     exp_synthesizer: str = args.synthesizer
     exp_dataset_name: str = args.data
-    
+
     print("args.use_gpu:  ------> ", args.use_gpu)
     use_gpu: bool = args.use_gpu
     num_epochs: int = args.num_epochs
@@ -215,3 +215,27 @@ if __name__ == "__main__":
             metadata=metadata,
             output_path=output_path,
             sequential_details=sequential_details)
+
+    elif exp_library == "synthcity":
+        
+        if not num_epochs:
+            num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
+
+        print("Selected Synthesizer Library: SYNTHCITY")
+        LOGGER.info(
+            (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+        
+        from run_synthcity_model import run_model
+
+        num_samples = len(real_dataset)
+
+        run_model(
+            exp_data_modality=exp_data_modality,
+            exp_synthesizer=exp_synthesizer,
+            exp_data=exp_dataset_name,
+            use_gpu=use_gpu,
+            num_samples=num_samples,
+            num_epochs=num_epochs,
+            train_dataset=train_dataset,
+            metadata=metadata,
+            output_path=output_path)

@@ -33,7 +33,8 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     MODALITY = "tabular"
 
     # Load synthetic data
-    syn_data_path = f"{BASE}/{lib}/{MODALITY}/{exp_synthesizer}/{exp_dataset_name}/{exp_dataset_name}_{exp_synthesizer}_synthetic_data.csv"
+    # syn_data_path = f"{BASE}/{lib}/{MODALITY}/{exp_synthesizer}/{exp_dataset_name}/{exp_dataset_name}_{exp_synthesizer}_synthetic_data.csv"
+    syn_data_path = f"llm_out_25aug/{exp_dataset_name}/{exp_dataset_name}_synthetic_data.csv" # llm
     synthetic_data = pd.read_csv(syn_data_path)
     if 'Unnamed: 0' in synthetic_data.columns:
         synthetic_data.drop(columns=['Unnamed: 0'], inplace=True)
@@ -47,7 +48,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         real_dataset = pd.read_csv("sample_datasets/health_insurance.csv")
         metadata_class = detect_metadata_with_sdv(real_dataset)
     elif exp_dataset_name == "loan":
-        real_dataset = pd.read_csv("sample_datasets/personal_loan.csv")
+        real_dataset = pd.read_csv("sample_datasets/loan.csv")
         metadata_class = detect_metadata_with_sdv(real_dataset)
     else:
         real_dataset, metadata_class = get_dataset_with_sdv(
@@ -257,7 +258,8 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
 
 
 if __name__ == "__main__":
-    BASE = "az_outputs_23aug/2023-08-20"
+    # BASE = "az_outputs_23aug/2023-08-20"
+    BASE = "llm_out_25aug"
     LIB = "sdv"
 
     parser = argparse.ArgumentParser()
@@ -282,11 +284,12 @@ if __name__ == "__main__":
     #     os.makedirs(BASE_OUTPUT_PATH)
 
     # temp naming
-    if exp_data_set_name == "s4":
-        # exp_data_set = ["adult", "drugs", "intrusion"]
-        exp_data_set = ["adult", "drugs"]
+    if exp_data_set_name == "s1":
+        exp_data_set = ["adult", "drugs", "intrusion"]
     elif exp_data_set_name == "s2":
         exp_data_set = ["loan", "covtype", "child"]
+    elif exp_data_set_name == "llm":
+        exp_data_set = ["adult"] #"health_insurance"]
     else:
         exp_data_set = ["health_insurance", "census", "credit"]
 
