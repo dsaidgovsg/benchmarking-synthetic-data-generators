@@ -1,0 +1,5 @@
+,Model,Domain Coverage,Missing Values Coverage,Outlier Coverage,Similarity Statistics,Distribution Stability,Similarity Distance,Correlation Difference
+0,GReaT (LLM)),1.0,1.0,1.0,0.98,0.9,0.3,0.97
+1,CTGAN (Generative Adversarial Network),0.97,1.0,0.55,0.9,0.81,0.47,1.27
+2,TVAE (Variational Autoencoder),0.89,1.0,1.0,0.93,0.8,0.52,1.03
+3,Gaussian Copula (Statistical),1.0,1.0,0.52,0.92,0.83,0.53,0.67

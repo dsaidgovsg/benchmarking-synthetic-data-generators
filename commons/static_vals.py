@@ -38,6 +38,15 @@ DEFAULT_EPOCH_VALUES = {
     "gretel": {
         "dgan": 400,
         "actgan": 300
+    }, 
+    "synthcity": {
+        "ddpm": 5000, 
+        "goggle": 300,
+        "ctgan": 300,
+        "rtvae": 300, 
+        "tvae": 300, 
+        "arf": 0,
+        "nflow": 3000
     }
 }
 

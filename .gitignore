@@ -16,7 +16,8 @@ chicago_taxi_trips/
 test.py
 metrics_output
 get_tab_metrics_bck.py
-great_trial/data/
-great_trial/outputs_2/
+great_llm/data/
+great_llm/outputs_2/
 myenv/
 back_outputs/
+llm_out_25aug/
