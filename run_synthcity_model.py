@@ -7,12 +7,16 @@ import os
 import time
 import tracemalloc
 import warnings
-from io import StringIO
-
+# from io import StringIO
+import torch
 from commons.static_vals import N_BYTES_IN_MB, DataModalities
 
+# from matplotlib import pyplot as plt
+
+# plt.show(block=True)
+
 from synthcity.plugins import Plugins
-from synthcity.utils.serialization import save_to_file, load_from_file
+from synthcity.utils.serialization import save_to_file
 # from synthcity.plugins.core.dataloader import DataLoader, GenericDataLoader
 
 # from synthcity.plugins.core.constraints import Constraints
@@ -45,40 +49,47 @@ def run_model(**kwargs):
 #     synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
 #     # num_samples = len(train_dataset)
 
-    tracemalloc.start()
-    print("0"*10, synthesizer_name)
+    device = "gpu" if use_gpu else "cpu"
 
-    # TODO: Add parameters
+    tracemalloc.start()
+
     if synthesizer_name == "goggle":
         # ---------------------
         # Generative MOdellinG with Graph LEarning (GOGGLE)
         # ---------------------
         # - Link to the paper: https://openreview.net/pdf?id=fPVRcJqspu
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
     elif synthesizer_name == "arf":
         # ---------------------
         # Adversarial Random Forests for Density Estimation and Generative Modeling
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/2205.09435.pdf
-        synthesizer = Plugins().get(synthesizer_name, num_trees=50)
+        synthesizer = Plugins().get(synthesizer_name, num_trees=50,
+                                    device=torch.device(device))
     elif synthesizer_name == "nflow":
         # ---------------------
         # Normalising Flow
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/1906.04032.pdf
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
     elif synthesizer_name == "ddpm":
         # ---------------------
         # Tabular denoising diffusion probabilistic models
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/2209.15421.pdf
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
     elif synthesizer_name == "ctgan":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
     elif synthesizer_name == "tvae":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
     elif synthesizer_name == "rtvae":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs)
+        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    device=torch.device(device))
 
 
 #     LOGGER.info(synthesizer.get_parameters())
@@ -152,7 +163,7 @@ def run_model(**kwargs):
         "num_cols": train_dataset.shape[1],
         "num_sampled_rows": num_samples,
 
-        "device": "GPU" if use_gpu else "CPU",
+        "device": device,
         "num_epochs": num_epochs if num_epochs else 0,
         # "num_cat": len(dataset_name),
         # "num_numeric": len(dataset_name),
