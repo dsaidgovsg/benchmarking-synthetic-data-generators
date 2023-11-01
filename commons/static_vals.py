@@ -4,6 +4,11 @@ from enum import Enum
 N_BYTES_IN_MB = 1000 * 1000
 ROUNDING_VAL = 6
 
+class MLTasks(Enum):
+    """"""
+    CLASSIFICATION = "classification"
+    REGRESSION = "regression"
+
 class DataModalities(Enum):
     """"""
     TABULAR = "tabular"

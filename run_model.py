@@ -8,6 +8,8 @@ from datetime import datetime
 import pandas as pd
 
 from commons.static_vals import (DEFAULT_EPOCH_VALUES,
+                                 MLTasks,
+                                 ML_REGRESSION_TASK_DATASETS,
                                  ML_CLASSIFICATION_TASK_DATASETS,
                                  ML_TASKS_TARGET_CLASS)
 from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
@@ -142,7 +144,7 @@ if __name__ == "__main__":
         metadata = detect_metadata_with_sdv(real_dataset)
     elif exp_dataset_name == "loan":
         real_dataset = pd.read_csv(
-            f"sample_datasets/personal_loan.csv")
+            f"sample_datasets/loan.csv")
         metadata = detect_metadata_with_sdv(real_dataset)
     else:
         real_dataset, metadata = get_dataset_with_sdv(
@@ -217,17 +219,24 @@ if __name__ == "__main__":
             sequential_details=sequential_details)
 
     elif exp_library == "synthcity":
-        
+
         if not num_epochs:
             num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
 
         print("Selected Synthesizer Library: SYNTHCITY")
         LOGGER.info(
             (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
-        
+
         from run_synthcity_model import run_model
 
         num_samples = len(real_dataset)
+
+        # flag for classfication or regression (required by DDPM model)
+        ml_task = None
+        if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
+            ml_task = MLTasks.CLASSIFICATION.value
+        elif exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
+            is_classification = MLTasks.REGRESSION.value
 
         run_model(
             exp_data_modality=exp_data_modality,
@@ -238,4 +247,5 @@ if __name__ == "__main__":
             num_epochs=num_epochs,
             train_dataset=train_dataset,
             metadata=metadata,
-            output_path=output_path)
+            output_path=output_path,
+            ml_task=ml_task)
