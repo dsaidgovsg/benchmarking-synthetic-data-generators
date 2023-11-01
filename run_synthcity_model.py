@@ -1,4 +1,5 @@
 # "Run Synthcity models -- CTGAN, TVAE, RTVAE, DDPM, GOGGLE, ARF, NFLOW"
+from synthcity.utils.serialization import save_to_file
 import json
 import logging
 # import pickle
@@ -9,14 +10,11 @@ import tracemalloc
 import warnings
 # from io import StringIO
 import torch
-from commons.static_vals import N_BYTES_IN_MB, DataModalities
-
-# from matplotlib import pyplot as plt
-
-# plt.show(block=True)
+from commons.static_vals import N_BYTES_IN_MB, MLTasks, ML_TASKS_TARGET_CLASS
 
 from synthcity.plugins import Plugins
-from synthcity.utils.serialization import save_to_file
+
+print("Synthcity IMPORTED!")
 # from synthcity.plugins.core.dataloader import DataLoader, GenericDataLoader
 
 # from synthcity.plugins.core.constraints import Constraints
@@ -39,6 +37,7 @@ def run_model(**kwargs):
     train_dataset = kwargs["train_dataset"]
     # metadata = kwargs["metadata"]
     num_samples = kwargs["num_samples"]
+    ml_task = kwargs["ml_task"]
     # generate_sdv_quality_report = kwargs["get_quality_report"]
     # generate_sdv_diagnostic_report = kwargs["get_diagnostic_report"]
 
@@ -49,9 +48,12 @@ def run_model(**kwargs):
 #     synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
 #     # num_samples = len(train_dataset)
 
-    device = "gpu" if use_gpu else "cpu"
+    device = "cuda" if use_gpu else "cpu"
 
     tracemalloc.start()
+
+    is_classification = False
+    target_class = None
 
     if synthesizer_name == "goggle":
         # ---------------------
@@ -79,7 +81,16 @@ def run_model(**kwargs):
         # Tabular denoising diffusion probabilistic models
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/2209.15421.pdf
+        if ml_task == MLTasks.CLASSIFICATION.value:
+            is_classification = True
+            # rename target column to 'target'
+            target_class = ML_TASKS_TARGET_CLASS[dataset_name]
+            train_dataset = train_dataset.rename(
+                columns={target_class: "target"})
+            print(f"target_class {target_class}, ml_task: {ml_task}")
+
         synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                    is_classification=is_classification,
                                     device=torch.device(device))
     elif synthesizer_name == "ctgan":
         synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
@@ -90,7 +101,6 @@ def run_model(**kwargs):
     elif synthesizer_name == "rtvae":
         synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
                                     device=torch.device(device))
-
 
 #     LOGGER.info(synthesizer.get_parameters())
 
@@ -189,6 +199,12 @@ def run_model(**kwargs):
     #     json.dump(captured_print_out, log_file)
 
     # save synthetic data
+
+    if is_classification and synthesizer_name == "ddpm":
+        # revert the name of the target column
+        synthetic_dataset = synthetic_dataset.rename(
+            columns={"target": target_class})
+
     synthetic_dataset.to_csv(
         f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv")
 

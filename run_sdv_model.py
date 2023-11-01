@@ -11,8 +11,8 @@ from io import StringIO
 import sdv
 
 from commons.static_vals import N_BYTES_IN_MB, DataModalities
-from metrics.sdv_reports import (get_sdv_diagnostic_report,
-                                 get_sdv_quality_report)
+from metrics.sdv_reports import (compute_sdv_quality_report,
+                                 compute_sdv_diagnostic_report)
 # SDV synthesizers
 from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
 from synthesizers.sdv.tabular.copulas_synthesizer import \
@@ -234,7 +234,7 @@ def run_model(**kwargs):
         print("Generating Quality Report", "#"*10)
 
         start_time = time.time()
-        quality_report_obj = get_sdv_quality_report(
+        quality_report_obj = compute_sdv_quality_report(
             train_dataset,
             synthetic_dataset,
             metadata
@@ -251,7 +251,7 @@ def run_model(**kwargs):
     if generate_sdv_diagnostic_report:
         print("Generating Diagnostic Report",  "#"*10)
         start_time = time.time()
-        diagnostic_report_obj = get_sdv_diagnostic_report(
+        diagnostic_report_obj = compute_sdv_diagnostic_report(
             train_dataset,
             synthetic_dataset,
             metadata
