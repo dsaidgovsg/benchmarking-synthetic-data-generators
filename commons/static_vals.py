@@ -4,10 +4,12 @@ from enum import Enum
 N_BYTES_IN_MB = 1000 * 1000
 ROUNDING_VAL = 6
 
+
 class MLTasks(Enum):
     """"""
     CLASSIFICATION = "classification"
     REGRESSION = "regression"
+
 
 class DataModalities(Enum):
     """"""
@@ -43,13 +45,13 @@ DEFAULT_EPOCH_VALUES = {
     "gretel": {
         "dgan": 400,
         "actgan": 300
-    }, 
+    },
     "synthcity": {
-        "ddpm": 5000, 
+        "ddpm": 5000,
         "goggle": 300,
         "ctgan": 300,
-        "rtvae": 300, 
-        "tvae": 300, 
+        "rtvae": 300,
+        "tvae": 300,
         "arf": 0,
         "nflow": 3000
     }

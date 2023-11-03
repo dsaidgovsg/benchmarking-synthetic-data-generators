@@ -38,6 +38,7 @@ def run_model(**kwargs):
     # metadata = kwargs["metadata"]
     num_samples = kwargs["num_samples"]
     ml_task = kwargs["ml_task"]
+    opt_params = kwargs["opt_params"]
     # generate_sdv_quality_report = kwargs["get_quality_report"]
     # generate_sdv_diagnostic_report = kwargs["get_diagnostic_report"]
 
@@ -54,6 +55,7 @@ def run_model(**kwargs):
 
     is_classification = False
     target_class = None
+    ddpm_cond = None
 
     if synthesizer_name == "goggle":
         # ---------------------
@@ -88,6 +90,8 @@ def run_model(**kwargs):
             train_dataset = train_dataset.rename(
                 columns={target_class: "target"})
             print(f"target_class {target_class}, ml_task: {ml_task}")
+        elif ml_task == MLTasks.REGRESSION.value:
+            ddpm_cond = train_dataset[ML_TASKS_TARGET_CLASS[dataset_name]]
 
         synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
                                     is_classification=is_classification,
@@ -108,18 +112,26 @@ def run_model(**kwargs):
 #     captured_print_out = StringIO()
 #     sys.stdout = captured_print_out
 
+    
     begin_train_time = time.time()
     # ---------------------
     # Train
-    # ---------------------
-    synthesizer.fit(train_dataset)
+    # ------------------- 
+    if ddpm_cond is not None:
+        synthesizer.fit(train_dataset, cond=ddpm_cond)
+    else:
+        synthesizer.fit(train_dataset)
     end_train_time = time.time()
 
     # ---------------------
     # Sample
     # ---------------------
     begin_sampling_time = time.time()
-    synthetic_dataset = synthesizer.generate(count=num_samples).dataframe()
+    if ddpm_cond is not None:
+        num_samples = len(train_dataset)
+        synthetic_dataset = synthesizer.generate(count=num_samples, cond=ddpm_cond).dataframe()
+    else:
+        synthetic_dataset = synthesizer.generate(count=num_samples).dataframe()
     end_sampling_time = time.time()
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
