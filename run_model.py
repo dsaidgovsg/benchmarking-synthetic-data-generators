@@ -33,8 +33,12 @@ if __name__ == "__main__":
                         credit, insurance, intrusion, health_insurance, drugs, loan, \
                         nasdaq, taxi, asu}")
 
-    parser.add_argument("--use_gpu", "--gpu", type=bool, default=False,
+    parser.add_argument("--run_optimizer", "--ro", type=bool, default=False,
+                        help="whether to run hyperparameter optimizer")
+
+    parser.add_argument("--use_gpu", "--cuda", type=bool, default=False,
                         help="whether to use GPU device(s)")
+
     parser.add_argument("--get_quality_report", "--qr", type=bool, default=False,
                         help="whether to generate SDV quality report")
     parser.add_argument("--get_diagnostic_report", "--dr", type=bool, default=False,
@@ -43,6 +47,8 @@ if __name__ == "__main__":
     parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
     parser.add_argument("--output_folder", "--o", type=str, default="outputs")
+    parser.add_argument("--only_train_data", "--ot", type=bool, default=True,
+                        help="whether to return train and test data")
 
     # -----------------------------------------------------------
     # parsing inputs
@@ -59,6 +65,11 @@ if __name__ == "__main__":
     num_epochs: int = args.num_epochs
     data_folder: str = args.data_folder
     output_folder: str = args.output_folder
+    only_train_data: bool = args.only_train_data
+    run_optimizer: bool = args.run_optimizer
+
+    print("only_train_data--->", only_train_data)
+    print("run_optimizer--->", run_optimizer)
 
     get_quality_report: bool = args.get_quality_report
     get_diagnostic_report: bool = args.get_diagnostic_report
@@ -157,13 +168,27 @@ if __name__ == "__main__":
     # -------------
     if exp_data_modality == "tabular":
         if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
-            (X_train, y_train) = stratified_split_dataframe(real_dataset,
-                                                            ML_TASKS_TARGET_CLASS[exp_dataset_name],
-                                                            True)
-            # Merge X_train and y_train columns horizontally
-            train_dataset = pd.concat([X_train, y_train], axis=1)
+            if only_train_data:
+                print("$"*10)
+                (X_train, y_train) = stratified_split_dataframe(real_dataset,
+                                                                ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                                                True)
+                # Merge X_train and y_train columns horizontally
+                train_dataset = pd.concat([X_train, y_train], axis=1)
+            else:
+                print("@"*10)
+                (X_train, y_train), (X_test, y_test) = stratified_split_dataframe(real_dataset,
+                                                                                  ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                                                                  False)
+                # Merge columns horizontally
+                train_dataset = pd.concat([X_train, y_train], axis=1)
+                test_dataset = pd.concat([X_test, y_test], axis=1)
         else:
-            train_dataset = shuffle_and_split_dataframe(real_dataset, True)
+            if only_train_data:
+                train_dataset = shuffle_and_split_dataframe(real_dataset, True)
+            else:
+                (train_dataset, test_dataset) = shuffle_and_split_dataframe(
+                    real_dataset, False)
 
     # --------------
     # Run models
@@ -220,6 +245,19 @@ if __name__ == "__main__":
 
     elif exp_library == "synthcity":
 
+        from run_synthcity_hpo import run_synthcity_optimizer
+
+        opt_params = None
+
+        if run_optimizer:
+            opt_params = run_synthcity_optimizer(exp_synthesizer,
+                                                 exp_dataset_name,
+                                                 train_dataset,
+                                                 test_dataset)
+
+            if not opt_params:
+                raise ("Hyperparamter optimisation failed!")
+
         if not num_epochs:
             num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
 
@@ -231,12 +269,12 @@ if __name__ == "__main__":
 
         num_samples = len(real_dataset)
 
-        # flag for classfication or regression (required by DDPM model)
+        # flag for classification or regression (required by DDPM model)
         ml_task = None
         if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
             ml_task = MLTasks.CLASSIFICATION.value
         elif exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
-            is_classification = MLTasks.REGRESSION.value
+            ml_task = MLTasks.REGRESSION.value
 
         run_model(
             exp_data_modality=exp_data_modality,
@@ -248,4 +286,5 @@ if __name__ == "__main__":
             train_dataset=train_dataset,
             metadata=metadata,
             output_path=output_path,
-            ml_task=ml_task)
+            ml_task=ml_task,
+            opt_params=opt_params)

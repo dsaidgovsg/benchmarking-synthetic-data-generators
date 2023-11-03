@@ -14,11 +14,15 @@ from commons.static_vals import N_BYTES_IN_MB, DataModalities
 from metrics.sdv_reports import (compute_sdv_quality_report,
                                  compute_sdv_diagnostic_report)
 # SDV synthesizers
-from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
-from synthesizers.sdv.tabular.copulas_synthesizer import \
-    GaussianCopulaSynthesizer
-from synthesizers.sdv.tabular.gen_synthesizer import (CTGANSynthesizer,
-                                                      TVAESynthesizer)
+# from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
+
+from sdv.sequential import PARSynthesizer
+from sdv.single_table import CTGANSynthesizer, TVAESynthesizer, GaussianCopulaSynthesizer
+
+# from synthesizers.sdv.tabular.copulas_synthesizer import \
+#     GaussianCopulaSynthesizer
+# from synthesizers.sdv.tabular.gen_synthesizer import (CTGANSynthesizer,
+#                                                       TVAESynthesizer)
 
 # from sdv.evaluation.single_table import evaluate_quality, run_diagnostic
 

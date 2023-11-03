@@ -22,3 +22,5 @@ myenv/
 back_outputs/
 llm_out_25aug/
 workspace/
+tutorial8_hyperparameter_optimization.ipynb
+notebooks/Untitled.ipynb
