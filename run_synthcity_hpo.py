@@ -1,5 +1,6 @@
 from typing import List
 import time
+import json
 import optuna
 from enum import Enum
 
@@ -35,7 +36,12 @@ class StudyDirection(Enum):
 
 
 # def objective(trial: optuna.Trial) -> float:
-def objective(trial, synthsizer_name, train_dataset, test_dataset, objective_metrics: List[str], objective_direction_str) -> float:
+def objective(trial, synthsizer_name,
+              train_dataset,
+              test_dataset,
+              objective_metrics: List[str],
+              objective_direction_str,
+              opt_dict) -> float:
     """
     Objective function for Optuna optimization.
 
@@ -45,18 +51,26 @@ def objective(trial, synthsizer_name, train_dataset, test_dataset, objective_met
     Returns:
     - score (float): The objective value to be minimized or maximized.
     """
+    trial_start_time = time.time()
+    # trial_num = trial.number
+    trial_id = f"trial_{trial.number}"
+    print(f"Trial ID  {trial_id}")
+    opt_dict["trials"][trial_id] = {}
     # Get the hyperparameter space from the specified synthesizer
     hp_space = Plugins().get(synthsizer_name).hyperparameter_space()
 
     # Uncomment the next line if you need to set a specific high value for the first hyperparameter
-    hp_space[0].high = 100  # Set the number of epochs
+    # TODO: Reset for real run | Set the number of epochs
+    # hp_space[0].high = 100
 
     try:
         # Get the hyperparameters for the current trial
         params = suggest_all(trial, hp_space)
-        trial_id = f"trial_{trial.number}"
+        opt_dict["trials"][trial_id]["params"] = params
     except Exception as e:
         print(e)
+        # breakpoint()
+        
     # params = {'n_iter': 1, 'lr': 0.0001, 'decoder_n_layers_hidden': 3, 'weight_decay': 0.001, 'batch_size': 256, 'n_units_embedding': 250, 'decoder_n_units_hidden': 250, 'decoder_nonlin': 'tanh',
     #           'decoder_dropout': 0.07905995141252627, 'encoder_n_layers_hidden': 1, 'encoder_n_units_hidden': 350, 'encoder_nonlin': 'tanh', 'encoder_dropout': 0.13587014375548792}
     try:
@@ -79,6 +93,11 @@ def objective(trial, synthsizer_name, train_dataset, test_dataset, objective_met
     score = report[trial_id].query(f"direction == '{objective_direction_str}'")[
         'mean'].mean()
 
+    opt_dict["trials"][trial_id]["score"] = score
+    opt_dict["trials"][trial_id]["time_sec"] = time.time() - trial_start_time
+
+    if 'workspace' in opt_dict["trials"][trial_id]["params"]:
+        del opt_dict["trials"][trial_id]["params"]['workspace'] # not required
     return score
 
 
@@ -95,7 +114,8 @@ METRICS_TO_MINIMIZE = ['jensenshannon_dist',
                        'wasserstein_dist', 'max_mean_discrepancy']
 METRICS_TO_MAXIMIZE = ['chi_squared_test',
                        'inv_kl_divergence', 'ks_test', 'prdc', 'alpha_precision']
-NUM_TRIALS = 1  # 50
+# TODO: Reset for real run
+NUM_TRIALS = 25  # 50, 75, 100
 
 
 def run_synthcity_optimizer(
@@ -103,6 +123,7 @@ def run_synthcity_optimizer(
     exp_dataset_name: str,
     exp_train_dataset,
     exp_test_dataset,
+    output_path,
     objective_direction: StudyDirection = StudyDirection.MINIMIZE,
     n_trials: int = NUM_TRIALS
 ) -> None:
@@ -133,14 +154,34 @@ def run_synthcity_optimizer(
     else:
         objective_metrics = METRICS_TO_MINIMIZE + METRICS_TO_MAXIMIZE
 
+    opt_dict = {}
+    opt_dict["synthesizer"] = exp_synthsizer_name
+    opt_dict["dataset"] = exp_dataset_name
+    opt_dict["objective_metrics"] = objective_metrics
+    opt_dict["objective_direction"] = objective_direction.value
+    opt_dict["num_trials"] = n_trials
+    opt_dict["trials"] = {}
+
     # Create study and optimize
     study = optuna.create_study(direction=objective_direction.value)
     start_time = time.time()
     study.optimize(lambda trial: objective(trial, exp_synthsizer_name,
-                   train_loader, test_loader, objective_metrics, objective_direction.value), n_trials=n_trials)
+                   train_loader, test_loader, objective_metrics, objective_direction.value, opt_dict), n_trials=n_trials)
     total_time = time.time() - start_time
 
-    # print(study.best_params)
+    print(f"Set objective metrics: {objective_metrics}")
+    print(
+        f"Time taken for {exp_synthsizer_name }hyperparameter optimisation with {NUM_TRIALS} trails: {total_time} seconds")
+
+    opt_dict["total_time_sec"] = total_time
+    opt_dict["best_params"] = study.best_params
+
+    print("Saving opt_dict: ", opt_dict)
+
+    # save execution data
+    with open(f"{output_path}{exp_dataset_name}_{exp_synthsizer_name}_optimiser.json", "w") as json_file:
+        json.dump(opt_dict, json_file)
+
     try:
         return study.best_params
     except Exception as e:
