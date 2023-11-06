@@ -26,6 +26,8 @@ with warnings.catch_warnings():
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
+# TODO: Improve this code :/
+
 
 def run_model(**kwargs):
     data_modality = kwargs["exp_data_modality"]
@@ -57,27 +59,39 @@ def run_model(**kwargs):
     target_class = None
     ddpm_cond = None
 
-    if synthesizer_name == "goggle":
-        # ---------------------
-        # Generative MOdellinG with Graph LEarning (GOGGLE)
-        # ---------------------
-        # - Link to the paper: https://openreview.net/pdf?id=fPVRcJqspu
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    device=torch.device(device))
-    elif synthesizer_name == "arf":
+    # plugin_cls = type(Plugins().get(PLUGIN))
+    # plugin = plugin_cls(**params).fit(train_loader)
+
+    print("opt_params : ", opt_params)
+
+    # if synthesizer_name == "goggle":
+    #     # ---------------------
+    #     # Generative MOdellinG with Graph LEarning (GOGGLE)
+    #     # ---------------------
+    #     # - Link to the paper: https://openreview.net/pdf?id=fPVRcJqspu
+    #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+    #                                 device=torch.device(device))
+    if synthesizer_name == "arf":
         # ---------------------
         # Adversarial Random Forests for Density Estimation and Generative Modeling
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/2205.09435.pdf
-        synthesizer = Plugins().get(synthesizer_name, num_trees=50,
-                                    device=torch.device(device))
-    elif synthesizer_name == "nflow":
-        # ---------------------
-        # Normalising Flow
-        # ---------------------
-        # - Link to the paper: https://arxiv.org/pdf/1906.04032.pdf
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    device=torch.device(device))
+        # synthesizer = Plugins().get(synthesizer_name, num_trees=50,
+        #                             device=torch.device(device))
+        if opt_params:
+            print(f"setting optimised {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, device=torch.device(device), **opt_params)
+        else:
+            print("setting default {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, num_trees=50,
+                                        device=torch.device(device))
+    # elif synthesizer_name == "nflow":
+    #     # ---------------------
+    #     # Normalising Flow
+    #     # ---------------------
+    #     # - Link to the paper: https://arxiv.org/pdf/1906.04032.pdf
+    #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+    #                                 device=torch.device(device))
     elif synthesizer_name == "ddpm":
         # ---------------------
         # Tabular denoising diffusion probabilistic models
@@ -93,18 +107,33 @@ def run_model(**kwargs):
         elif ml_task == MLTasks.REGRESSION.value:
             ddpm_cond = train_dataset[ML_TASKS_TARGET_CLASS[dataset_name]]
 
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    is_classification=is_classification,
-                                    device=torch.device(device))
-    elif synthesizer_name == "ctgan":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    device=torch.device(device))
-    elif synthesizer_name == "tvae":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    device=torch.device(device))
-    elif synthesizer_name == "rtvae":
-        synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                    device=torch.device(device))
+        # synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+        #                             is_classification=is_classification,
+        #                             device=torch.device(device))
+        if opt_params:
+            print(f"setting optimised {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, is_classification=is_classification,
+                                        device=torch.device(device), **opt_params)
+        else:
+            print(f"setting default {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                        is_classification=is_classification,
+                                        device=torch.device(device))
+    # elif synthesizer_name == "ctgan":
+    #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+    #                                 device=torch.device(device))
+    # elif synthesizer_name == "tvae":
+    elif synthesizer_name in ["tvae", "ctgan", "rtvae", "nflow", "goggle"]:
+        if opt_params:
+            print(f"setting optimised {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, device=torch.device(device), **opt_params)
+        else:
+            print("setting default {synthesizer_name} parameters")
+            synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+                                        device=torch.device(device))
+    # elif synthesizer_name == "rtvae":
+    #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
+    #                                 device=torch.device(device))
 
 #     LOGGER.info(synthesizer.get_parameters())
 
@@ -112,11 +141,10 @@ def run_model(**kwargs):
 #     captured_print_out = StringIO()
 #     sys.stdout = captured_print_out
 
-    
     begin_train_time = time.time()
     # ---------------------
     # Train
-    # ------------------- 
+    # -------------------
     if ddpm_cond is not None:
         synthesizer.fit(train_dataset, cond=ddpm_cond)
     else:
@@ -129,7 +157,8 @@ def run_model(**kwargs):
     begin_sampling_time = time.time()
     if ddpm_cond is not None:
         num_samples = len(train_dataset)
-        synthetic_dataset = synthesizer.generate(count=num_samples, cond=ddpm_cond).dataframe()
+        synthetic_dataset = synthesizer.generate(
+            count=num_samples, cond=ddpm_cond).dataframe()
     else:
         synthetic_dataset = synthesizer.generate(count=num_samples).dataframe()
     end_sampling_time = time.time()
@@ -179,6 +208,7 @@ def run_model(**kwargs):
         "lib": f"synthcity==0.2.9",
         "modality": data_modality,
         "synthesizer": synthesizer_name,
+        "optimised": True if opt_params else False,
 
         "dataset": dataset_name,
         "num_rows": train_dataset.shape[0],

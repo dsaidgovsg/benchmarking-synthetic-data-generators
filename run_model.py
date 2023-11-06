@@ -32,44 +32,45 @@ if __name__ == "__main__":
                         Possible values - {adult, census, child, covtype, \
                         credit, insurance, intrusion, health_insurance, drugs, loan, \
                         nasdaq, taxi, asu}")
-
-    parser.add_argument("--run_optimizer", "--ro", type=bool, default=False,
-                        help="whether to run hyperparameter optimizer")
-
-    parser.add_argument("--use_gpu", "--cuda", type=bool, default=False,
-                        help="whether to use GPU device(s)")
-
-    parser.add_argument("--get_quality_report", "--qr", type=bool, default=False,
-                        help="whether to generate SDV quality report")
-    parser.add_argument("--get_diagnostic_report", "--dr", type=bool, default=False,
-                        help="whether to generate SDV diagnostic report")
     # default epoch is set as 0 as statistical models do not need epochs
     parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
     parser.add_argument("--output_folder", "--o", type=str, default="outputs")
-    parser.add_argument("--only_train_data", "--ot", type=bool, default=True,
-                        help="whether to return train and test data")
 
+    # boolean args
+    parser.add_argument("--train_test_data", "--tt", default=False,
+                        help="whether to return train and test data", action='store_true')
+    parser.add_argument("--get_quality_report", "--qr", default=False,
+                        help="whether to generate SDV quality report", action='store_true')
+    parser.add_argument("--get_diagnostic_report", "--dr", default=False,
+                        help="whether to generate SDV diagnostic report", action='store_true')
+    parser.add_argument("--run_optimizer", "--ro", default=False,
+                        help="whether to run hyperparameter optimizer", action='store_true')
+    parser.add_argument("--use_gpu", "--cuda", default=False,
+                        help="whether to use GPU device(s)", action='store_true')
+
+    args = parser.parse_args()
+
+    print("Arguments: ", vars(args))
+    # print("train_test_data--->", args.train_test_data)
+    # print("get_quality_report--->", args.get_quality_report)
+    # print("get_diagnostic_report--->", args.get_diagnostic_report)
+    # print("run_optimizer--->", args.run_optimizer)
     # -----------------------------------------------------------
     # parsing inputs
     # -----------------------------------------------------------
-    args = parser.parse_args()
 
     exp_library: str = args.library
     exp_data_modality: str = args.modality
     exp_synthesizer: str = args.synthesizer
     exp_dataset_name: str = args.data
 
-    print("args.use_gpu:  ------> ", args.use_gpu)
     use_gpu: bool = args.use_gpu
     num_epochs: int = args.num_epochs
     data_folder: str = args.data_folder
     output_folder: str = args.output_folder
-    only_train_data: bool = args.only_train_data
+    train_test_data: bool = args.train_test_data
     run_optimizer: bool = args.run_optimizer
-
-    print("only_train_data--->", only_train_data)
-    print("run_optimizer--->", run_optimizer)
 
     get_quality_report: bool = args.get_quality_report
     get_diagnostic_report: bool = args.get_diagnostic_report
@@ -84,7 +85,10 @@ if __name__ == "__main__":
     # Output folder for saving:
     # 1.Logs 2.Synthetic Data 3.Execution Metrics 4.Saved Models
     # -----------------------------------------------------------
-    output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}/{exp_dataset_name}/"
+    if args.run_optimizer:
+        output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_hpo/{exp_dataset_name}/"
+    else:
+        output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}/{exp_dataset_name}/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -168,15 +172,13 @@ if __name__ == "__main__":
     # -------------
     if exp_data_modality == "tabular":
         if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
-            if only_train_data:
-                print("$"*10)
+            if not train_test_data:
                 (X_train, y_train) = stratified_split_dataframe(real_dataset,
                                                                 ML_TASKS_TARGET_CLASS[exp_dataset_name],
                                                                 True)
                 # Merge X_train and y_train columns horizontally
                 train_dataset = pd.concat([X_train, y_train], axis=1)
             else:
-                print("@"*10)
                 (X_train, y_train), (X_test, y_test) = stratified_split_dataframe(real_dataset,
                                                                                   ML_TASKS_TARGET_CLASS[exp_dataset_name],
                                                                                   False)
@@ -184,7 +186,7 @@ if __name__ == "__main__":
                 train_dataset = pd.concat([X_train, y_train], axis=1)
                 test_dataset = pd.concat([X_test, y_test], axis=1)
         else:
-            if only_train_data:
+            if not train_test_data:
                 train_dataset = shuffle_and_split_dataframe(real_dataset, True)
             else:
                 (train_dataset, test_dataset) = shuffle_and_split_dataframe(
@@ -245,18 +247,20 @@ if __name__ == "__main__":
 
     elif exp_library == "synthcity":
 
-        from run_synthcity_hpo import run_synthcity_optimizer
-
-        opt_params = None
-
+        opt_params = {}
         if run_optimizer:
+            from run_synthcity_hpo import run_synthcity_optimizer
+            print("Running Hyperparamter Optimisation")
             opt_params = run_synthcity_optimizer(exp_synthesizer,
                                                  exp_dataset_name,
                                                  train_dataset,
-                                                 test_dataset)
+                                                 test_dataset,
+                                                 output_path)
 
             if not opt_params:
                 raise ("Hyperparamter optimisation failed!")
+            else:
+                print("Here are the params: ", opt_params)
 
         if not num_epochs:
             num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
