@@ -6,6 +6,7 @@ import pandas as pd
 
 from hyperimpute.plugins.imputers import Imputers
 from commons.static_vals import N_BYTES_IN_MB
+from sklearn.preprocessing import OneHotEncoder
 
 
 def _validate_imputers(imputers: Imputers, plugin_name: str) -> bool:
@@ -29,6 +30,21 @@ def _validate_imputers(imputers: Imputers, plugin_name: str) -> bool:
 def _validate_parameters(plugin_name):
     # can use pydantic to validate
     ...
+
+
+def _encode(dataset, categorical_columns):
+
+    encoder = OneHotEncoder(sparse=False, drop='first')
+
+    # Apply one-hot encoding to categorical columns
+    encoded_data = encoder.fit_transform(dataset[categorical_columns])
+    encoded_df = pd.DataFrame(
+        encoded_data, columns=encoder.get_feature_names_out(categorical_columns))
+
+    encoded_dataset = pd.concat(
+        [dataset.drop(columns=categorical_columns), encoded_df], axis=1)
+
+    return encoded_dataset
 
 
 def _ampute():
@@ -61,6 +77,13 @@ def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, outp
     columns_without_missing_values = [
         col for col in dataset.columns if col not in columns_with_missing_values]
 
+    # identify data types of columns
+    numeric_columns = list(dataset.select_dtypes(
+        include=['int64', 'float64']).columns)
+    categorical_columns = list(
+        dataset.select_dtypes(include=['category']).columns)
+    # [ col for col in dataset.columns if dataset[col].dtype == 'category']
+
     # -----
     # validations
     # -----
@@ -80,24 +103,27 @@ def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, outp
 
     tracemalloc.start()
 
-    print(columns_with_missing_values)
     if plugin_name in ["mean", "median"]:
         plugin = imputers.get(plugin_name)
-        # TODO: pre-processing for categorical types (encoding)
-        # TODO: these imputers only accepts integer/float type, to check columns_with_missing_values
+
+        dataset = _encode(dataset, categorical_columns)
+        target_columns = numeric_columns + categorical_columns
+        if not numeric_columns:
+            print(
+                f"No appropriate columns to impute with plugin, {plugin_name}")
 
     elif plugin_name == "most_frequent":
         plugin = imputers.get(plugin_name)
+        target_columns = columns_with_missing_values
 
     elif plugin_name == "hyperimpute":
         plugin = imputers.get(plugin_name,
                               optimizer="hyperband",
                               classifier_seed=["logistic_regression"],
                               regression_seed=["linear_regression"])
+        target_columns = columns_with_missing_values
 
     elif plugin_name == "mice":
-        # TODO: pre-processing for categorical types (encoding)
-        # TODO: these imputers only accepts integer/float type, to check columns_with_missing_values
 
         plugin = imputers.get(
             plugin_name,
@@ -105,6 +131,12 @@ def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, outp
             # max_iter=plugin_params["max_iter"],
             # random_state=plugin_params["random_state"]
         )
+
+        dataset = _encode(dataset, categorical_columns)
+        target_columns = numeric_columns + categorical_columns
+        if not numeric_columns:
+            print(
+                f"No appropriate columns to impute with plugin, {plugin_name}")
 
     elif plugin_name == "missforest":
         plugin = imputers.get(
@@ -127,7 +159,7 @@ def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, outp
     # impute only on columns with missing values
     begin_impute_time = time.time()
     imputed_columns = plugin.fit_transform(
-        dataset[columns_with_missing_values]
+        dataset[target_columns]
     )
 
     # concatenate imputed dataframe
