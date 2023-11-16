@@ -70,7 +70,7 @@ def objective(trial, synthsizer_name,
     except Exception as e:
         print(e)
         # breakpoint()
-        
+
     # params = {'n_iter': 1, 'lr': 0.0001, 'decoder_n_layers_hidden': 3, 'weight_decay': 0.001, 'batch_size': 256, 'n_units_embedding': 250, 'decoder_n_units_hidden': 250, 'decoder_nonlin': 'tanh',
     #           'decoder_dropout': 0.07905995141252627, 'encoder_n_layers_hidden': 1, 'encoder_n_units_hidden': 350, 'encoder_nonlin': 'tanh', 'encoder_dropout': 0.13587014375548792}
     try:
@@ -97,7 +97,7 @@ def objective(trial, synthsizer_name,
     opt_dict["trials"][trial_id]["time_sec"] = time.time() - trial_start_time
 
     if 'workspace' in opt_dict["trials"][trial_id]["params"]:
-        del opt_dict["trials"][trial_id]["params"]['workspace'] # not required
+        del opt_dict["trials"][trial_id]["params"]['workspace']  # not required
     return score
 
 
