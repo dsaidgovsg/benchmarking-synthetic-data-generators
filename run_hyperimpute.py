@@ -154,7 +154,8 @@ def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, outp
         )
 
     else:
-        raise NotImplementedError(f"No such hyperimpute plugin: {plugin_name}")
+        raise NotImplementedError(
+            f"No such hyperimpute plugin / or not supported yet: {plugin_name}")
 
     # impute only on columns with missing values
     begin_impute_time = time.time()
