@@ -1,13 +1,17 @@
 """Privacy metrics"""
+import pandas as pd
 import numpy as np
 from sdmetrics.single_table import NewRowSynthesis
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 
+# from sklearn.metrics import pairwise_distances
+# from sklearn.preprocessing import StandardScaler
 
-def compute_new_row_synthesis(real_data, synthetic_data, metadata, 
-                                    numerical_match_tolerance=0.01, 
-                                    synthetic_sample_size=None):
+
+def compute_new_row_synthesis(real_data, synthetic_data, metadata,
+                              numerical_match_tolerance=0.01,
+                              synthetic_sample_percent=None):
     """
     Compute the New Row Synthesis score between real and synthetic datasets.
 
@@ -23,15 +27,19 @@ def compute_new_row_synthesis(real_data, synthetic_data, metadata,
     Returns:
         new_row_synthesis_score (float): The computed New Row Synthesis score.
     """
+    #   numerical_match_tolerance: A float >0.0 representing how close two numerical values have to be in order to be considered a match.
+    #   (default) 0.01, which represents 1%
+    #   synthetic_sample_size: The number of synthetic rows to sample before computing this metric. Use this to speed up the computation time if you have a large amount of synthetic data. Note that the final score may not be as precise if your sample size is low.
+
     # Calculate the New Row Synthesis score using the metric
     new_row_synthesis_score = NewRowSynthesis.compute(
         real_data=real_data,
         synthetic_data=synthetic_data,
         metadata=metadata,
         numerical_match_tolerance=numerical_match_tolerance,
-        synthetic_sample_size=synthetic_sample_size
+        synthetic_sample_size=int(len(synthetic_data)*synthetic_sample_percent)
     )
-    
+
     return new_row_synthesis_score
 
 
@@ -106,6 +114,112 @@ def compute_distance_to_closest_records(real_data, synthetic_data, data_percent=
     }
 
     return results
+
+
+def compute_dcr_metrics(train_data, test_data, synthetic_data):
+    # TODO: revisit
+    """
+    Calculate Distance to Closest Record (DCR) metrics.
+
+    Parameters:
+        train_data (numpy.ndarray): Training dataset.
+        test_data (numpy.ndarray): Test dataset.
+        synthetic_data (numpy.ndarray): Synthetic dataset.
+
+    Returns:
+        results (dict): Dictionary containing DCR metrics and privacy score.
+    """
+    # Calculate DCR for Test-Train
+    dcr_test_train = np.min(metrics.pairwise_distances(
+        test_data, train_data), axis=1)
+
+    # Calculate DCR for Synthetic-Train
+    dcr_synthetic_train = np.min(metrics.pairwise_distances(
+        synthetic_data, train_data), axis=1)
+
+    # Calculate the difference in DCR
+    diff_dcr = np.abs(dcr_test_train - dcr_synthetic_train)
+
+    # Calculate Diff DCR in percentage
+    diff_dcr_percent = np.mean(diff_dcr / dcr_test_train)  # * 100
+
+    # Calculate Privacy Score
+    privacy_score = 1 - diff_dcr_percent
+
+    # Evaluate Privacy Level
+    # privacy_level = "High" if diff_dcr_percent < 10 else ("Medium" if diff_dcr_percent < 50 else "Low")
+
+    # Compile results
+    results = {
+        # "dcr_test_train": dcr_test_train,
+        # "dcr_synthetic_train": dcr_synthetic_train,
+        # "diff_dcr": diff_dcr,
+        "diff_dcr_percent": diff_dcr_percent,
+        "privacy_score": privacy_score
+        # "Privacy Level": privacy_level
+    }
+
+    return results
+
+
+def compute_nndr_metrics(train_data, test_data, synthetic_data):
+    # TODO: revisit
+    """
+    Calculate Nearest Neighbor Distance Ratio (NNDR) metrics.
+
+    Parameters:
+        train_data (pd.DataFrame or pd.Series): Training dataset.
+        test_data (pd.DataFrame or pd.Series): Test dataset.
+        synthetic_data (pd.DataFrame or pd.Series): Synthetic dataset.
+
+    Returns:
+        results (dict): Dictionary containing NNDR metrics and privacy score.
+    """
+    def nndr(dataset, reference_dataset):
+        # Convert pandas data to numpy array if necessary
+        if isinstance(dataset, pd.DataFrame) or isinstance(dataset, pd.Series):
+            dataset = dataset.values
+        if isinstance(reference_dataset, pd.DataFrame) or isinstance(reference_dataset, pd.Series):
+            reference_dataset = reference_dataset.values
+
+        # Calculate pairwise distances
+        distances = metrics.pairwise_distances(dataset, reference_dataset)
+        sorted_distances = np.sort(distances, axis=1)
+        closest, second_closest = sorted_distances[:,
+                                                   0], sorted_distances[:, 1]
+        return closest / second_closest
+
+    nndr_test_train = nndr(test_data, train_data)
+    nndr_synthetic_train = nndr(synthetic_data, train_data)
+
+    diff_nndr = np.abs(nndr_test_train - nndr_synthetic_train)
+    diff_nndr_percent = np.mean(diff_nndr / nndr_test_train)  # * 100
+
+    privacy_score = 1 - diff_nndr_percent
+
+    # privacy_level = "High" if diff_nndr_percent < 10 else ("Medium" if diff_nndr_percent < 50 else "Low")
+
+    results = {
+        "nndr_test_train": nndr_test_train,
+        "nndr_synthetic_train": nndr_synthetic_train,
+        "diff_nndr": diff_nndr,
+        "diff_nndr_percent": diff_nndr_percent,
+        "privacy_score": privacy_score
+        # "Privacy Level": privacy_level
+    }
+
+    return results
+
+# Example usage with pandas DataFrame or Series
+# results = compute_nndr_metrics(pd.DataFrame(train_data), pd.DataFrame(test_data), pd.DataFrame(synthetic_data))
+# print(results)
+
+
+# Example Usage
+# Assuming train_data, test_data, and synthetic_data are numpy arrays
+# results = compute_dcr_metrics(train_data, test_data, synthetic_data)
+# print(results)
+
 
 # import pandas as pd
 # import numpy as np

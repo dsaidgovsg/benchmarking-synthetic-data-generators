@@ -17,23 +17,25 @@ def compute_domain_coverage(real_col, synthetic_col, col_data_type):
     """
     if col_data_type in ["categorical", "boolean"]:
         # For categorical or boolean columns, use CategoryCoverage metric
-        domain_coverage_score = CategoryCoverage.compute(
+        return CategoryCoverage.compute(
             real_data=real_col,
             synthetic_data=synthetic_col
         )
     elif col_data_type in ["numerical", "datetime"]:
         # For numerical or datetime columns, use RangeCoverage metric
-        domain_coverage_score = RangeCoverage.compute(
+        return RangeCoverage.compute(
             real_data=real_col,
             synthetic_data=synthetic_col
         )
     
-    return domain_coverage_score
+    return None
 
 
 def compute_missing_values_coverage(real_col, synthetic_col):
     """
     Calculate the missing values coverage score for a given column.
+
+    Caveat: Missing values are interpreted as NaN.
 
     Parameters:
         real_col (pandas.Series): Real data column.
@@ -92,6 +94,9 @@ def _calculate_num_outliers(data):
 def compute_outlier_coverage(real_col, synthetic_col):
     """
     Calculate the outlier coverage score between real and synthetic datasets.
+    Directions: 
+    # Maximize score to ensure synthetic data closely mirrors outlier distribution of real data.
+    # Minimize score to reduce emphasis on outliers in synthetic data compared to real data.
 
     Parameters:
         real_data (pandas.Series): The real dataset containing outliers.
@@ -111,7 +116,10 @@ def compute_outlier_coverage(real_col, synthetic_col):
     p_synthetic = num_synthetic_outliers / total_synthetic_points
 
     # Calculate the outlier coverage score
-    score = min(p_synthetic / p_real, 1)
+    if p_real == 0:
+        score = 0 
+    else:
+        score = min(p_synthetic / p_real, 1)
 
     return score
 

@@ -56,48 +56,55 @@ def objective(trial, synthsizer_name,
     trial_id = f"trial_{trial.number}"
     print(f"Trial ID  {trial_id}")
     opt_dict["trials"][trial_id] = {}
+    trial_obj = opt_dict["trials"][trial_id]
     # Get the hyperparameter space from the specified synthesizer
     hp_space = Plugins().get(synthsizer_name).hyperparameter_space()
 
     # Uncomment the next line if you need to set a specific high value for the first hyperparameter
     # TODO: Reset for real run | Set the number of epochs
-    # hp_space[0].high = 100
+    hp_space[0].high = 100
 
     try:
         # Get the hyperparameters for the current trial
         params = suggest_all(trial, hp_space)
-        opt_dict["trials"][trial_id]["params"] = params
+        trial_obj["params"] = params
     except Exception as e:
         print(e)
-        # breakpoint()
-        
+        breakpoint()
+
     # params = {'n_iter': 1, 'lr': 0.0001, 'decoder_n_layers_hidden': 3, 'weight_decay': 0.001, 'batch_size': 256, 'n_units_embedding': 250, 'decoder_n_units_hidden': 250, 'decoder_nonlin': 'tanh',
     #           'decoder_dropout': 0.07905995141252627, 'encoder_n_layers_hidden': 1, 'encoder_n_units_hidden': 350, 'encoder_nonlin': 'tanh', 'encoder_dropout': 0.13587014375548792}
-    try:
-        # Evaluate the current set of hyperparameters
-        report = Benchmarks.evaluate(
-            [(trial_id, synthsizer_name, params)],
-            train_dataset,
-            test_dataset,
-            repeats=1,
-            metrics={"stats": [*objective_metrics]}
-            # metrics={"detection": ["detection_mlp"]},  # Uncomment for specific metric
-        )
-    except Exception as e:
-        # Handle invalid set of hyperparameters
-        print(f"Error ({type(e).__name__}): {e}")
-        print("Parameters:", params)
-        raise optuna.TrialPruned()  # Inform Optuna that this trial should be pruned
+    
+    print("@"*10)
+    print(params)
+    print("@"*10)
+    params["delta"] = 0.5
+    # try:
+    # Evaluate the current set of hyperparameters
+    report = Benchmarks.evaluate(
+        [(trial_id, synthsizer_name, params)],
+        train_dataset,
+        test_dataset,
+        repeats=1,
+        metrics={"stats": [*objective_metrics]}
+        # metrics={"detection": ["detection_mlp"]},  # Uncomment for specific metric
+    )
+    # except Exception as e:
+    #     # Handle invalid set of hyperparameters
+    #     print(f"Error ({type(e).__name__}): {e}")
+    #     print("Parameters:", params)
+    #     breakpoint()
+    #     raise optuna.TrialPruned()  # Inform Optuna that this trial should be pruned
 
     # Calculate the average score across all metrics with the specified direction
     score = report[trial_id].query(f"direction == '{objective_direction_str}'")[
         'mean'].mean()
 
-    opt_dict["trials"][trial_id]["score"] = score
-    opt_dict["trials"][trial_id]["time_sec"] = time.time() - trial_start_time
+    trial_obj["score"] = score
+    trial_obj["time_sec"] = time.time() - trial_start_time
 
-    if 'workspace' in opt_dict["trials"][trial_id]["params"]:
-        del opt_dict["trials"][trial_id]["params"]['workspace'] # not required
+    if 'workspace' in trial_obj["params"]:
+        del trial_obj["params"]['workspace']  # not required
     return score
 
 
@@ -115,7 +122,7 @@ METRICS_TO_MINIMIZE = ['jensenshannon_dist',
 METRICS_TO_MAXIMIZE = ['chi_squared_test',
                        'inv_kl_divergence', 'ks_test', 'prdc', 'alpha_precision']
 # TODO: Reset for real run
-NUM_TRIALS = 25  # 50, 75, 100
+NUM_TRIALS = 1  # 25  # 50, 75, 100
 
 
 def run_synthcity_optimizer(
@@ -140,6 +147,8 @@ def run_synthcity_optimizer(
     Returns:
     None
     """
+    # TODO: handle case when
+    # 1) no target
     target_col = ML_TASKS_TARGET_CLASS[exp_dataset_name]
 
     train_loader = GenericDataLoader(
@@ -171,7 +180,7 @@ def run_synthcity_optimizer(
 
     print(f"Set objective metrics: {objective_metrics}")
     print(
-        f"Time taken for {exp_synthsizer_name }hyperparameter optimisation with {NUM_TRIALS} trails: {total_time} seconds")
+        f"Time taken for {exp_synthsizer_name} hyperparameter optimisation with {NUM_TRIALS} trials: {total_time} seconds")
 
     opt_dict["total_time_sec"] = total_time
     opt_dict["best_params"] = study.best_params
