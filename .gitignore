@@ -26,3 +26,6 @@ tutorial8_hyperparameter_optimization.ipynb
 notebooks/Untitled.ipynb
 final_outs/
 met_out/
+hpo_out/
+hpo_trial/
+*.json

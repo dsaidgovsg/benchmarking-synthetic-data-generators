@@ -306,39 +306,39 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # --------------------------
     # SDV Quality Report Metrics
     # --------------------------
-    try:
-        begin_time = time.time()
-        q_report = compute_metric(metric_name="corr_shapes",
-                                  real_data=real_data_test,
-                                  synthetic_data=synthetic_data,
-                                  metadata=metadata_class)
-        results["sdv_quality_report"]["score"] = q_report.get_score()
+    # try:
+    begin_time = time.time()
+    q_report = compute_metric(metric_name="corr_shapes",
+                              real_data=real_data_test,
+                              synthetic_data=synthetic_data,
+                              metadata=metadata_class)
+    results["sdv_quality_report"]["score"] = q_report.get_score()
 
-        # Process and store distribution scores
-        q_report_cols_df = q_report.get_details(property_name='Column Shapes')
-        dis_dict = {}
-        for _, row in q_report_cols_df.iterrows():
-            column = row['Column']
-            metric = row['Metric']
-            quality_score = row['Quality Score']
-            dis_dict[column] = {
-                "metric": metric,
-                "score": quality_score
-            }
-        results["sdv_quality_report"]["distribution"] = dis_dict
+    # Process and store distribution scores
+    q_report_cols_df = q_report.get_details(property_name='Column Shapes')
+    dis_dict = {}
+    for _, row in q_report_cols_df.iterrows():
+        column = row['Column']
+        metric = row['Metric']
+        quality_score = row['Quality Score']
+        dis_dict[column] = {
+            "metric": metric,
+            "score": quality_score
+        }
+    results["sdv_quality_report"]["distribution"] = dis_dict
 
-        # Store quality report details
-        q_report_corr_df = q_report.get_details(
-            property_name='Column Pair Trends')
-        q_report_corr_df.to_csv(
-            f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_correlation.csv", index=False)
+    # Store quality report details
+    q_report_corr_df = q_report.get_details(
+        property_name='Column Pair Trends')
+    q_report_corr_df.to_csv(
+        f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_correlation.csv", index=False)
 
-        results["sdv_quality_report"]["timing"] = time.time() - begin_time
-        LOGGER.info(f"q_report: {results['sdv_quality_report']['score']}")
-        LOGGER.info(f"q_report: {q_report.get_properties()}")
-    except Exception as e:
-        print(e)
-        LOGGER.error(e)
+    results["sdv_quality_report"]["timing"] = time.time() - begin_time
+    LOGGER.info(f"q_report: {results['sdv_quality_report']['score']}")
+    LOGGER.info(f"q_report: {q_report.get_properties()}")
+    # except Exception as e:
+    #     print(e)
+    #     LOGGER.error(e)
 
     results["total_time"] = time.time() - begin_compute_time
 
@@ -349,8 +349,9 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
 
 if __name__ == "__main__":
     # BASE = "az_outputs_23aug/2023-08-20"
-    BASE = "final_outs/final_sdv_tabular_23aug"
+
     LIB = "sdv"
+    BASE = f"final_outs/final_{LIB}_tabular"
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_set", "--ds", type=str, default="s3",
@@ -359,7 +360,8 @@ if __name__ == "__main__":
     parser.add_argument("--synthesizer", "--s", type=str, default="ctgan",
                         help="enter synthesizer name \
                             Possible values - {ctgan, tvae, gaussian_copula}")
-    parser.add_argument("--output_folder", "--o", type=str, default="outputs")
+    parser.add_argument("--output_folder", "--o",
+                        type=str, default="metrics_out")
 
     args = parser.parse_args()
 
@@ -379,7 +381,7 @@ if __name__ == "__main__":
     elif exp_data_set_name == "s2":
         exp_data_set = ["loan", "covtype", "child"]
     elif exp_data_set_name == "llm":
-        exp_data_set = ["adult"]  # "health_insurance"]
+        exp_data_set = ["adult", "health_insurance", "loan"]
     else:
         exp_data_set = ["health_insurance", "census", "credit"]
 

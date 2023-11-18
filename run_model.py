@@ -32,6 +32,14 @@ if __name__ == "__main__":
                         Possible values - {adult, census, child, covtype, \
                         credit, insurance, intrusion, health_insurance, drugs, loan, \
                         nasdaq, taxi, asu}")
+    parser.add_argument("--imputer", "--i", type=str, default="hyperimpute",
+                        help="enter hyperimputer plugin name \
+                            Possible values - {'median', 'sklearn_ice', 'mice', 'nop', \
+                            'missforest', 'EM', 'ice', 'most_frequent', 'mean', \
+                            'miracle', 'miwae', 'hyperimpute', 'gain', 'sklearn_missforest', \
+                            'softimpute', 'sinkhorn'")
+    parser.add_argument("--optimizer_trials", "--trials", type=int, default=25)
+
     # default epoch is set as 0 as statistical models do not need epochs
     parser.add_argument("--num_epochs", "--e", type=int, default=0)
     parser.add_argument("--data_folder", "--d", type=str, default="data")
@@ -46,6 +54,8 @@ if __name__ == "__main__":
                         help="whether to generate SDV diagnostic report", action='store_true')
     parser.add_argument("--run_optimizer", "--ro", default=False,
                         help="whether to run hyperparameter optimizer", action='store_true')
+    parser.add_argument("--run_hyperimpute", "--ri", default=False,
+                        help="whether to run hyperimpute", action='store_true')
     parser.add_argument("--use_gpu", "--cuda", default=False,
                         help="whether to use GPU device(s)", action='store_true')
 
@@ -64,13 +74,16 @@ if __name__ == "__main__":
     exp_data_modality: str = args.modality
     exp_synthesizer: str = args.synthesizer
     exp_dataset_name: str = args.data
+    exp_imputer: str = args.imputer
 
     use_gpu: bool = args.use_gpu
     num_epochs: int = args.num_epochs
+    optimizer_trials: int = args.optimizer_trials
     data_folder: str = args.data_folder
     output_folder: str = args.output_folder
     train_test_data: bool = args.train_test_data
     run_optimizer: bool = args.run_optimizer
+    run_hyperimpute: bool = args.run_hyperimpute
 
     get_quality_report: bool = args.get_quality_report
     get_diagnostic_report: bool = args.get_diagnostic_report
@@ -85,7 +98,10 @@ if __name__ == "__main__":
     # Output folder for saving:
     # 1.Logs 2.Synthetic Data 3.Execution Metrics 4.Saved Models
     # -----------------------------------------------------------
-    if args.run_optimizer:
+
+    if args.run_hyperimpute:
+        output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_impute/{exp_dataset_name}/"
+    elif args.run_optimizer:
         output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_hpo/{exp_dataset_name}/"
     else:
         output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}/{exp_dataset_name}/"
@@ -165,7 +181,26 @@ if __name__ == "__main__":
         real_dataset, metadata = get_dataset_with_sdv(
             "single_table", exp_dataset_name)
 
-    train_dataset = real_dataset
+    # --------------
+    # Run hyperimpute if enabled
+    # --------------
+    if run_hyperimpute:
+        print("Executing hyperimpute on train dataset")
+
+        from run_hyperimpute import hyperimpute
+        print(
+            f"before imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+        real_dataset = hyperimpute(dataset=real_dataset,
+                                   dataset_name=exp_dataset_name,
+                                   plugin_name=exp_imputer,
+                                   output_path=output_path)
+        print(
+            f"after imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+    # else:
+    #     train_dataset = real_dataset
+
+    # breakpoint()
+    # todo pass the real-dataset
 
     # --------------
     # Split and get training dataset
@@ -255,7 +290,8 @@ if __name__ == "__main__":
                                                  exp_dataset_name,
                                                  train_dataset,
                                                  test_dataset,
-                                                 output_path)
+                                                 output_path,
+                                                 optimizer_trials)
 
             if not opt_params:
                 raise ("Hyperparamter optimisation failed!")
