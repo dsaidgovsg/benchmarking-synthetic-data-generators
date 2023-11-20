@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     try:
         synthetic_dataset.to_csv(
-            f"{output_path}/{dataset_name}_synthetic_data.csv")
+            f"{output_path}/{dataset_name}_synthetic_data.csv", index=False)
     except Exception as e:
         print("Exception:=> ", e)
 

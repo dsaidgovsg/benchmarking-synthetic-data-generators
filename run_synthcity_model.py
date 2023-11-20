@@ -248,7 +248,7 @@ def run_model(**kwargs):
             columns={"target": target_class})
 
     synthetic_dataset.to_csv(
-        f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv")
+        f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv", index=False)
 
     # save execution data
     with open(f"{output_path}{dataset_name}_{synthesizer_name}_execution_scores.json", "w") as json_file:

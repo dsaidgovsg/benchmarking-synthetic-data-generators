@@ -1,201 +1,142 @@
-""" To run hyperimpute on columns with null values"""
-import tracemalloc
+"Apply imputation on a DataFrame"
+
 import time
 import json
-import pandas as pd
+from pandas import DataFrame
+from typing import Any, Dict
+
 
 from hyperimpute.plugins.imputers import Imputers
-from commons.static_vals import N_BYTES_IN_MB
-from sklearn.preprocessing import OneHotEncoder
+
+# from sklearn.experimental import enable_iterative_imputer
+# from sklearn.impute import SimpleImputer, IterativeImputer
+# from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 
 
-def _validate_imputers(imputers: Imputers, plugin_name: str) -> bool:
+def is_mcar(dataframe):
+    # TODO (futuristic)
     """
+    Heuristic to check if the dataset is likely MCAR (Missing Completely At Random).
+    This is a simplified check and might not be accurate for complex datasets.
 
     Args:
-        impute (Imputers)
-        plugin_name
+    dataframe (pd.DataFrame): The dataset with missing values.
 
     Returns:
-        bool
+    bool: True if the dataset is likely MCAR, False otherwise.
     """
-    list_of_imputers = imputers.list()
+    # Implement logic to check for MCAR. This can be a statistical test or heuristic.
+    # For simplicity, let's assume a dataset is MCAR if missingness is low and does not correlate with other variables.
+    # This is a very simplified assumption.
+    missing_percent = dataframe.isnull().mean()
 
-    if plugin_name in list_of_imputers:
-        return True
-    else:
-        return False
-
-
-def _validate_parameters(plugin_name):
-    # can use pydantic to validate
-    ...
+    return missing_percent.max() < 5 and dataframe.corrwith(missing_percent).abs().max() < 0.1
 
 
-def _encode(dataset, categorical_columns):
-
-    encoder = OneHotEncoder(sparse=False, drop='first')
-
-    # Apply one-hot encoding to categorical columns
-    encoded_data = encoder.fit_transform(dataset[categorical_columns])
-    encoded_df = pd.DataFrame(
-        encoded_data, columns=encoder.get_feature_names_out(categorical_columns))
-
-    encoded_dataset = pd.concat(
-        [dataset.drop(columns=categorical_columns), encoded_df], axis=1)
-
-    return encoded_dataset
-
-
-def _ampute():
-    # TODO: for simulation of inserting null data
-    from hyperimpute.plugins.utils.simulate import simulate_nan
-    ...
-
-
-def hyperimpute(dataset: pd.DataFrame, dataset_name: str, plugin_name: str, output_path: str, **plugin_params) -> pd.DataFrame:
+def apply_imputation(dataframe: DataFrame,
+                     method: str,
+                     dataset_name: str,
+                     output_path: str) -> DataFrame:
     """
-    run imputation on dataset
+    Apply the specified imputation method to the given DataFrame.
 
-    Args:
-    - dataset: original dataset
-    - plugin_name: Name of imputation plugin
-    - output_path: path to write metrics
-    - plugins_parameters: contains all the different parameters combinations in keyword arguments.
+    Parameters:
+    - dataframe (DataFrame): The DataFrame on which to apply the imputation.
+    - method (str): The imputation method to use. Valid options are 'simple', 'hyperimpute', 'mice', 'ice', 'missforest'.
+    - dataset_name (str): The name of the dataset, used for saving the output files.
+    - output_path (str): The path where the output files (imputed data and imputer details) will be saved.
 
     Returns:
-        pd.DataFrame: imputed dataset
+    - DataFrame: The DataFrame after imputation.
+
+    Raises:
+    - ValueError: If an invalid imputation method is specified.
     """
-    # -----
-    # prep
-    # -----
-    imputers = Imputers()
 
-    # identify columns with missing values and without
-    columns_with_missing_values = dataset.columns[dataset.isnull(
-    ).any()].tolist()
-    columns_without_missing_values = [
-        col for col in dataset.columns if col not in columns_with_missing_values]
+    # Check if the dataframe has any missing values
+    if not dataframe.isna().any().any():
+        print("No missing values in the dataset. Returning the original dataframe.")
+        return dataframe
 
-    # identify data types of columns
-    # TODO: support all datatypes
-    numeric_columns = list(dataset.select_dtypes(
-        include=['int64', 'float64']).columns)
-    categorical_columns = list(
-        dataset.select_dtypes(include=['category']).columns)
-    # [ col for col in dataset.columns if dataset[col].dtype == 'category']
-
-    # -----
-    # validations
-    # -----
-    if not _validate_imputers(imputers,
-                              plugin_name=plugin_name):
-        raise ValueError(f"No such plugin, {plugin_name}")
-
-    if len(columns_with_missing_values) < 1:
-        print("No columns with null values found, skipping hyperimpute")
-        return dataset
-
-    _validate_parameters(plugin_name)
-
-    # -----
-    # main logic
-    # -----
-
-    tracemalloc.start()
-
-    if plugin_name in ["mean", "median"]:
-        plugin = imputers.get(plugin_name)
-
-        dataset = _encode(dataset, categorical_columns)
-        target_columns = numeric_columns + categorical_columns
-        if not numeric_columns:
-            print(
-                f"No appropriate columns to impute with plugin, {plugin_name}")
-
-    elif plugin_name == "most_frequent":
-        plugin = imputers.get(plugin_name)
-        target_columns = columns_with_missing_values
-
-    elif plugin_name == "hyperimpute":
-        plugin = imputers.get(plugin_name,
-                              optimizer="hyperband",
-                              classifier_seed=["logistic_regression"],
-                              regression_seed=["linear_regression"])
-        target_columns = columns_with_missing_values
-
-    elif plugin_name == "mice":
-
-        plugin = imputers.get(
-            plugin_name,
-            # n_imputations=plugin_params["n_imputations"],
-            # max_iter=plugin_params["max_iter"],
-            # random_state=plugin_params["random_state"]
-        )
-
-        dataset = _encode(dataset, categorical_columns)
-        target_columns = numeric_columns + categorical_columns
-        if not numeric_columns:
-            print(
-                f"No appropriate columns to impute with plugin, {plugin_name}")
-
-    elif plugin_name == "missforest":
-        plugin = imputers.get(
-            plugin_name,
-            # n_estimators=plugin_params["n_estimators"],
-            # max_iter=plugin_params["max_iter"],
-            # random_state=plugin_params["random_state"]
-        )
-
-    elif plugin_name == "ice":
-        plugin = imputers.get(
-            plugin_name,
-            # max_iter=plugin_params["max_iter"],
-            # random_state=plugin_params["random_state"]
-        )
-
-    else:
-        raise NotImplementedError(
-            f"No such hyperimpute plugin / or not supported yet: {plugin_name}")
-
-    # impute only on columns with missing values
     begin_impute_time = time.time()
-    imputed_dataset = plugin.fit_transform(
-        dataset#[target_columns]
-    )
 
-    # concatenate imputed dataframe
-    # imputed_df = pd.DataFrame(
-    #     imputed_columns, columns=columns_with_missing_values, index=dataset.index)
-    # imputed_dataset = pd.concat(
-    #     [dataset[columns_without_missing_values], imputed_df], axis=1)
+    try:
+        if method == "simple":
+            for column in dataframe.columns:
+                if dataframe[column].dtype.kind in 'bifc':  # Check for numeric types
+                    print("Numerical: ", column)
+                    strategy = 'mean' if - \
+                        0.5 < dataframe[column].skew() < 0.5 else 'median'
+                    imputer = Imputers().get(strategy)
+                    dataframe[column] = imputer.fit_transform(
+                        dataframe[[column]])
+                else:
+                    print("Categorical: ", column)
+                    imputer = Imputers().get("most_frequent")
+                    dataframe[column] = imputer.fit_transform(
+                        dataframe[[column]])
+
+        elif method == "hyperimpute":
+            imputer = Imputers().get(
+                "hyperimpute",
+                # optimizer: str. The optimizer to use: simple, hyperband, bayesian
+                optimizer="hyperband",
+                # classifier_seed: list. Model search pool for categorical columns.
+                classifier_seed=["logistic_regression",
+                                 "catboost", "xgboost", "random_forest"],
+                # regression_seed: list. Model search pool for continuous columns.
+                regression_seed=["linear_regression", "catboost_regressor",
+                                 "xgboost_regressor", "random_forest_regressor"],
+                # class_threshold: int. how many max unique items must be in the column to be is associated with categorical
+                class_threshold=5,
+                # imputation_order: int. 0 - ascending, 1 - descending, 2 - random
+                imputation_order=2,
+                # n_inner_iter: int. number of imputation iterations
+                n_inner_iter=10,
+                # select_model_by_column: bool. If true, select a different model for each column.
+                # Else, it reuses the model chosen for the first column.
+                select_model_by_column=True,
+                # select_model_by_iteration: bool. If true, selects new models for each iteration.
+                # Else, it reuses the models chosen in the first iteration.
+                select_model_by_iteration=True,
+                # select_lazy: bool. If false, starts the optimizer on every column unless other restrictions apply.
+                # Else, if for the current iteration there is a trend(at least to columns of the same type got the same model from the optimizer),
+                # it reuses the same model class for all the columns without starting the optimizer.
+                select_lazy=True,
+                # select_patience: int. How many iterations without objective function improvement to wait.
+                select_patience=5
+            )
+            dataframe[:] = imputer.fit_transform(dataframe)
+
+        elif method in ["mice", "ice", "missforest"]:
+            imputer = Imputers().get(method)
+            dataframe[:] = imputer.fit_transform(dataframe)
+
+        else:
+            raise ValueError("Not a valid imputation method.")
+
+    except Exception as e:
+        print(f"Error using {method} imputation method: {e}")
 
     end_impute_time = time.time()
-    peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
-    tracemalloc.stop()
-    tracemalloc.clear_traces()
-
-    # ----
-    # post-experiment
-    # ----
-
-    imputer_info = {
+    imputer_info: Dict[str, Any] = {
         "lib": "hyperimpute==0.1.17",
-        "plugin": plugin_name,
-        "impute_time_sec": end_impute_time - begin_impute_time,
-        "peak_memory_mb": peak_memory
+        "imputation_method": method,
+        "impute_time_sec": end_impute_time - begin_impute_time
     }
 
-    # ---------------------
-    # Dump output to files
-    # ---------------------
-
-    # save imputed data
-    imputed_dataset.to_csv(
-        f"{output_path}{dataset_name}_imputed_data.csv")
-
-    # save imputer details
     with open(f"{output_path}{dataset_name}_imputer.json", "w", encoding="utf-8") as json_file:
         json.dump(imputer_info, json_file)
+    dataframe.to_csv(
+        f"{output_path}{dataset_name}_imputed_data.csv", index=False)
 
-    return imputed_dataset
+    return dataframe
+
+# notes: will remove later
+# column-type: median, mean, sklearn_ice, sklearn_missforest, gain, sinkhorn, miwae
+# mixed: hyperimpute, mice, ice, missforest
+# 'nop',
+# 'miwae', --> failed
+# 'miracle',--> failed
+# 'EM', --> failed
+# 'softimpute', --> failed

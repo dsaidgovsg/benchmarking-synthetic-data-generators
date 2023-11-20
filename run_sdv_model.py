@@ -232,7 +232,7 @@ def run_model(**kwargs):
     )
     # save synthetic data
     synthetic_dataset.to_csv(
-        f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv")
+        f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv", index=False)
 
     if generate_sdv_quality_report:
         print("Generating Quality Report", "#"*10)

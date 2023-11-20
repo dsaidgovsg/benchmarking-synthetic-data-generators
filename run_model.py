@@ -34,10 +34,12 @@ if __name__ == "__main__":
                         nasdaq, taxi, asu}")
     parser.add_argument("--imputer", "--i", type=str, default="hyperimpute",
                         help="enter hyperimputer plugin name \
-                            Possible values - {'median', 'sklearn_ice', 'mice', 'nop', \
-                            'missforest', 'EM', 'ice', 'most_frequent', 'mean', \
-                            'miracle', 'miwae', 'hyperimpute', 'gain', 'sklearn_missforest', \
-                            'softimpute', 'sinkhorn'")
+                            Possible values - {'simple', 'mice', 'ice', \
+                            'missforest', 'hyperimpute'")
+    # Possible values - {'median', 'sklearn_ice', 'mice', 'nop', \
+    # 'missforest', 'EM', 'ice', 'most_frequent', 'mean', \
+    # 'miracle', 'miwae', 'hyperimpute', 'gain', 'sklearn_missforest', \
+    # 'softimpute', 'sinkhorn'")
     parser.add_argument("--optimizer_trials", "--trials", type=int, default=25)
 
     # default epoch is set as 0 as statistical models do not need epochs
@@ -187,15 +189,16 @@ if __name__ == "__main__":
     if run_hyperimpute:
         print("Executing hyperimpute on train dataset")
 
-        from run_hyperimpute import hyperimpute
+        from run_hyperimpute import apply_imputation
         print(
             f"before imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
-        real_dataset = hyperimpute(dataset=real_dataset,
-                                   dataset_name=exp_dataset_name,
-                                   plugin_name=exp_imputer,
-                                   output_path=output_path)
+        real_dataset = apply_imputation(dataframe=real_dataset,
+                                        method=exp_imputer,
+                                        dataset_name=exp_dataset_name,
+                                        output_path=output_path)
         print(
             f"after imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+        breakpoint()
     # else:
     #     train_dataset = real_dataset
 
