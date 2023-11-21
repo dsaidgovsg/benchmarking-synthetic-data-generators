@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         nasdaq, taxi, asu}")
     parser.add_argument("--imputer", "--i", type=str, default="hyperimpute",
                         help="enter hyperimputer plugin name \
-                            Possible values - {'simple', 'mice', 'ice', \
+                            Possible values - {'simple', 'mice',  \
                             'missforest', 'hyperimpute'")
     # Possible values - {'median', 'sklearn_ice', 'mice', 'nop', \
     # 'missforest', 'EM', 'ice', 'most_frequent', 'mean', \
@@ -58,6 +58,8 @@ if __name__ == "__main__":
                         help="whether to run hyperparameter optimizer", action='store_true')
     parser.add_argument("--run_hyperimpute", "--ri", default=False,
                         help="whether to run hyperimpute", action='store_true')
+    parser.add_argument("--run_model_training", "--rt", default=False,
+                        help="whether to train a model", action='store_true')
     parser.add_argument("--use_gpu", "--cuda", default=False,
                         help="whether to use GPU device(s)", action='store_true')
 
@@ -86,6 +88,7 @@ if __name__ == "__main__":
     train_test_data: bool = args.train_test_data
     run_optimizer: bool = args.run_optimizer
     run_hyperimpute: bool = args.run_hyperimpute
+    run_model_training: bool = args.run_model_training
 
     get_quality_report: bool = args.get_quality_report
     get_diagnostic_report: bool = args.get_diagnostic_report
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------------
 
     if args.run_hyperimpute:
-        output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_impute/{exp_dataset_name}/"
+        output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_{exp_imputer}/{exp_dataset_name}/"
     elif args.run_optimizer:
         output_path: str = f"{output_folder}/{today_date}/{exp_library}/{exp_data_modality}/{exp_synthesizer}_hpo/{exp_dataset_name}/"
     else:
@@ -123,7 +126,9 @@ if __name__ == "__main__":
     # --------------
     # sequential datasets require extra parameters
     sequential_details: dict = None
-
+    print("-"*30)
+    print("Loading dataset")
+    print("-"*30)
     if exp_data_modality == "sequential":
 
         if exp_dataset_name == "nasdaq":
@@ -187,17 +192,22 @@ if __name__ == "__main__":
     # Run hyperimpute if enabled
     # --------------
     if run_hyperimpute:
+        print("-"*30)
+        print("Running imputation")
+        print("-"*30)
         print("Executing hyperimpute on train dataset")
 
         from run_hyperimpute import apply_imputation
         print(
-            f"before imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+            f"before imputation: percent missing values in the real DataFrame: \
+                {real_dataset.isna().sum().sum()/(real_dataset.shape[0]*real_dataset.shape[1])*100}")
         real_dataset = apply_imputation(dataframe=real_dataset,
                                         method=exp_imputer,
                                         dataset_name=exp_dataset_name,
                                         output_path=output_path)
         print(
-            f"after imputation: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+            f"after imputation: total missing values in the real DataFrame: \
+                {real_dataset.isna().sum().sum()}")
         breakpoint()
     # else:
     #     train_dataset = real_dataset
@@ -233,101 +243,110 @@ if __name__ == "__main__":
     # --------------
     # Run models
     # --------------
-    if exp_library == "sdv":
-        from run_sdv_model import run_model
+    if run_model_training:
+        print("-"*30)
+        print("Starting model training")
+        print("-"*30)
+        if exp_library == "sdv":
+            print(
+                f"INSIDE SDV: total missing values in the real DataFrame: {real_dataset.isna().sum().sum()}")
+            from run_sdv_model import run_model
 
-        if not num_epochs:
-            num_epochs = DEFAULT_EPOCH_VALUES["sdv"][exp_synthesizer]
+            if not num_epochs:
+                num_epochs = DEFAULT_EPOCH_VALUES["sdv"][exp_synthesizer]
 
-        print("Selected Synthesizer Library: SDV")
-        LOGGER.info(
-            (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+            print("Selected Synthesizer Library: SDV")
+            LOGGER.info(
+                (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
 
-        # print(real_dataset.shape, train_dataset.shape)
-        LOGGER.info(
-            f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
+            # print(real_dataset.shape, train_dataset.shape)
+            LOGGER.info(
+                f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
-        num_samples = len(real_dataset)
-        run_model(
-            exp_data_modality=exp_data_modality,
-            exp_synthesizer=exp_synthesizer,
-            exp_data=exp_dataset_name,
-            use_gpu=use_gpu,
-            num_epochs=num_epochs,
-            train_dataset=train_dataset,
-            metadata=metadata,
-            num_samples=num_samples,
-            output_path=output_path,
-            sequential_details=sequential_details,
-            get_quality_report=get_quality_report,
-            get_diagnostic_report=get_diagnostic_report)
+            num_samples = len(real_dataset)
+            run_model(
+                exp_data_modality=exp_data_modality,
+                exp_synthesizer=exp_synthesizer,
+                exp_data=exp_dataset_name,
+                use_gpu=use_gpu,
+                num_epochs=num_epochs,
+                train_dataset=train_dataset,
+                metadata=metadata,
+                num_samples=num_samples,
+                output_path=output_path,
+                sequential_details=sequential_details,
+                get_quality_report=get_quality_report,
+                get_diagnostic_report=get_diagnostic_report)
 
-    elif exp_library == "gretel":
-        from run_gretel_model import run_model
+        elif exp_library == "gretel":
+            from run_gretel_model import run_model
 
-        if not num_epochs:
-            num_epochs = DEFAULT_EPOCH_VALUES["gretel"][exp_synthesizer]
+            if not num_epochs:
+                num_epochs = DEFAULT_EPOCH_VALUES["gretel"][exp_synthesizer]
 
-        print("Selected Synthesizer Library: GRETEL")
-        LOGGER.info(
-            (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+            print("Selected Synthesizer Library: GRETEL")
+            LOGGER.info(
+                (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
 
-        run_model(
-            exp_data_modality=exp_data_modality,
-            exp_synthesizer=exp_synthesizer,
-            exp_data=exp_dataset_name,
-            use_gpu=use_gpu,
-            num_epochs=num_epochs,
-            train_dataset=train_dataset,
-            metadata=metadata,
-            output_path=output_path,
-            sequential_details=sequential_details)
+            run_model(
+                exp_data_modality=exp_data_modality,
+                exp_synthesizer=exp_synthesizer,
+                exp_data=exp_dataset_name,
+                use_gpu=use_gpu,
+                num_epochs=num_epochs,
+                train_dataset=train_dataset,
+                metadata=metadata,
+                output_path=output_path,
+                sequential_details=sequential_details)
 
-    elif exp_library == "synthcity":
+        elif exp_library == "synthcity":
 
-        opt_params = {}
-        if run_optimizer:
-            from run_synthcity_hpo import run_synthcity_optimizer
-            print("Running Hyperparamter Optimisation")
-            opt_params = run_synthcity_optimizer(exp_synthesizer,
-                                                 exp_dataset_name,
-                                                 train_dataset,
-                                                 test_dataset,
-                                                 output_path,
-                                                 optimizer_trials)
+            opt_params = {}
+            if run_optimizer:
+                print("-"*30)
+                print("Fetching optimal hyperparameters.")
+                print("-"*30)
+                from run_synthcity_hpo import run_synthcity_optimizer
+                print("Running Hyperparamter Optimisation")
+                opt_params = run_synthcity_optimizer(exp_synthesizer,
+                                                    exp_dataset_name,
+                                                    train_dataset,
+                                                    test_dataset,
+                                                    output_path,
+                                                    optimizer_trials)
 
-            if not opt_params:
-                raise ("Hyperparamter optimisation failed!")
-            else:
-                print("Here are the params: ", opt_params)
+                if not opt_params:
+                    raise ("Hyperparamter optimisation failed!")
+                else:
+                    print("Here are the params: ", opt_params)
 
-        if not num_epochs:
-            num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
+            if not num_epochs:
+                num_epochs = DEFAULT_EPOCH_VALUES["synthcity"][exp_synthesizer]
 
-        print("Selected Synthesizer Library: SYNTHCITY")
-        LOGGER.info(
-            (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+            print("Selected Synthesizer Library: SYNTHCITY")
+            LOGGER.info(
+                (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
 
-        from run_synthcity_model import run_model
+            from run_synthcity_model import run_model
 
-        num_samples = len(real_dataset)
+            num_samples = len(real_dataset)
 
-        # flag for classification or regression (required by DDPM model)
-        ml_task = None
-        if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
-            ml_task = MLTasks.CLASSIFICATION.value
-        elif exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
-            ml_task = MLTasks.REGRESSION.value
+            # flag for classification or regression (required by DDPM model)
+            ml_task = None
+            if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
+                ml_task = MLTasks.CLASSIFICATION.value
+            elif exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
+                ml_task = MLTasks.REGRESSION.value
 
-        run_model(
-            exp_data_modality=exp_data_modality,
-            exp_synthesizer=exp_synthesizer,
-            exp_data=exp_dataset_name,
-            use_gpu=use_gpu,
-            num_samples=num_samples,
-            num_epochs=num_epochs,
-            train_dataset=train_dataset,
-            metadata=metadata,
-            output_path=output_path,
-            ml_task=ml_task,
-            opt_params=opt_params)
+            run_model(
+                exp_data_modality=exp_data_modality,
+                exp_synthesizer=exp_synthesizer,
+                exp_data=exp_dataset_name,
+                use_gpu=use_gpu,
+                num_samples=num_samples,
+                num_epochs=num_epochs,
+                train_dataset=train_dataset,
+                metadata=metadata,
+                output_path=output_path,
+                ml_task=ml_task,
+                opt_params=opt_params)

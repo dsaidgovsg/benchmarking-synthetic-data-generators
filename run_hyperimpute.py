@@ -5,7 +5,6 @@ import json
 from pandas import DataFrame
 from typing import Any, Dict
 
-
 from hyperimpute.plugins.imputers import Imputers
 
 # from sklearn.experimental import enable_iterative_imputer
@@ -108,7 +107,7 @@ def apply_imputation(dataframe: DataFrame,
             )
             dataframe[:] = imputer.fit_transform(dataframe)
 
-        elif method in ["mice", "ice", "missforest"]:
+        elif method in ["ice", "missforest"]:  # "mice"
             imputer = Imputers().get(method)
             dataframe[:] = imputer.fit_transform(dataframe)
 
@@ -132,11 +131,16 @@ def apply_imputation(dataframe: DataFrame,
 
     return dataframe
 
-# notes: will remove later
-# column-type: median, mean, sklearn_ice, sklearn_missforest, gain, sinkhorn, miwae
-# mixed: hyperimpute, mice, ice, missforest
-# 'nop',
-# 'miwae', --> failed
-# 'miracle',--> failed
-# 'EM', --> failed
-# 'softimpute', --> failed
+# NOTES: will remove later
+# 1. methods for mixed type
+# --> hyperimpute, ice, missforest
+# 2. methods for numeric type:
+# --> median, mean, sklearn_ice, sklearn_missforest, gain, sinkhorn, miwae, mice
+# 3. what does this one do?
+# --> 'nop'.
+# TypeError: ufunc 'isnan' not supported for the input types, and the inputs could
+# 4. not be safely coerced to any supported types according to the casting rule ''safe''
+# --> 'miracle', 'EM', 'softimpute'
+
+# more
+# can use the benchmarking functioanlity of synthcity
