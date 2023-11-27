@@ -16,6 +16,8 @@ from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
                            shuffle_and_split_dataframe,
                            stratified_split_dataframe)
 
+# Note: ACTGAN model from gretel-synthetics requires sdv<0.18
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--library", "--l", type=str, default="sdv",
@@ -175,7 +177,8 @@ if __name__ == "__main__":
     elif exp_dataset_name == "drugs":
         real_dataset = pd.read_csv(
             f"sample_datasets/accidential_drug_deaths.csv")
-        metadata = detect_metadata_with_sdv(real_dataset)
+        metadata = detect_metadata_with_sdv(
+            real_dataset) if not exp_synthesizer == "actgan" else None
     elif exp_dataset_name == "health_insurance":
         real_dataset = pd.read_csv(
             f"sample_datasets/health_insurance.csv")
@@ -183,10 +186,11 @@ if __name__ == "__main__":
     elif exp_dataset_name == "loan":
         real_dataset = pd.read_csv(
             f"sample_datasets/loan.csv")
-        metadata = detect_metadata_with_sdv(real_dataset)
+        metadata = detect_metadata_with_sdv(
+            real_dataset) if not exp_synthesizer == "actgan" else None
     else:
         real_dataset, metadata = get_dataset_with_sdv(
-            "single_table", exp_dataset_name)
+            "single_table", exp_dataset_name) if not exp_synthesizer == "actgan" else None
 
     # --------------
     # Run hyperimpute if enabled
@@ -295,7 +299,7 @@ if __name__ == "__main__":
                 use_gpu=use_gpu,
                 num_epochs=num_epochs,
                 train_dataset=train_dataset,
-                metadata=metadata,
+                # metadata=metadata,
                 output_path=output_path,
                 sequential_details=sequential_details)
 
@@ -309,11 +313,11 @@ if __name__ == "__main__":
                 from run_synthcity_hpo import run_synthcity_optimizer
                 print("Running Hyperparamter Optimisation")
                 opt_params = run_synthcity_optimizer(exp_synthesizer,
-                                                    exp_dataset_name,
-                                                    train_dataset,
-                                                    test_dataset,
-                                                    output_path,
-                                                    optimizer_trials)
+                                                     exp_dataset_name,
+                                                     train_dataset,
+                                                     test_dataset,
+                                                     output_path,
+                                                     optimizer_trials)
 
                 if not opt_params:
                     raise ("Hyperparamter optimisation failed!")

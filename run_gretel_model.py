@@ -18,7 +18,7 @@ from commons.static_vals import N_BYTES_IN_MB
 
 from gretel_synthetics.timeseries_dgan.dgan import DGAN
 from gretel_synthetics.timeseries_dgan.config import DGANConfig
-# from gretel_synthetics.actgan.actgan_wrapper import ACTGAN
+from gretel_synthetics.actgan.actgan_wrapper import ACTGAN
 
 
 with warnings.catch_warnings():
@@ -47,7 +47,7 @@ def run_model(**kwargs):
     num_epochs = kwargs["num_epochs"]
     output_path = kwargs["output_path"]
     train_dataset = kwargs["train_dataset"]
-    metadata = kwargs["metadata"]
+    # metadata = kwargs["metadata"]
     # num_samples=kwargs["num_samples"]
 
     if kwargs["sequential_details"]:
@@ -64,7 +64,7 @@ def run_model(**kwargs):
 
     # TODO: Might need to save metadata JSON file for some datasets
     # metadata = detect_metadata(real_data)
-    LOGGER.info(metadata)
+    # LOGGER.info(metadata)
 
     tracemalloc.start()
 
@@ -121,8 +121,8 @@ def run_model(**kwargs):
         # Train
         # ---------------------
         #  Store the print statements in a variable
-        captured_print_out = StringIO()
-        sys.stdout = captured_print_out
+        # captured_print_out = StringIO()
+        # sys.stdout = captured_print_out
 
         begin_train_time = time.time()
         synthesizer.train_dataframe(train_dataset,
@@ -149,7 +149,8 @@ def run_model(**kwargs):
 
     elif synthesizer_name == "actgan":  # sequential
 
-        model = ACTGAN(
+        print("Training with ACTGAN")
+        synthesizer = ACTGAN(
             verbose=True,
             # binary_encoder_cutoff=10, # use a binary encoder for data transforms if the cardinality of a column is below this value
             epochs=2)
@@ -159,15 +160,12 @@ def run_model(**kwargs):
         # Train
         # ---------------------
         #  Store the print statements in a variable
-        captured_print_out = StringIO()
-        sys.stdout = captured_print_out
+        # captured_print_out = StringIO()
+        # sys.stdout = captured_print_out
 
         begin_train_time = time.time()
-        model.fit(train_dataset)
+        synthesizer.fit(train_dataset)
         end_train_time = time.time()
-
-        print("@"*100)
-        breakpoint()
         # Store the print statements in a variable
         # captured_print_out = StringIO()
         # sys.stdout = captured_print_out
@@ -178,7 +176,7 @@ def run_model(**kwargs):
         # Params:
         # num_sequences: An integer >0 describing the number of sequences to sample
         begin_sampling_time = time.time()
-        synthetic_dataset = model.sample(num_samples)
+        synthetic_dataset = synthesizer.sample(num_samples)
         end_sampling_time = time.time()
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
@@ -189,16 +187,16 @@ def run_model(**kwargs):
     # Prepare Outputs
     # ---------------------
 
-    sys.stdout = sys.__stdout__
-    captured_print_out = captured_print_out.getvalue()
-    print(captured_print_out)
+    # sys.stdout = sys.__stdout__
+    # captured_print_out = captured_print_out.getvalue()
+    # print(captured_print_out)
 
     # ---------------------
     # Dump output to files
     # ---------------------
     # save print statements
-    with open(f"{output_path}{dataset_name}_{synthesizer_name}_out.txt", "w") as log_file:
-        json.dump(captured_print_out, log_file)
+    # with open(f"{output_path}{dataset_name}_{synthesizer_name}_out.txt", "w") as log_file:
+    #     json.dump(captured_print_out, log_file)
 
     # Get the memory usage of the real and synthetic dataFrame in MB
     train_dataset_size_deep = train_dataset.memory_usage(

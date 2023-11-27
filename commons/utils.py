@@ -2,8 +2,10 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from sdv.datasets.demo import download_demo
-from sdv.metadata import SingleTableMetadata
+import sdv 
+
+# from sdv.datasets.demo import download_demo
+# from sdv.metadata import SingleTableMetadata
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KernelDensity
 
@@ -17,7 +19,7 @@ def detect_metadata_with_sdv(real_data_df: pd.DataFrame):
     Returns: 
         metadata: SingleTableMetadata
     """
-    metadata = SingleTableMetadata()
+    metadata = sdv.metadata.SingleTableMetadata()
     metadata.detect_from_dataframe(data=real_data_df)
 #     python_dict = metadata.to_dict()
     return metadata
@@ -100,11 +102,14 @@ def get_dataset_with_sdv(modality: str, dataset_name: str):
             30        UWaveGestureLibrary     7.76          1
             31             nasdaq100_2019     1.65          1
     """
-    real_data, metadata = download_demo(
-        modality=modality,
-        dataset_name=dataset_name,
-    )
-    return real_data, metadata
+    try:
+        real_data, metadata = sdv.datasets.demo.download_demo(
+            modality=modality,
+            dataset_name=dataset_name,
+        )
+        return real_data, metadata
+    except:
+        return
 
 
 def detect_distribution(column):
