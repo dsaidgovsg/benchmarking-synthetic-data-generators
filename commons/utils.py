@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-import sdv 
+import sdv
 
 # from sdv.datasets.demo import download_demo
 # from sdv.metadata import SingleTableMetadata
@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KernelDensity
 
 # https://docs.sdv.dev/sdmetrics/metrics/metrics-in-beta/outliercoverage
+
 
 def detect_metadata_with_sdv(real_data_df: pd.DataFrame):
     """
