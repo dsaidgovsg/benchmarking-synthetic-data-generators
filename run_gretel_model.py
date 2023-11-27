@@ -8,12 +8,18 @@ import warnings
 from io import StringIO
 
 from commons.static_vals import N_BYTES_IN_MB
-from synthesizers.gretel_synthetics.sequential.dgan.dgan import (DGAN,
-                                                                 DGANConfig)
-from synthesizers.gretel_synthetics.tabular.actgan.actgan_wrapper import ACTGAN
+# from synthesizers.gretel_synthetics.sequential.dgan.dgan import (DGAN,
+#                                                                  DGANConfig)
+# from synthesizers.gretel_synthetics.tabular.actgan.actgan_wrapper import ACTGAN
 
 # time varying features, fixed attributes, categorical variables, a
 # and works well with many time sequence examples to train on.
+
+
+from gretel_synthetics.timeseries_dgan.dgan import DGAN
+from gretel_synthetics.timeseries_dgan.config import DGANConfig
+# from gretel_synthetics.actgan.actgan_wrapper import ACTGAN
+
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -80,11 +86,11 @@ def run_model(**kwargs):
         #                    so all training and generated data will have the same length sequences.
         config = DGANConfig(
             max_sequence_len=max_sequence_length,
-            # sample_len : time series steps to generate from each LSTM cell in DGAN,
+            # sample_len : max_sequence_length time series steps to generate from each LSTM cell in DGAN,
             # must be a divisor of max_sequence_len
 
             # TODO: remove 1, 2, 3, 4, 6, 7, 9, 12, 14, 18, 21, 28, 36, 42, 63, 84, 126, 252
-            sample_len=1,
+            sample_len=max_sequence_length,
             # apply_feature_scaling: bool = True,
             # apply_example_scaling: bool = True,
             # batch_size=1000,

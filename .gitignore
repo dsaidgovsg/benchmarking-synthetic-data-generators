@@ -31,3 +31,6 @@ hpo_trial/
 *.json
 *.csv
 run_hyperimpute_bck.py
+seq_metrics/
+optuna_generic.py
+run_ydata.py

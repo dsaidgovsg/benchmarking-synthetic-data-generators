@@ -1,9 +1,11 @@
 """Constants"""
+import torch
 from enum import Enum
 
 N_BYTES_IN_MB = 1000 * 1000
 ROUNDING_VAL = 6
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class MLTasks(Enum):
     """"""
@@ -53,7 +55,11 @@ DEFAULT_EPOCH_VALUES = {
         "rtvae": 300,
         "tvae": 300,
         "arf": 0,
-        "nflow": 3000
+        "nflow": 3000,
+        "timegan": 1000
+    },
+    "ydata": {
+
     }
 }
 
@@ -76,3 +82,32 @@ ML_CLASSIFICATION_MODELS = ["adaboost", "decision_tree", "logistic", "mlp"]
 ML_REGRESSION_MODELS = ["linear", "mlp"]
 
 SIMILARITY_CHECK_STATISTICS = ["mean", "median", "std"]
+
+
+# ----------------
+# reproducibility 
+# ----------------
+# stdlib
+# import random
+
+# import torch
+# import numpy as np
+
+# def enable_reproducible_results(random_state: int = 0) -> None:
+#     np.random.seed(random_state)
+#     try:
+#         torch.manual_seed(random_state)
+#     except BaseException:
+#         pass
+#     random.seed(random_state)
+#     # TODO: Implement dgl seeding, like below:
+#     # dgl.seed(random_state)
+
+# def clear_cache() -> None:
+#     try:
+#         torch.cuda.empty_cache()
+#     except BaseException:
+#         pass
+
+# distributions support 
+# https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/plugins/core/distribution.py

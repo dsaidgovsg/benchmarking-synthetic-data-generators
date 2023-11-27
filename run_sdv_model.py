@@ -195,7 +195,6 @@ def run_model(**kwargs):
         "dataset": dataset_name,
         "num_rows": train_dataset.shape[0],
         "num_cols": train_dataset.shape[1],
-        "num_sampled_rows": num_samples,
 
         "device": "GPU" if use_gpu else "CPU",
         "num_epochs": num_epochs if num_epochs else 0,

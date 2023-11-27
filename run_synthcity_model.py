@@ -131,6 +131,44 @@ def run_model(**kwargs):
             print("setting default {synthesizer_name} parameters")
             synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
                                         device=torch.device(device))
+    elif synthesizer_name == "timegan":
+        ...
+    #     from synthcity.utils.datasets.time_series.google_stocks import GoogleStocksDataloader
+    #     from synthcity.utils.datasets.time_series.pbc import PBCDataloader
+    #     from synthcity.utils.datasets.time_series.sine import SineDataloader
+    #     from synthcity.plugins.core.dataloader import TimeSeriesDataLoader
+    #     from commons.seq_dataloader import sequential_data_loader
+
+    #     # static, temporal, horizons, outcome = GoogleStocksDataloader().load()
+    #     # static, temporal, horizons, outcome = PBCDataloader().load()
+    #     # print(type(static), type(temporal), type(horizons), type(outcome))
+    #     import pandas as pd
+    #     # df = pd.read_csv("g.csv")
+    #     train_dataset =  pd.read_csv("/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/data/sequential/nasdaq100_2019_mini.csv")
+    #     static, temporal, horizons, outcome = sequential_data_loader(train_dataset, "Symbol", "Industry", "Date", ["Sector", "Industry"])
+    #     # static_data, time_varying_data, observation_times, outcome_data
+
+    #    # <class 'pandas.core.frame.DataFrame'> <class 'list'> <class 'list'> <class 'pandas.core.frame.DataFrame'>
+    #     print("*"*10)
+    #     print(len(static))
+    #     print("*"*10)
+    #     print(len(outcome), outcome)
+    #     # breakpoint()
+    #     print("*temporal"*10)
+    #     print(len(temporal), temporal[0].shape, temporal[1].shape)
+    #     print("*horizons"*10)
+    #     print(len(horizons), len(horizons[0]), len(horizons[1]))
+    #     print("*"*10)
+    #     # breakpoint()
+    #     loader = TimeSeriesDataLoader(
+    #                  temporal_data=temporal, # list[DataFrame]
+    #                  observation_times=horizons, #list
+    #                 #  static_data=static, # dataframe
+    #                 #  outcome=None, #dataframe
+    #     )
+    #     synthesizer = Plugins().get(synthesizer_name, n_iter=5)
+    #     synthesizer.fit(loader)
+
     # elif synthesizer_name == "rtvae":
     #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
     #                                 device=torch.device(device))
@@ -162,6 +200,9 @@ def run_model(**kwargs):
     else:
         synthetic_dataset = synthesizer.generate(count=num_samples).dataframe()
     end_sampling_time = time.time()
+
+    synthetic_dataset.to_csv(
+        f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv", index=False)
 
     peak_memory = tracemalloc.get_traced_memory()[1] / N_BYTES_IN_MB
     tracemalloc.stop()
