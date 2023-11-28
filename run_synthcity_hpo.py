@@ -18,6 +18,11 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/benchmark/__init__.py
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/metrics/eval_statistical.py
 
+# code 
+# https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/utils/optuna_sample.py
+# https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/plugins/core/distribution.py
+# https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/benchmark/__init__.py
+
 
 class StudyDirection(Enum):
     """

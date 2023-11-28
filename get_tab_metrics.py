@@ -43,7 +43,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # Load real data and metadata
     if exp_dataset_name == "drugs":
         real_dataset = pd.read_csv(
-            "sample_datasets/accidential_drug_deaths.csv")
+            "sample_datasets/drugs.csv")
         metadata_class = detect_metadata_with_sdv(real_dataset)
     elif exp_dataset_name == "health_insurance":
         real_dataset = pd.read_csv("sample_datasets/health_insurance.csv")

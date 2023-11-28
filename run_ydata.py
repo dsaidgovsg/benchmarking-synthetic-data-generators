@@ -4,46 +4,94 @@ from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 import pandas as pd
 
 # Refer exmaples here: https://github.com/ydataai/ydata-synthetic/tree/dev/examples/regular/models
+# https://github.com/ydataai/ydata-synthetic/blob/dev/integrations/expectations_to_SyntheticData/1-Expectations%20%26%20Profiling.ipynb
 #-----------------------------------------
 #  CTGAN
 #-----------------------------------------
 # ID,Age,Experience,Income,ZIP Code,Family,CCAvg,Education,Mortgage,Personal Loan,Securities Account,CD Account,Online,CreditCard
 
-# data = pd.read_csv("/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/sample_datasets/loan.csv")
-# num_cols = ["ID", "Age", "Experience", "Income", "ZIP Code", "Family", "CCAvg", "Mortgage", "Personal Loan", "Securities Account", "CD Account", "Online", "CreditCard"]
-# cat_cols = ["Education"]
+data = pd.read_csv("/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/sample_datasets/loan.csv")
+num_cols = ["ID", "Age", "Experience", "Income", "ZIP Code", "Family", "CCAvg", "Mortgage", "Personal Loan", "Securities Account", "CD Account", "Online", "CreditCard"]
+cat_cols = ["Education"]
 
-# print("@"*10)
-# dp = "/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/data/tabular/adult.csv"
-# data = pd.read_csv(dp)
-# num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
-# cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
-#             'native-country', "label"]
-
-
-# # Defining the training parameters
-# batch_size = 500
-# epochs = 2 #500+1
-# learning_rate = 2e-4
-# beta_1 = 0.5
-# beta_2 = 0.9
-
-# ctgan_args = ModelParameters(batch_size=batch_size,
-#                              lr=learning_rate,
-#                              betas=(beta_1, beta_2))
-
-# train_args = TrainParameters(epochs=epochs)
-# synth = RegularSynthesizer(modelname='wgan', model_parameters=ctgan_args) #ctgan 
-# # cgan
-# print("traning starts")
-# synth.fit(data=data, train_arguments=train_args, num_cols=num_cols, cat_cols=cat_cols)
-# print("traning ends")
-# synth.save("model.pkl")
+print("@"*10)
+dp = "/Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/data/tabular/adult.csv"
+data = pd.read_csv(dp)
+num_cols = ['age', 'fnlwgt', 'capital-gain', 'capital-loss', 'hours-per-week']
+cat_cols = ['workclass','education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex',
+            'native-country', "label"]
 
 
-# synth = RegularSynthesizer.load('model.pkl')
-# synth_data = synth.sample(1000)
-# print(synth_data)
+# Defining the training parameters
+batch_size = 500
+epochs = 2 #500+1
+learning_rate = 2e-4
+beta_1 = 0.5
+beta_2 = 0.9
+
+ctgan_args = ModelParameters(batch_size=batch_size,
+                             lr=learning_rate,
+                             betas=(beta_1, beta_2))
+
+train_args = TrainParameters(epochs=epochs)
+synth = RegularSynthesizer(modelname='ctgan', model_parameters=ctgan_args) #ctgan 
+# cgan
+print("traning starts")
+synth.fit(data=data, train_arguments=train_args, num_cols=num_cols, cat_cols=cat_cols)
+print("traning ends")
+synth.save("model.pkl")
+
+
+synth = RegularSynthesizer.load('model.pkl')
+synth_data = synth.sample(1000)
+print(synth_data)
+breakpoint()
+
+#-------------------
+# TimeGAN
+# conflciting python version possibly
+#-------------------
+
+
+from os import path
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from ydata_synthetic.synthesizers import ModelParameters
+from ydata_synthetic.preprocessing.timeseries import processed_stock
+from ydata_synthetic.synthesizers.timeseries import TimeGAN
+
+breakpoint()
+#Specific to TimeGANs
+seq_len=24
+n_seq = 6
+hidden_dim=24
+gamma=1
+
+noise_dim = 32
+dim = 128
+batch_size = 128
+
+log_step = 100
+learning_rate = 5e-4
+
+gan_args = ModelParameters(batch_size=batch_size,
+                           lr=learning_rate,
+                           noise_dim=noise_dim,
+                           layers_dim=dim)
+
+stock_data = processed_stock(path='g.csv', seq_len=seq_len)
+print(len(stock_data),stock_data[0].shape)
+
+synth = TimeGAN(model_parameters=gan_args, hidden_dim=24, seq_len=seq_len, n_seq=n_seq, gamma=1)
+synth.train(stock_data, train_steps=50000)
+synth.save('synthesizer_stock.pkl')
+
+synth_data = synth.sample(len(stock_data))
+print(synth_data.shape)
+
+breakpoint()
 
 #-----------------------------------------
 #  CramerGAN Example

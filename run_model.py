@@ -17,6 +17,7 @@ from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
                            stratified_split_dataframe)
 
 # Note: ACTGAN model from gretel-synthetics requires sdv<0.18
+# TODO: rename TABULAR to {STANDARD, GENERIC}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -174,23 +175,31 @@ if __name__ == "__main__":
                 "discrete_attributes": ["Sector", "Industry"]
             }
     # get accidential_drug_deaths.csv dataset from the local
-    elif exp_dataset_name == "drugs":
-        real_dataset = pd.read_csv(
-            f"sample_datasets/accidential_drug_deaths.csv")
-        metadata = detect_metadata_with_sdv(
-            real_dataset) if not exp_synthesizer == "actgan" else None
-    elif exp_dataset_name == "health_insurance":
-        real_dataset = pd.read_csv(
-            f"sample_datasets/health_insurance.csv")
-        metadata = detect_metadata_with_sdv(real_dataset)
-    elif exp_dataset_name == "loan":
-        real_dataset = pd.read_csv(
-            f"sample_datasets/loan.csv")
-        metadata = detect_metadata_with_sdv(
-            real_dataset) if not exp_synthesizer == "actgan" else None
+
     else:
-        real_dataset, metadata = get_dataset_with_sdv(
-            "single_table", exp_dataset_name) if not exp_synthesizer == "actgan" else None
+        real_dataset = pd.read_csv(f"sample_datasets/{exp_dataset_name}.csv")
+        metadata = None
+        # ACTGAN requires SDV < 0.18 that does not support metadata detection API
+        if exp_synthesizer != "actgan":
+            metadata = detect_metadata_with_sdv(real_dataset)
+    # elif exp_dataset_name == "drugs":
+    #     real_dataset = pd.read_csv(
+    #         f"sample_datasets/drugs.csv")
+    #     metadata = detect_metadata_with_sdv(
+    #         real_dataset) if not exp_synthesizer == "actgan" else None
+    # elif exp_dataset_name == "health_insurance":
+    #     real_dataset = pd.read_csv(
+    #         f"sample_datasets/health_insurance.csv")
+    #     metadata = detect_metadata_with_sdv(real_dataset)
+    # elif exp_dataset_name == "loan":
+    #     real_dataset = pd.read_csv(
+    #         f"sample_datasets/loan.csv")
+    #     metadata = detect_metadata_with_sdv(
+    #         real_dataset) if not exp_synthesizer == "actgan" else None
+    # else:
+    #     if exp_synthesizer == "actgan":
+    #         real_dataset, metadata = get_dataset_with_sdv(
+    #             "single_table", exp_dataset_name) if not exp_synthesizer == "actgan" else None
 
     # --------------
     # Run hyperimpute if enabled

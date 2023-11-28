@@ -148,12 +148,53 @@ def run_model(**kwargs):
         end_sampling_time = time.time()
 
     elif synthesizer_name == "actgan":  # sequential
-
+        """
+            # https://synthetics.docs.gretel.ai/en/stable/models/actgan.html
+        """
         print("Training with ACTGAN")
         synthesizer = ACTGAN(
             verbose=True,
+            cuda=use_gpu,
+            epochs=num_epochs,
+            enforce_min_max_values=True, 
+            # ---------------------
+            # attributes for the future purposes
+            # ---------------------
+            # field_names = Optional[List[str]] = None,
+            # field_types = Optional[Dict[str, dict]] = None,
+            # field_transformers = Optional[Dict[str, Union[BaseTransformer, str]]] = None,
+            # auto_transform_datetimes = bool = False,
+            # anonymize_fields = Optional[Dict[str, str]] = None,
+            # primary_key =  Optional[str] = None,
+            # constraints: Optional[Union[List[Constraint], List[dict]]] = None,
+            # table_metadata: Optional[Union[Metadata, dict]] = None,
+            # embedding_dim: int = 128,
+            # generator_dim: Sequence[int] = (256, 256),
+            # discriminator_dim: Sequence[int] = (256, 256),
+            # generator_lr: float = 2e-4,
+            # generator_decay: float = 1e-6,
+            # discriminator_lr: float = 2e-4,
+            # discriminator_decay: float = 1e-6,
+            # batch_size: int = 500,
+            # discriminator_steps: int = 1,
+            # binary_encoder_cutoff: int = 500,
+            # binary_encoder_nan_handler: Optional[str] = None,
+            # cbn_sample_size: Optional[int] = 250_000,
+            # log_frequency: bool = True,
+            # verbose: bool = False,
+            # epochs: int = 300,
+            # epoch_callback: Optional[Callable[[EpochInfo], None]] = None,
+            # pac: int = 10,
+            # learn_rounding_scheme: bool = True,
+            # enforce_min_max_values: bool = True,
+            # conditional_vector_type: ConditionalVectorType = ConditionalVectorType.SINGLE_DISCRETE,
+            # conditional_select_mean_columns: Optional[float] = None,
+            # conditional_select_column_prob: Optional[float] = None,
+            # reconstruction_loss_coef: float = 1.0,
+            # force_conditioning: bool = False,
+            # conditional_vector_type="ANYWAY"
             # binary_encoder_cutoff=10, # use a binary encoder for data transforms if the cardinality of a column is below this value
-            epochs=2)
+        )
         # epoch_callback=epoch_tracker.add)
 
         # ---------------------
