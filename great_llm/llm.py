@@ -70,7 +70,7 @@ def shuffle_and_split_dataframe(df, return_only_train_data=True, test_size=0.2, 
 if __name__ == "__main__":
 
     epochs = 400
-    dataset_name = "credit"  # health_insurance: 100, loan: 100, adult: 300, credit: 400
+    dataset_name = "drugs"  # health_insurance: 100, loan: 100, adult: 300, credit: 400 (X), drugs: 300
     output_path = "outputs"
 
     if not os.path.exists(output_path):
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     tracemalloc.start()
     try:
-        model = GReaT(llm='distilgpt2', batch_size=32, epochs=epochs)
+        model = GReaT(llm='distilgpt2', batch_size=128, epochs=epochs)
 
         train_time = time.time()
         model.fit(train_dataset)

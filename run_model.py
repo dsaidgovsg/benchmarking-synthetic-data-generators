@@ -178,10 +178,22 @@ if __name__ == "__main__":
 
     else:
         real_dataset = pd.read_csv(f"sample_datasets/{exp_dataset_name}.csv")
+
+        # Drop the column: removing PII 
+        if exp_dataset_name in ["loan", "drugs"]:
+            # Check if the column exists in DataFrame
+            if "ID" in real_dataset.columns:
+                try:
+                    real_dataset.drop(columns=["ID"], inplace=True)
+                except Exception as e:
+                    print(e)
+
         metadata = None
         # ACTGAN requires SDV < 0.18 that does not support metadata detection API
         if exp_synthesizer != "actgan":
             metadata = detect_metadata_with_sdv(real_dataset)
+
+    print(real_dataset.columns)
     # elif exp_dataset_name == "drugs":
     #     real_dataset = pd.read_csv(
     #         f"sample_datasets/drugs.csv")
@@ -221,9 +233,8 @@ if __name__ == "__main__":
         print(
             f"after imputation: total missing values in the real DataFrame: \
                 {real_dataset.isna().sum().sum()}")
-        breakpoint()
-    else:
-        train_dataset = real_dataset
+    # else:
+    #     train_dataset = real_dataset
 
     # breakpoint()
     # todo pass the real-dataset
@@ -252,6 +263,8 @@ if __name__ == "__main__":
             else:
                 (train_dataset, test_dataset) = shuffle_and_split_dataframe(
                     real_dataset, False)
+    else:
+        train_dataset = real_dataset
 
     # --------------
     # Run models
@@ -300,6 +313,8 @@ if __name__ == "__main__":
             print("Selected Synthesizer Library: GRETEL")
             LOGGER.info(
                 (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
+            LOGGER.info(
+                    f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
             run_model(
                 exp_data_modality=exp_data_modality,

@@ -14,6 +14,11 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
                                  ML_CLASSIFICATION_TASK_DATASETS,
                                  ML_TASKS_TARGET_CLASS)
 
+
+
+# New delta distribution
+
+
 # Relevant links
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/benchmark/__init__.py
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/metrics/eval_statistical.py
@@ -66,6 +71,17 @@ def objective(trial, synthsizer_name,
     # Get the hyperparameter space from the specified synthesizer
     hp_space = Plugins().get(synthsizer_name).hyperparameter_space()
 
+    # parameter delta must be in range 0 <= delta <= 0.5
+    # the synthcity library has set range [0, 50]
+    if synthsizer_name == "arf":
+        from synthcity.plugins.core.distribution import FloatDistribution
+        new_delta_distribution = FloatDistribution(low=0, high=0.5, name='delta')
+        # Update the delta distribution
+        for i, dist in enumerate(hp_space):
+            if dist.name == 'delta':
+                hp_space[i] = new_delta_distribution
+                break
+
     # Uncomment the next line if you need to set a specific high value for the first hyperparameter
     # TODO: Reset for real run | Set the number of epochs
     # hp_space[0].high = 100
@@ -77,10 +93,6 @@ def objective(trial, synthsizer_name,
     except Exception as e:
         print(e)
 
-    # parameter delta must be in range 0 <= delta <= 0.5
-    if synthsizer_name == "arf":
-        # import numpy as np
-        params["delta"] = 0.5  # np.random.uniform(0, 0.5)  # 0.5
 
     trial_obj["params"] = params
 
@@ -113,6 +125,8 @@ def objective(trial, synthsizer_name,
 
     trial_obj["score"] = score
     trial_obj["time_sec"] = time.time() - trial_start_time
+
+    print(trial_obj["params"])
 
     if 'workspace' in trial_obj["params"]:
         del trial_obj["params"]['workspace']  # not required
@@ -206,8 +220,8 @@ def run_synthcity_optimizer(
     opt_dict["total_time_sec"] = total_time
 
     # TODO: weird delta value is updated; should be in range 0 <= delta <= 0.5
-    if exp_synthsizer_name == "arf":
-        study.best_params["delta"] = 0.5  # np.random.uniform(0, 0.5)  # 0.5
+    # if exp_synthsizer_name == "arf":
+    #     study.best_params["delta"] = 0.5  # np.random.uniform(0, 0.5)  # 0.5
 
     opt_dict["best_params"] = study.best_params
 
