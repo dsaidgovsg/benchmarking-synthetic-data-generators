@@ -15,6 +15,7 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
 from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
                            shuffle_and_split_dataframe,
                            stratified_split_dataframe)
+from commons.sequential import (process_groups, get_groups_stats)
 
 # Note: ACTGAN model from gretel-synthetics requires sdv<0.18
 # TODO: rename TABULAR to {STANDARD, GENERIC}
@@ -34,7 +35,7 @@ if __name__ == "__main__":
                         help="enter dataset name. \
                         Possible values - {adult, census, child, covtype, \
                         credit, insurance, intrusion, health_insurance, drugs, loan, \
-                        nasdaq, taxi, asu}")
+                        nasdaq, taxi, pums}") # IL_OH_10Y_PUMS
     parser.add_argument("--imputer", "--i", type=str, default="hyperimpute",
                         help="enter hyperimputer plugin name \
                             Possible values - {'simple', 'mice',  \
@@ -132,30 +133,13 @@ if __name__ == "__main__":
     print("-"*30)
     print("Loading dataset")
     print("-"*30)
+
     if exp_data_modality == "sequential":
 
+        # DGAN requires equal length of the sequences; Apply operation:
+        # 1. drop_and_truncate 2. padding_and_truncate
+
         if exp_dataset_name == "nasdaq":
-            real_dataset, metadata = get_dataset_with_sdv(
-                "sequential", "nasdaq100_2019")
-
-            if exp_synthesizer == "dgan":
-                # filter groups that have size 252 and drop the rest
-                required_group_size = 252  # max-sequence length
-                group_sizes = real_dataset.groupby('Symbol').size()
-                valid_groups = group_sizes[group_sizes ==
-                                           required_group_size].index
-                real_dataset = real_dataset[real_dataset['Symbol'].isin(
-                    valid_groups)]
-
-            # Find minimum, maximum, and mean of the group sizes
-            # grouped_sizes = df_filtered.groupby('Symbol').size()
-            # min_size = grouped_sizes.min()
-            # max_size = grouped_sizes.max()
-            # mean_size = grouped_sizes.mean()
-            # print("Minimum group size:", min_size)
-            # print("Maximum group size:", max_size)
-            # print("Mean group size:", mean_size, len(grouped_sizes), df_filtered.shape, real_dataset.shape)
-
             # Minimum group size: 177
             # Maximum group size: 252
             # Mean group size: 250.33009708737865
@@ -163,23 +147,116 @@ if __name__ == "__main__":
             # 203      1
             # 204      1
             # 177      1
+            try:
+                real_dataset = pd.read_csv(
+                    f"sample_datasets/seq/{exp_dataset_name}.csv")
+                metadata = detect_metadata_with_sdv(real_dataset)
+            except Exception as e:
+                real_dataset, metadata = get_dataset_with_sdv(
+                    "sequential", "nasdaq100_2019")
 
-            sequential_details = {
-                # drop 3 sequences for the dgan model, as it requires equal length of sequences
-                "num_sequences": 100 if exp_synthesizer == "dgan" else 103,
-                "max_sequence_length": 252,
-                "fixed_attributes": ["Sector", "Industry"],  # context_columns,
-                "varying_attributes": ["Open", "Close", "Volume", "MarketCap"],
-                "time_attribute": "Date",
-                "entity": "Symbol",
-                "discrete_attributes": ["Sector", "Industry"]
-            }
-    # get accidential_drug_deaths.csv dataset from the local
+            entity_col = "Symbol"
+            temporal_col = "Date"
+            fixed_cols = ["Sector", "Industry"]
+            varying_cols = ["Open", "Close", "Volume", "MarketCap"]
+            discrete_cols = ["Sector", "Industry"]
+
+            # max_sequence_length = 252  # max-sequence length
+            req_sequence_length = 250
+            # padding_and_truncate, drop_and_truncate
+            groups_processing_op = "padding_and_truncate"
+
+        elif exp_dataset_name == "taxi":
+            req_sequence_length = 20
+            groups_processing_op = "drop_and_truncate"
+
+            entity_col = "taxi_id"
+            temporal_col = "trip_start_timestamp"
+            fixed_cols = ["company"]
+            varying_cols = [
+                'trip_end_timestamp', 'trip_seconds', 'trip_miles',
+                'pickup_census_tract', 'dropoff_census_tract', 'pickup_community_area',
+                'dropoff_community_area', 'fare', 'tips', 'tolls', 'extras', 'trip_total',
+                'payment_type', 'pickup_latitude', 'pickup_longitude',
+                'dropoff_latitude', 'dropoff_longitude'
+            ]
+
+            discrete_cols = [
+                "pickup_census_tract",  # If represented as strings or categorical codes
+                "dropoff_census_tract",  # Same as above
+                "pickup_community_area",  # If these are categorical codes
+                "dropoff_community_area",  # Same as above
+                # Typically a string (e.g., 'Cash', 'Credit Card')
+                "payment_type",
+                "company",  # Company names or IDs as strings or categories
+                # If latitude and longitude are categorical codes rather than numerical coordinates:
+                "pickup_latitude",
+                "pickup_longitude",
+                "dropoff_latitude",
+                "dropoff_longitude"
+            ]
+
+            # padding_and_truncate, drop_and_truncate
+            groups_processing_op = "drop_and_truncate"
+            real_dataset = pd.read_csv(
+                f"sample_datasets/seq/{exp_dataset_name}.csv")
+                
+            
+            metadata = detect_metadata_with_sdv(real_dataset)
+            print(metadata)
+
+        # exp_synthesizer == "dgan"
+        if groups_processing_op:
+            get_groups_stats(real_dataset, entity_col)
+            real_dataset = process_groups(real_dataset,
+                                          req_sequence_length,
+                                          entity_col,
+                                          operation=groups_processing_op)
+            get_groups_stats(real_dataset, entity_col)
+
+            # valid_groups = group_sizes[group_sizes ==
+            #                            max_sequence_length].index
+            # real_dataset = real_dataset[real_dataset['Symbol'].isin(
+            #     valid_groups)]
+
+            # Assuming df is your DataFrame
+            # df = pd.read_csv('your_data.csv') # Example to load data from a CSV file
+
+            # Group by 'taxi_id' and filter out groups with more than one unique 'company'
+            # grouped = real_dataset.groupby('taxi_id')['company'].nunique()
+            # consistent_taxi_ids = grouped[grouped == 1].index
+            # real_dataset = real_dataset[real_dataset['taxi_id'].isin(consistent_taxi_ids)]
+
+            real_dataset.fillna(0, inplace=True)
+
+            for col in real_dataset.columns:
+                real_dataset[col] = pd.to_numeric(real_dataset[col], errors='coerce')
+
+
+
+            num_sequences = real_dataset.groupby(entity_col).size().count()
+
+        sequential_details = {
+            # drop 3 sequences for the dgan model, as it requires equal length of sequences
+            "num_sequences": num_sequences,
+            "max_sequence_length": req_sequence_length,
+            "fixed_attributes": fixed_cols,
+            "varying_attributes": varying_cols,
+            "time_attribute": temporal_col,
+            "entity": entity_col,
+            "discrete_attributes": discrete_cols
+        }
 
     else:
-        real_dataset = pd.read_csv(f"sample_datasets/{exp_dataset_name}.csv")
+        metadata = None
+        try:
+            real_dataset = pd.read_csv(
+                f"sample_datasets/{exp_dataset_name}.csv")
+        except:
+            real_dataset, metadata = get_dataset_with_sdv(
+                "single_table", exp_dataset_name)
 
-        # Drop the column: removing PII 
+        # Drop the column: removing PII
         if exp_dataset_name in ["loan", "drugs"]:
             # Check if the column exists in DataFrame
             if "ID" in real_dataset.columns:
@@ -188,9 +265,18 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(e)
 
-        metadata = None
+        if exp_dataset_name == "pums":
+                # Check if the column exists in DataFrame
+                if "Unnamed: 0" in real_dataset.columns:
+                    try:
+                        real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
+                    except Exception as e:
+                        print(e)
+
+        
+
         # ACTGAN requires SDV < 0.18 that does not support metadata detection API
-        if exp_synthesizer != "actgan":
+        if exp_synthesizer != "actgan" and not metadata:
             metadata = detect_metadata_with_sdv(real_dataset)
 
     print(real_dataset.columns)
@@ -314,7 +400,7 @@ if __name__ == "__main__":
             LOGGER.info(
                 (f"Modality: {exp_data_modality} | Synthesizer: {exp_synthesizer} | Dataset: {exp_dataset_name} | Epochs: {num_epochs}"))
             LOGGER.info(
-                    f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
+                f"Real dataset: {real_dataset.shape}, Train dataset: {train_dataset.shape}")
 
             run_model(
                 exp_data_modality=exp_data_modality,

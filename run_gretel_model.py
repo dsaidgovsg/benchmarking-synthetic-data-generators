@@ -18,8 +18,6 @@ from commons.static_vals import N_BYTES_IN_MB
 
 from gretel_synthetics.timeseries_dgan.dgan import DGAN
 from gretel_synthetics.timeseries_dgan.config import DGANConfig
-from gretel_synthetics.actgan.actgan_wrapper import ACTGAN
-
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -126,11 +124,11 @@ def run_model(**kwargs):
 
         begin_train_time = time.time()
         synthesizer.train_dataframe(train_dataset,
-                                    attribute_columns=seq_fixed_attributes,
-                                    feature_columns=seq_varying_attributes,
+                                    # attribute_columns=seq_fixed_attributes,
+                                    # feature_columns=seq_varying_attributes,
                                     example_id_column=entity,
                                     time_column=time_attribute,
-                                    discrete_columns=discrete_attributes,
+                                    # discrete_columns=discrete_attributes,
                                     df_style="long")
         end_train_time = time.time()
 
@@ -148,6 +146,7 @@ def run_model(**kwargs):
         end_sampling_time = time.time()
 
     elif synthesizer_name == "actgan":  # sequential
+        from gretel_synthetics.actgan.actgan_wrapper import ACTGAN
         """
             # https://synthetics.docs.gretel.ai/en/stable/models/actgan.html
         """

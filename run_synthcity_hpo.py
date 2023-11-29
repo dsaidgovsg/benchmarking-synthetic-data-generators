@@ -14,11 +14,6 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
                                  ML_CLASSIFICATION_TASK_DATASETS,
                                  ML_TASKS_TARGET_CLASS)
 
-
-
-# New delta distribution
-
-
 # Relevant links
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/benchmark/__init__.py
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/metrics/eval_statistical.py

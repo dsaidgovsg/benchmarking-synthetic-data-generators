@@ -11,8 +11,8 @@ from io import StringIO
 import sdv
 
 from commons.static_vals import N_BYTES_IN_MB, DataModalities
-from metrics.sdv_reports import (compute_sdv_quality_report,
-                                 compute_sdv_diagnostic_report)
+# from metrics.sdv_reports import (compute_sdv_quality_report,
+#                                  compute_sdv_diagnostic_report)
 # SDV synthesizers
 # from synthesizers.sdv.sequential.par_synthesizer import PARSynthesizer
 
@@ -67,6 +67,10 @@ def run_model(**kwargs):
     # num_samples=kwargs["num_samples"]
 
     if kwargs["sequential_details"]:
+
+        entity_col = kwargs["sequential_details"]["entity"]
+        temporal_col = kwargs["sequential_details"]["time_attribute"]
+
         num_sequences = kwargs["sequential_details"]["num_sequences"]
         max_sequence_length = kwargs["sequential_details"]["max_sequence_length"]
         seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"]
@@ -104,9 +108,16 @@ def run_model(**kwargs):
         # - Link to the paper: https://arxiv.org/pdf/2207.14406.pdf
         # Params:
         # context_columns <list>: do not vary inside of a sequence.
+        metadata.update_column(
+            column_name=entity_col,
+            sdtype='id'
+        )
+        metadata.set_sequence_key(column_name=entity_col)
+        metadata.set_sequence_index(column_name=temporal_col)
+
         synthesizer = synthesizer_class(metadata,
-                                        context_columns=seq_fixed_attributes,
-                                        epochs=num_epochs,
+                                        # context_columns=seq_fixed_attributes,
+                                        epochs=2,  # num_epochs,
                                         cuda=use_gpu,
                                         verbose=True,)
 
@@ -120,6 +131,11 @@ def run_model(**kwargs):
         #         and the metrics you are using to quantify success.
         # links: https://github.com/sdv-dev/SDV/discussions/980
         #        https://datacebo.com/blog/interpreting-ctgan-progress/
+
+        # metadata = metadata.to_dict()
+        # metadata[""]
+        # from sdv.metadata import SingleTableMetadata
+        # metadata = SingleTableMetadata.load_from_dict(metadata)
         synthesizer = synthesizer_class(metadata,
                                         epochs=num_epochs,
                                         cuda=use_gpu,
@@ -159,8 +175,10 @@ def run_model(**kwargs):
         #     If you provide None, the synthesizer will determine the lengths algorithmically
         #     , and the length may be different for each sequence. Defaults to None.
         begin_sampling_time = time.time()
-        synthetic_dataset = synthesizer.sample(num_sequences=num_sequences,
+        print("1"*10)
+        synthetic_dataset = synthesizer.sample(num_sequences=100,  # num_sequences,
                                                sequence_length=max_sequence_length)
+        print("2"*10)
     else:
         begin_sampling_time = time.time()
         synthetic_dataset = synthesizer.sample(num_rows=num_samples)
@@ -233,40 +251,40 @@ def run_model(**kwargs):
     synthetic_dataset.to_csv(
         f"{output_path}{dataset_name}_{synthesizer_name}_synthetic_data.csv", index=False)
 
-    if generate_sdv_quality_report:
-        print("Generating Quality Report", "#"*10)
+    # if generate_sdv_quality_report:
+    #     print("Generating Quality Report", "#"*10)
 
-        start_time = time.time()
-        quality_report_obj = compute_sdv_quality_report(
-            train_dataset,
-            synthetic_dataset,
-            metadata
-        )
-        execution_scores["quality_report_time_sec"] = time.time() - start_time
+    #     start_time = time.time()
+    #     quality_report_obj = compute_sdv_quality_report(
+    #         train_dataset,
+    #         synthetic_dataset,
+    #         metadata
+    #     )
+    #     execution_scores["quality_report_time_sec"] = time.time() - start_time
 
-        print("Quality: ", quality_report_obj["score"])
-        LOGGER.info("Quality: ", quality_report_obj["score"])
+    #     print("Quality: ", quality_report_obj["score"])
+    #     LOGGER.info("Quality: ", quality_report_obj["score"])
 
-        # save execution data
-        with open(f"{output_path}{dataset_name}_{synthesizer_name}_quality_report.json", "w") as json_file:
-            json.dump(quality_report_obj, json_file)
+    #     # save execution data
+    #     with open(f"{output_path}{dataset_name}_{synthesizer_name}_quality_report.json", "w") as json_file:
+    #         json.dump(quality_report_obj, json_file)
 
-    if generate_sdv_diagnostic_report:
-        print("Generating Diagnostic Report",  "#"*10)
-        start_time = time.time()
-        diagnostic_report_obj = compute_sdv_diagnostic_report(
-            train_dataset,
-            synthetic_dataset,
-            metadata
-        )
-        execution_scores["diagnostic_report_time_sec"] = time.time() - \
-            start_time
-        print("Diagnostics: ", diagnostic_report_obj["results"])
-        LOGGER.info("Diagnostics: ", diagnostic_report_obj["results"])
+    # if generate_sdv_diagnostic_report:
+    #     print("Generating Diagnostic Report",  "#"*10)
+    #     start_time = time.time()
+    #     diagnostic_report_obj = compute_sdv_diagnostic_report(
+    #         train_dataset,
+    #         synthetic_dataset,
+    #         metadata
+    #     )
+    #     execution_scores["diagnostic_report_time_sec"] = time.time() - \
+    #         start_time
+    #     print("Diagnostics: ", diagnostic_report_obj["results"])
+    #     LOGGER.info("Diagnostics: ", diagnostic_report_obj["results"])
 
-        # save execution data
-        with open(f"{output_path}{dataset_name}_{synthesizer_name}_diagnostic_report.json", "w") as json_file:
-            json.dump(diagnostic_report_obj, json_file)
+    #     # save execution data
+    #     with open(f"{output_path}{dataset_name}_{synthesizer_name}_diagnostic_report.json", "w") as json_file:
+    #         json.dump(diagnostic_report_obj, json_file)
 
     # save execution data
     with open(f"{output_path}{dataset_name}_{synthesizer_name}_execution_scores.json", "w") as json_file:

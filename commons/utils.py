@@ -103,14 +103,16 @@ def get_dataset_with_sdv(modality: str, dataset_name: str):
             30        UWaveGestureLibrary     7.76          1
             31             nasdaq100_2019     1.65          1
     """
-    try:
-        real_data, metadata = sdv.datasets.demo.download_demo(
-            modality=modality,
-            dataset_name=dataset_name,
-        )
-        return real_data, metadata
-    except:
-        return
+    # try:
+    from sdv.datasets.demo import download_demo
+
+    real_data, metadata = download_demo(
+        modality=modality,
+        dataset_name=dataset_name,
+    )
+    return real_data, metadata
+    # except:
+    #     return
 
 
 def detect_distribution(column):
