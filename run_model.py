@@ -137,7 +137,13 @@ if __name__ == "__main__":
 
     if exp_data_modality == "sequential":
 
-        # DGAN requires equal length of the sequences; Apply operation:
+        # DGAN requires equal length of the sequences;
+        # DGAN depends on an older version of scipy == 1.7.3
+        # DGAN require imputation of missing values
+        # more info:  issue arises when the data type of the input argument a is not numeric
+        # (like strings or objects) and cannot be automatically converted to a numeric array.
+        # This behavior was deprecated in SciPy version 1.9.0 and removed in version 1.11.0.
+        # Apply operation:
         # 1. drop_and_truncate 2. padding_and_truncate
 
         if exp_dataset_name == "nasdaq":
@@ -243,7 +249,7 @@ if __name__ == "__main__":
                             'LABFORCE', 'WRKLSTWK', 'ABSENT', 'LOOKING', 'AVAILBLE', 'WRKRECAL',
                             'WORKEDYR', 'INCTOT', 'INCWAGE', 'INCWELFR', 'INCINVST', 'INCEARN',
                             'POVERTY', 'DEPARTS', 'ARRIVES', 'CITIZEN', 'EDUC']
-            
+
             discrete_cols = None
 
             # discrete_cols = [
@@ -273,7 +279,6 @@ if __name__ == "__main__":
             #     'WORKEDYR',   # Worked this year status (Categorical/Binary)
             #     'POVERTY'     # Poverty status indicator (Categorical)
             # ]
-
 
         # exp_synthesizer == "dgan"
         if groups_processing_op:
@@ -381,7 +386,7 @@ if __name__ == "__main__":
         from run_hyperimpute import apply_imputation
         print(
             f"before imputation: percent missing values in the real DataFrame: \
-                {real_dataset.isna().sum().sum()/(real_dataset.shape[0]*real_dataset.shape[1])*100}")
+                {real_dataset.isna().sum().sum()/(real_dataset.shape[0])}")
         real_dataset = apply_imputation(dataframe=real_dataset,
                                         method=exp_imputer,
                                         dataset_name=exp_dataset_name,
@@ -389,6 +394,7 @@ if __name__ == "__main__":
         print(
             f"after imputation: total missing values in the real DataFrame: \
                 {real_dataset.isna().sum().sum()}")
+        # breakpoint()
     # else:
     #     train_dataset = real_dataset
 

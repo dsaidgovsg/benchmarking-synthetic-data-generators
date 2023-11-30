@@ -122,6 +122,9 @@ def run_model(**kwargs):
         # captured_print_out = StringIO()
         # sys.stdout = captured_print_out
 
+        # print("#"*10)
+        # print("----->", train_dataset.isna().sum().sum())
+        # breakpoint()
         begin_train_time = time.time()
         synthesizer.train_dataframe(train_dataset,
                                     attribute_columns=seq_static_attributes,
@@ -155,7 +158,7 @@ def run_model(**kwargs):
             verbose=True,
             cuda=use_gpu,
             epochs=num_epochs,
-            enforce_min_max_values=True, 
+            enforce_min_max_values=True,
             # ---------------------
             # attributes for the future purposes
             # ---------------------

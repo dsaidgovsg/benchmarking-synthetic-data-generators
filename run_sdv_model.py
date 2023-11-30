@@ -113,7 +113,13 @@ def run_model(**kwargs):
             column_name=entity_col,
             sdtype='id'
         )
+
         metadata.set_sequence_key(column_name=entity_col)
+        if dataset_name == "pums":
+            metadata.update_column(
+                column_name=temporal_col,
+                sdtype='numerical'
+            )
         metadata.set_sequence_index(column_name=temporal_col)
 
         synthesizer = synthesizer_class(metadata,

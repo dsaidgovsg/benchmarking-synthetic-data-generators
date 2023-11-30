@@ -32,6 +32,21 @@ def is_mcar(dataframe):
     return missing_percent.max() < 5 and dataframe.corrwith(missing_percent).abs().max() < 0.1
 
 
+def impute_cols_all_missing(df, constant_val=0):
+    """
+    Imputes columns in a pandas DataFrame where all values are missing.
+    If all values in a column are missing, the function replaces them with 0.
+
+    :param df: pandas DataFrame
+    :return: pandas DataFrame with columns imputed where all values were missing
+    """
+    for column in df.columns:
+        if df[column].isna().all():
+            df[column] = constant_val
+
+    return df
+
+
 def apply_imputation(dataframe: DataFrame,
                      method: str,
                      dataset_name: str,
@@ -59,9 +74,12 @@ def apply_imputation(dataframe: DataFrame,
 
     begin_impute_time = time.time()
 
+    print(dataframe.columns, len(dataframe.columns))
     try:
         if method == "simple":
             for column in dataframe.columns:
+                if dataframe[column].isna().all():
+                    dataframe[column] = 0
                 if dataframe[column].dtype.kind in 'bifc':  # Check for numeric types
                     print("Numerical: ", column)
                     strategy = 'mean' if - \
@@ -76,6 +94,8 @@ def apply_imputation(dataframe: DataFrame,
                         dataframe[[column]])
 
         elif method == "hyperimpute":
+
+            dataframe = impute_cols_all_missing(dataframe)
             imputer = Imputers().get(
                 "hyperimpute",
                 # optimizer: str. The optimizer to use: simple, hyperband, bayesian
@@ -108,6 +128,7 @@ def apply_imputation(dataframe: DataFrame,
             dataframe[:] = imputer.fit_transform(dataframe)
 
         elif method in ["ice", "missforest"]:  # "mice"
+            dataframe = impute_cols_all_missing(dataframe)
             imputer = Imputers().get(method)
             dataframe[:] = imputer.fit_transform(dataframe)
 
@@ -115,7 +136,7 @@ def apply_imputation(dataframe: DataFrame,
             raise ValueError("Not a valid imputation method.")
 
     except Exception as e:
-        print(f"Error using {method} imputation method: {e}")
+        raise ValueError(f"Error using {method} imputation method: {e}")
 
     end_impute_time = time.time()
     imputer_info: Dict[str, Any] = {
