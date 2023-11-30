@@ -51,8 +51,8 @@ def run_model(**kwargs):
     if kwargs["sequential_details"]:
         num_sequences = kwargs["sequential_details"]["num_sequences"]
         max_sequence_length = kwargs["sequential_details"]["max_sequence_length"]
-        seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"]
-        seq_varying_attributes = kwargs["sequential_details"]["varying_attributes"]
+        seq_static_attributes = kwargs["sequential_details"]["static_attributes"]
+        seq_dynamic_attributes = kwargs["sequential_details"]["dynamic_attributes"]
         time_attribute = kwargs["sequential_details"]["time_attribute"]
         entity = kwargs["sequential_details"]["entity"]
         discrete_attributes = kwargs["sequential_details"]["discrete_attributes"]
@@ -105,7 +105,7 @@ def run_model(**kwargs):
         # Interface for training model and generating data based on configuration in an DGANConfig instance.
         synthesizer = DGAN(config)
 
-        # attribute_columns = seq_fixed_attributes
+        # attribute_columns = seq_static_attributes
         # feature_columns = ["Open", "Close", "Volume", "MarketCap"]
         # example_id_column  = "Symbol"
         # time_column  = "Date"
@@ -124,8 +124,8 @@ def run_model(**kwargs):
 
         begin_train_time = time.time()
         synthesizer.train_dataframe(train_dataset,
-                                    # attribute_columns=seq_fixed_attributes,
-                                    # feature_columns=seq_varying_attributes,
+                                    attribute_columns=seq_static_attributes,
+                                    # feature_columns=seq_dynamic_attributes,
                                     example_id_column=entity,
                                     time_column=time_attribute,
                                     # discrete_columns=discrete_attributes,

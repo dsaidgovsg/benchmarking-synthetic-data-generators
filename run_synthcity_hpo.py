@@ -23,6 +23,7 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/plugins/core/distribution.py
 # https://github.com/vanderschaarlab/synthcity/blob/main/src/synthcity/benchmark/__init__.py
 
+# TODO: make a generic function supporting models from all the packages 
 
 class StudyDirection(Enum):
     """

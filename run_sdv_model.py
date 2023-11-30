@@ -73,7 +73,7 @@ def run_model(**kwargs):
 
         num_sequences = kwargs["sequential_details"]["num_sequences"]
         max_sequence_length = kwargs["sequential_details"]["max_sequence_length"]
-        seq_fixed_attributes = kwargs["sequential_details"]["fixed_attributes"]
+        seq_static_attributes = kwargs["sequential_details"]["static_attributes"]
 
     synthesizer_class = SYNTHESIZERS_MAPPING[synthesizer_name]
     # num_samples = len(train_dataset)
@@ -98,6 +98,7 @@ def run_model(**kwargs):
         # default_distribution <str> ="beta"
         synthesizer = synthesizer_class(metadata)
     elif synthesizer_name == "par":  # sequential
+        # Note: PAR model works for varying sequence lengths
         # ---------------------------------------------
         # PAR: Probabilistic Auto-Regressive model
         # ---------------------------------------------
@@ -116,10 +117,12 @@ def run_model(**kwargs):
         metadata.set_sequence_index(column_name=temporal_col)
 
         synthesizer = synthesizer_class(metadata,
-                                        # context_columns=seq_fixed_attributes,
-                                        epochs=2,  # num_epochs,
+                                        context_columns=seq_static_attributes,
+                                        enforce_rounding=True,
+                                        enforce_min_max_values=True,
+                                        epochs=10,#num_epochs,
                                         cuda=use_gpu,
-                                        verbose=True,)
+                                        verbose=True)
 
     elif synthesizer_name == "ctgan":
         # --------------------------

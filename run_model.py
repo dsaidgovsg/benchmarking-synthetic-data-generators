@@ -14,7 +14,8 @@ from commons.static_vals import (DEFAULT_EPOCH_VALUES,
                                  ML_TASKS_TARGET_CLASS)
 from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
                            shuffle_and_split_dataframe,
-                           stratified_split_dataframe)
+                           stratified_split_dataframe,
+                           split_sequential_data)
 from commons.sequential import (process_groups, get_groups_stats)
 
 # Note: ACTGAN model from gretel-synthetics requires sdv<0.18
@@ -35,7 +36,7 @@ if __name__ == "__main__":
                         help="enter dataset name. \
                         Possible values - {adult, census, child, covtype, \
                         credit, insurance, intrusion, health_insurance, drugs, loan, \
-                        nasdaq, taxi, pums}") # IL_OH_10Y_PUMS
+                        nasdaq, taxi, pums}")  # IL_OH_10Y_PUMS
     parser.add_argument("--imputer", "--i", type=str, default="hyperimpute",
                         help="enter hyperimputer plugin name \
                             Possible values - {'simple', 'mice',  \
@@ -150,34 +151,48 @@ if __name__ == "__main__":
             try:
                 real_dataset = pd.read_csv(
                     f"sample_datasets/seq/{exp_dataset_name}.csv")
+                real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
                 metadata = detect_metadata_with_sdv(real_dataset)
             except Exception as e:
                 real_dataset, metadata = get_dataset_with_sdv(
                     "sequential", "nasdaq100_2019")
 
-            entity_col = "Symbol"
-            temporal_col = "Date"
-            fixed_cols = ["Sector", "Industry"]
-            varying_cols = ["Open", "Close", "Volume", "MarketCap"]
-            discrete_cols = ["Sector", "Industry"]
-
             # max_sequence_length = 252  # max-sequence length
             req_sequence_length = 250
             # padding_and_truncate, drop_and_truncate
-            groups_processing_op = "padding_and_truncate"
+            groups_processing_op = "drop_and_truncate"
+            # TODO: padding_and_truncate needs to be updated to retain static values consistency in a group
+
+            entity_col = "Symbol"
+            temporal_col = "Date"
+            static_cols = ["Sector", "Industry"]
+            dynamic_cols = ["Open", "Close", "Volume", "MarketCap"]
+            discrete_cols = ["Sector", "Industry"]
 
         elif exp_dataset_name == "taxi":
-            req_sequence_length = 20
+
+            # padding_and_truncate, drop_and_truncate
+
+            real_dataset = pd.read_csv(
+                f"sample_datasets/seq/{exp_dataset_name}.csv")
+
+            # real_dataset.fillna(0, inplace=True)
+
+            metadata = detect_metadata_with_sdv(real_dataset)
+            print(metadata)
+
+            req_sequence_length = 90  # TODO update
             groups_processing_op = "drop_and_truncate"
 
             entity_col = "taxi_id"
             temporal_col = "trip_start_timestamp"
-            fixed_cols = ["company"]
-            varying_cols = [
+
+            static_cols = []
+            dynamic_cols = [
                 'trip_end_timestamp', 'trip_seconds', 'trip_miles',
                 'pickup_census_tract', 'dropoff_census_tract', 'pickup_community_area',
                 'dropoff_community_area', 'fare', 'tips', 'tolls', 'extras', 'trip_total',
-                'payment_type', 'pickup_latitude', 'pickup_longitude',
+                'payment_type', 'pickup_latitude', 'pickup_longitude', "company",
                 'dropoff_latitude', 'dropoff_longitude'
             ]
 
@@ -196,18 +211,75 @@ if __name__ == "__main__":
                 "dropoff_longitude"
             ]
 
-            # padding_and_truncate, drop_and_truncate
-            groups_processing_op = "drop_and_truncate"
+        elif exp_dataset_name == "pums":
+
             real_dataset = pd.read_csv(
                 f"sample_datasets/seq/{exp_dataset_name}.csv")
-                
-            
+            real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
+            # real_dataset.fillna(0, inplace=True)
+
             metadata = detect_metadata_with_sdv(real_dataset)
             print(metadata)
+
+            req_sequence_length = 6  # TODO update
+            groups_processing_op = "drop_and_truncate"
+
+            # Entity Column
+            # This variable identifies unique entities (individuals) in the dataset.
+            entity_col = 'sim_individual_id'
+
+            # Temporal Column
+            # This variable represents the time dimension in the dataset.
+            temporal_col = 'YEAR'
+
+            # Static Variables
+            # These variables do not change over time for a given individual.
+            static_cols = ['SEX', 'RACE', 'HISPAN']  # sim_individual_id
+
+            # Dynamic Variables
+            # These variables can change over time for a given individual.
+            dynamic_cols = ['YEAR', 'HHWT', 'GQ', 'PERWT', 'AGE', 'MARST', 'SPEAKENG', 'HCOVANY',
+                            'HCOVPRIV', 'HINSEMP', 'HINSCAID', 'HINSCARE', 'EMPSTAT', 'EMPSTATD',
+                            'LABFORCE', 'WRKLSTWK', 'ABSENT', 'LOOKING', 'AVAILBLE', 'WRKRECAL',
+                            'WORKEDYR', 'INCTOT', 'INCWAGE', 'INCWELFR', 'INCINVST', 'INCEARN',
+                            'POVERTY', 'DEPARTS', 'ARRIVES', 'CITIZEN', 'EDUC']
+            
+            discrete_cols = None
+
+            # discrete_cols = [
+            #     'PUMA',       # Public Use Microdata Area code (Categorical)
+            #     'YEAR',       # Year of the survey (Categorical, though numerical, it represents distinct time periods)
+            #     'GQ',         # Group Quarters status (Categorical)
+            #     'SEX',        # Gender (Categorical/Binary)
+            #     'MARST',      # Marital status (Categorical)
+            #     'RACE',       # Race (Categorical)
+            #     'HISPAN',     # Hispanic origin (Categorical)
+            #     'CITIZEN',    # Citizenship status (Categorical)
+            #     'SPEAKENG',   # English speaking ability (Categorical)
+            #     'HCOVANY',    # Healthcare coverage status (Categorical/Binary)
+            #     'HCOVPRIV',   # Private health insurance status (Categorical/Binary)
+            #     'HINSEMP',    # Health insurance through employment (Categorical/Binary)
+            #     'HINSCAID',   # Health insurance through Medicaid (Categorical/Binary)
+            #     'HINSCARE',   # Health insurance through Medicare (Categorical/Binary)
+            #     'EDUC',       # Education level (Categorical)
+            #     'EMPSTAT',    # Employment status (Categorical)
+            #     'EMPSTATD',   # Detailed employment status (Categorical)
+            #     'LABFORCE',   # Labor force status (Categorical)
+            #     'WRKLSTWK',   # Worked last week status (Categorical)
+            #     'ABSENT',     # Absent from work status (Categorical)
+            #     'LOOKING',    # Looking for work status (Categorical)
+            #     'AVAILBLE',   # Availability for work status (Categorical)
+            #     'WRKRECAL',   # Work recall status (Categorical)
+            #     'WORKEDYR',   # Worked this year status (Categorical/Binary)
+            #     'POVERTY'     # Poverty status indicator (Categorical)
+            # ]
+
 
         # exp_synthesizer == "dgan"
         if groups_processing_op:
             get_groups_stats(real_dataset, entity_col)
+            print("Number of sequences BEFORE processing: ",
+                  real_dataset.groupby(entity_col).size().count())
             real_dataset = process_groups(real_dataset,
                                           req_sequence_length,
                                           entity_col,
@@ -227,21 +299,21 @@ if __name__ == "__main__":
             # consistent_taxi_ids = grouped[grouped == 1].index
             # real_dataset = real_dataset[real_dataset['taxi_id'].isin(consistent_taxi_ids)]
 
-            real_dataset.fillna(0, inplace=True)
+            # real_dataset.fillna(0, inplace=True)
 
-            for col in real_dataset.columns:
-                real_dataset[col] = pd.to_numeric(real_dataset[col], errors='coerce')
-
-
+            # for col in real_dataset.columns:
+            #     real_dataset[col] = pd.to_numeric(
+            #         real_dataset[col], errors='coerce')
 
             num_sequences = real_dataset.groupby(entity_col).size().count()
+            print("Number of sequences AFTER processing: ", num_sequences)
 
         sequential_details = {
             # drop 3 sequences for the dgan model, as it requires equal length of sequences
             "num_sequences": num_sequences,
             "max_sequence_length": req_sequence_length,
-            "fixed_attributes": fixed_cols,
-            "varying_attributes": varying_cols,
+            "static_attributes": static_cols,
+            "dynamic_attributes": dynamic_cols,
             "time_attribute": temporal_col,
             "entity": entity_col,
             "discrete_attributes": discrete_cols
@@ -265,15 +337,13 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(e)
 
-        if exp_dataset_name == "pums":
-                # Check if the column exists in DataFrame
-                if "Unnamed: 0" in real_dataset.columns:
-                    try:
-                        real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
-                    except Exception as e:
-                        print(e)
-
-        
+        # if exp_dataset_name == "pums":
+        # Check if the column exists in DataFrame
+        if "Unnamed: 0" in real_dataset.columns:
+            try:
+                real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
+            except Exception as e:
+                print(e)
 
         # ACTGAN requires SDV < 0.18 that does not support metadata detection API
         if exp_synthesizer != "actgan" and not metadata:
@@ -349,6 +419,13 @@ if __name__ == "__main__":
             else:
                 (train_dataset, test_dataset) = shuffle_and_split_dataframe(
                     real_dataset, False)
+    elif exp_data_modality == "sequential":
+        if not train_test_data:
+            train_dataset = split_sequential_data(
+                real_dataset, entity_col, True)
+        else:
+            (train_dataset, test_dataset) = split_sequential_data(
+                real_dataset, entity_col, False)
     else:
         train_dataset = real_dataset
 
@@ -414,6 +491,12 @@ if __name__ == "__main__":
                 sequential_details=sequential_details)
 
         elif exp_library == "synthcity":
+
+            print("$$"*10)
+            print(
+                f"after imputation: total missing values in the real DataFrame: \
+                {real_dataset.isna().sum().sum()}")
+            print("%%"*10)
 
             opt_params = {}
             if run_optimizer:

@@ -70,7 +70,7 @@ def shuffle_and_split_dataframe(df, return_only_train_data=True, test_size=0.2, 
 if __name__ == "__main__":
 
     epochs = 300
-    dataset_name = "drugs"  # health_insurance: 100, loan: 100, adult: 300, credit: 400 (X), drugs: 300
+    dataset_name = "pums"  # health_insurance: 100, loan: 100, adult: 300, credit: 400 (X), drugs: 300
     output_path = "outputs"
 
     if not os.path.exists(output_path):

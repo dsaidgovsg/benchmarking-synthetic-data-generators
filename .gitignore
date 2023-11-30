@@ -34,3 +34,4 @@ run_hyperimpute_bck.py
 seq_metrics/
 optuna_generic.py
 *.yml
+dganenv/

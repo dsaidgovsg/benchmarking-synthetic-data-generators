@@ -212,3 +212,35 @@ def shuffle_and_split_dataframe(df, return_only_train_data=True, test_size=0.2, 
         return X_train
     else:
         return (X_train, X_test)
+
+
+def split_sequential_data(df, sequence_key, return_only_train_data=True, test_size=0.2, random_state=42):
+    """
+    Splits a DataFrame into training and test sets based on a sequence key.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame to split.
+    sequence_key (str): The column name in df that identifies each sequence.
+    return_only_train_data (bool): If True, returns only the training set; otherwise, returns both training and test sets.
+    test_size (float): The proportion of the dataset to include in the test split.
+    random_state (int): Controls the shuffling applied to the data before applying the split.
+
+    Returns:
+    pd.DataFrame: Training set, and optionally the test set.
+    """
+
+    # Unique sequence keys
+    sequence_keys = df[sequence_key].unique()
+
+    # Split the sequence keys into training and test sets
+    train_keys, test_keys = train_test_split(
+        sequence_keys, test_size=test_size, random_state=random_state)
+
+    # Split the DataFrame into training and test sets based on the keys
+    train_df = df[df[sequence_key].isin(train_keys)]
+    test_df = df[df[sequence_key].isin(test_keys)]
+
+    if return_only_train_data:
+        return train_df
+    else:
+        return train_df, test_df
