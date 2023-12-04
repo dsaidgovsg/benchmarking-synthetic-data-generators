@@ -10,7 +10,6 @@
 
 # temporary
 # **.ipynb
-kddcup.csv
 metrics/backup
 chicago_taxi_trips/
 test.py
@@ -29,7 +28,6 @@ met_out/
 hpo_out/
 hpo_trial/
 *.json
-*.csv
 run_hyperimpute_bck.py
 seq_metrics/
 optuna_generic.py
@@ -37,3 +35,4 @@ optuna_generic.py
 dganenv/
 deprecated_code/
 local_final_outputs/
+all_sample_datasets/

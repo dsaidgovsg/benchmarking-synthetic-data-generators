@@ -20,13 +20,40 @@
 | --use_gpu, --cuda | bool | False | Whether to use GPU device(s) | |
 
 
+## Supported Models
+
+| Type       | Library            | Models                           |
+|------------|--------------------|----------------------------------|
+| Tabular    | sdv                | gaussian_copula, ctgan, tvae     |
+|            | synthcity          | ddpm, nflow, goggle, arf, rtvae, ctgan, tvae |
+|            | gretel-synthetics  | actgan                           |
+| Sequential | gretel-synthetics  | dgan                             |
+|            | sdv                | par                              |
+
+## Sample comamnds
+
 ```bash
 
 python3 run_model.py --m tabular --l sdv --s gaussian_copula --data loan --o outputs --rt
-python3 run_model.py --m tabular --l sdv --s ctgan --data loan --o outputs --ri --rt --tt
-python3 run_model.py --m tabular --l gretel --s actgan --data loan --o outputs --ri --rt --tt
+python3 run_model.py --m tabular --l synthcity --s nflow --data adult --o outputs --rt
 
-health_insurance
+# ACTGAN model from gretel-synthetics requires sdv<0.18
+python3 run_model.py --m tabular --l gretel --s actgan --data adult --o outputs --rt
+
+# run sequential model
+python3 run_model.py --m sequential --l gretel --s dgan --data nasdaq --o outputs --rt
+python3 run_model.py --m sequential --l sdv --s par --data nasdaq --o outputs --rt
+
+# hyperparameter optimisation and imputation require train test split by setting --tt flag 
+# run imputation before model training
+python3 run_model.py --m tabular --l sdv --s ctgan --data drugs --o outputs --rt --tt -ri --i missforest
+python3 run_model.py --m tabular --l sdv --s tvae --data drugs --o outputs --rt --tt -ri --i simple
+python3 run_model.py --m tabular --l sdv --s tvae --data drugs --o outputs --rt --tt -ri --i hyperimpute
+
+# run hyperparameter optimiser
+python3 run_model.py --m tabular --l synthcity --s ddpm --data loan --o outputs --rt --ro --tt
+python3 run_model.py --m tabular --l synthcity --s arf --data loan --o outputs --rt --ro --tt --cuda
+python3 run_model.py --m tabular --l synthcity --s rtvae --data health_insurance --ro --tt --cuda
 ```
 
 
