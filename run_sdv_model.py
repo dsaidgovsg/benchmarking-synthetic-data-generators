@@ -115,18 +115,22 @@ def run_model(**kwargs):
         )
 
         metadata.set_sequence_key(column_name=entity_col)
-        if dataset_name == "pums":
+        if dataset_name in "pums":
             metadata.update_column(
                 column_name=temporal_col,
                 sdtype='numerical'
             )
         metadata.set_sequence_index(column_name=temporal_col)
 
+        print(">"*20)
+        print(metadata.to_dict())
+        print(">"*20)
+        
         synthesizer = synthesizer_class(metadata,
                                         context_columns=seq_static_attributes,
                                         enforce_rounding=True,
                                         enforce_min_max_values=True,
-                                        epochs=10,#num_epochs,
+                                        epochs=num_epochs,
                                         cuda=use_gpu,
                                         verbose=True)
 
@@ -185,7 +189,7 @@ def run_model(**kwargs):
         #     , and the length may be different for each sequence. Defaults to None.
         begin_sampling_time = time.time()
         print("1"*10)
-        synthetic_dataset = synthesizer.sample(num_sequences=100,  # num_sequences,
+        synthetic_dataset = synthesizer.sample(num_sequences=num_sequences,
                                                sequence_length=max_sequence_length)
         print("2"*10)
     else:

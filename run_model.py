@@ -145,7 +145,7 @@ if __name__ == "__main__":
         # This behavior was deprecated in SciPy version 1.9.0 and removed in version 1.11.0.
         # Apply operation:
         # 1. drop_and_truncate 2. padding_and_truncate
-
+        metadata = None
         if exp_dataset_name == "nasdaq":
             # Minimum group size: 177
             # Maximum group size: 252
@@ -154,12 +154,13 @@ if __name__ == "__main__":
             # 203      1
             # 204      1
             # 177      1
+
             try:
                 real_dataset = pd.read_csv(
                     f"sample_datasets/seq/{exp_dataset_name}.csv")
                 real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
-                metadata = detect_metadata_with_sdv(real_dataset)
             except Exception as e:
+                print("@"*10)
                 real_dataset, metadata = get_dataset_with_sdv(
                     "sequential", "nasdaq100_2019")
 
@@ -184,10 +185,7 @@ if __name__ == "__main__":
 
             # real_dataset.fillna(0, inplace=True)
 
-            metadata = detect_metadata_with_sdv(real_dataset)
-            print(metadata)
-
-            req_sequence_length = 90  # TODO update
+            req_sequence_length = 90  # TODO: put in constants
             groups_processing_op = "drop_and_truncate"
 
             entity_col = "taxi_id"
@@ -223,9 +221,6 @@ if __name__ == "__main__":
                 f"sample_datasets/seq/{exp_dataset_name}.csv")
             real_dataset.drop(columns=["Unnamed: 0"], inplace=True)
             # real_dataset.fillna(0, inplace=True)
-
-            metadata = detect_metadata_with_sdv(real_dataset)
-            print(metadata)
 
             req_sequence_length = 6  # TODO update
             groups_processing_op = "drop_and_truncate"
@@ -279,6 +274,10 @@ if __name__ == "__main__":
             #     'WORKEDYR',   # Worked this year status (Categorical/Binary)
             #     'POVERTY'     # Poverty status indicator (Categorical)
             # ]
+
+        if exp_library != "gretel" and not metadata:
+            metadata = detect_metadata_with_sdv(real_dataset)
+            print(metadata)
 
         # exp_synthesizer == "dgan"
         if groups_processing_op:

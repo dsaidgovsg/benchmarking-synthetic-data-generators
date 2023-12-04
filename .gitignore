@@ -35,3 +35,5 @@ seq_metrics/
 optuna_generic.py
 *.yml
 dganenv/
+deprecated_code/
+local_final_outputs/
