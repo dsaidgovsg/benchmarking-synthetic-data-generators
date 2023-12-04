@@ -3,8 +3,8 @@
 | Argument | Type | Default Value | Description | Possible Values |
 |----------|------|---------------|-------------|-----------------|
 | --library, --l | str | sdv | Enter library | {sdv, gretel, synthcity} |
-| --modality, --m | str | tabular | Enter dataset modality | {tabular, sequential, text} |
-| --synthesizer, --s | str | ctgan | Enter synthesizer name | {ctgan, tvae, gaussian_copula, par, dgan, actgan, goggle} |
+| --modality, --m | str | tabular | Enter dataset modality | {tabular, sequential} |
+| --synthesizer, --s | str | ctgan | Enter synthesizer name | {ctgan, tvae, gaussian_copula, par, dgan, actgan, goggle, nflow, arf, ddpm, rtvae} |
 | --data | str | adult | Enter dataset name | {adult, census, child, covtype, credit, insurance, intrusion, health_insurance, drugs, loan, nasdaq, taxi, pums} |
 | --imputer, --i | str | hyperimpute | Enter hyperimputer plugin name | {'simple', 'mice', 'missforest', 'hyperimpute'} |
 | --optimizer_trials, --trials | int | 25 | | |
@@ -45,6 +45,7 @@ python3 run_model.py --m sequential --l gretel --s dgan --data nasdaq --o output
 python3 run_model.py --m sequential --l sdv --s par --data nasdaq --o outputs --rt
 
 # hyperparameter optimisation and imputation require train test split by setting --tt flag 
+
 # run imputation before model training
 python3 run_model.py --m tabular --l sdv --s ctgan --data drugs --o outputs --rt --tt -ri --i missforest
 python3 run_model.py --m tabular --l sdv --s tvae --data drugs --o outputs --rt --tt -ri --i simple
