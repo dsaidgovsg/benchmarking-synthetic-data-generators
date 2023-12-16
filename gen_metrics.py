@@ -42,19 +42,22 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         synthetic_data.drop(columns=['Unnamed: 0'], inplace=True)
 
     # Load real data and metadata
-    if exp_dataset_name == "drugs":
-        real_dataset = pd.read_csv(
-            "sample_datasets/drugs.csv")
-        metadata_class = detect_metadata_with_sdv(real_dataset)
-    elif exp_dataset_name == "health_insurance":
-        real_dataset = pd.read_csv("sample_datasets/health_insurance.csv")
-        metadata_class = detect_metadata_with_sdv(real_dataset)
-    elif exp_dataset_name == "loan":
-        real_dataset = pd.read_csv("sample_datasets/loan.csv")
-        metadata_class = detect_metadata_with_sdv(real_dataset)
-    else:
-        real_dataset, metadata_class = get_dataset_with_sdv(
-            "single_table", exp_dataset_name)
+    # if exp_dataset_name == "drugs":
+    #     real_dataset = pd.read_csv(
+    #         "sample_datasets/drugs.csv")
+    #     metadata_class = detect_metadata_with_sdv(real_dataset)
+    # elif exp_dataset_name == "health_insurance":
+    #     real_dataset = pd.read_csv("sample_datasets/health_insurance.csv")
+    #     metadata_class = detect_metadata_with_sdv(real_dataset)
+    # elif exp_dataset_name == "loan":
+    # /Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/
+    real_dataset = pd.read_csv(f"all_sample_datasets/{exp_dataset_name}.csv")
+    if 'Unnamed: 0' in real_dataset.columns:
+        real_dataset.drop(columns=['Unnamed: 0'], inplace=True)
+    metadata_class = detect_metadata_with_sdv(real_dataset)
+    # else:
+    #     real_dataset, metadata_class = get_dataset_with_sdv(
+    #         "single_table", exp_dataset_name)
 
     metadata_dict = metadata_class.to_dict()
 
@@ -68,10 +71,26 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         (real_data_train, real_data_test) = shuffle_and_split_dataframe(
             real_dataset, False)
 
+    # print('Holand-Netherlands' in real_data_test['native-country'].values)
+    # print('Holand-Netherlands' in real_data_train['native-country'].values)
+    # breakpoint()
+
+    synthetic_data_test = synthetic_data.sample(
+        len(real_data_test), random_state=32)
+
+    print(synthetic_data.shape, real_data_test.shape, synthetic_data_test.shape)
+
     col_md = metadata_dict["columns"]
 
     # Initialize results dictionary
     results = {
+        "shape": {
+            "synthetic_data": synthetic_data.shape,
+            "real_data": real_dataset.shape,
+            "real_data_train": real_data_train.shape,
+            "real_data_test": real_data_test.shape,
+            "synthetic_data_test": synthetic_data_test.shape
+        },
         "privacy": {},
         "coverage": {},
         "ml_efficacy": {},
@@ -84,261 +103,308 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # ------------------
     # Privacy Metrics
     # ------------------
-    try:
-        results["privacy"] = {}
-        # results["privacy"]["new_row_synthesis"] = {}
-        # results["privacy"]["distance_to_closest_record"] = {}
-        # results["privacy"]["nearest_neighbor_distance_ratio"] = {}
+    # try:
+    #     results["privacy"]["new_row_synthesis"] = {}
+    #     # results["privacy"]["new_row_synthesis"] = {}
+    #     # results["privacy"]["distance_to_closest_record"] = {}
+    #     # results["privacy"]["nearest_neighbor_distance_ratio"] = {}
 
-        begin_time = time.time()
+    #     begin_time = time.time()
 
-        # print("train_data :", real_data_train.shape,
-        #     "test_data: ", real_data_test.shape,
-        #     "synthetic_data: ", synthetic_data.shape)
-        # priv_dcr = compute_metric(
-        #     metric_name="priv_dcr",
-        #     train_data=real_data_train,
-        #     test_data=real_data_test,
-        #     synthetic_data=synthetic_data.sample(n=len(real_data_test)),
-        #     metadata=metadata_dict)
-        # # print("priv_dcr --->", priv_dcr)
-        # results["privacy"]["distance_to_closest_record"] = priv_dcr
+    #     # TODO: add the below metrics later; need to convert to numerical
+    #     # print("train_data :", real_data_train.shape,
+    #     #     "test_data: ", real_data_test.shape,
+    #     #     "synthetic_data: ", synthetic_data.shape)
+    #     # priv_dcr = compute_metric(
+    #     #     metric_name="priv_dcr",
+    #     #     train_data=real_data_train,
+    #     #     test_data=real_data_test,
+    #     #     synthetic_data=synthetic_data.sample(n=len(real_data_test)),
+    #     #     metadata=metadata_dict)
+    #     # print("priv_dcr --->", priv_dcr)
+    #     # results["privacy"]["distance_to_closest_record"] = priv_dcr
 
-        # priv_nndr = compute_metric(
-        #     metric_name="priv_nndr",
-        #     train_data=real_data_train,
-        #     test_data=real_data_test,
-        #     synthetic_data=synthetic_data,
-        #     metadata=metadata_dict)
+    #     # priv_nndr = compute_metric(
+    #     #     metric_name="priv_nndr",
+    #     #     train_data=real_data_train,
+    #     #     test_data=real_data_test,
+    #     #     synthetic_data=synthetic_data,
+    #     #     metadata=metadata_dict)
 
-        # results["privacy"]["nearest_neighbor_distance_ratio"] = priv_nndr
-        # print("priv_nndr --->", priv_nndr)
+    #     # results["privacy"]["nearest_neighbor_distance_ratio"] = priv_nndr
+    #     # print("priv_nndr --->", priv_nndr)
 
-        # results["privacy"]["new_row_synthesis"] = round(
-        #     new_row_synthesis, ROUNDING_VAL)
-        # LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
-        # results["privacy"]["timing"] = time.time() - begin_time
+    #     # results["privacy"]["new_row_synthesis"] = round(
+    #     #     new_row_synthesis, ROUNDING_VAL)
+    #     # LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
+    #     # results["privacy"]["timing"] = time.time() - begin_time
 
-        # begin_time = time.time()
-        new_row_synthesis = compute_metric(
-            metric_name="priv_new_row_syn",
-            real_data=real_dataset,
-            synthetic_data=synthetic_data,
-            metadata=metadata_dict,
-            numerical_match_tolerance=0.01,
-            synthetic_sample_percent=0.75)
-        # print("new_row_synthesis-->", new_row_synthesis)
+    #     # begin_time = time.time()
+    #     new_row_synthesis = compute_metric(
+    #         metric_name="priv_new_row_syn",
+    #         real_data=real_dataset,
+    #         synthetic_data=synthetic_data,
+    #         metadata=metadata_dict,
+    #         numerical_match_tolerance=0.01,
+    #         synthetic_sample_percent=0.5)
+    #     # print("new_row_synthesis-->", new_row_synthesis)
 
-        results["privacy"]["new_row_synthesis"] = round(
-            new_row_synthesis, ROUNDING_VAL)
-        LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
-        results["privacy"]["timing"] = time.time() - begin_time
-    except Exception as e:
-        LOGGER.error(e)
+    #     results["privacy"]["new_row_synthesis"]["numerical_match_tolerance"] = 0.01
+    #     results["privacy"]["new_row_synthesis"]["synthetic_sample_percent"] = 0.5
+    #     results["privacy"]["new_row_synthesis"]["score"] = round(
+    #         new_row_synthesis, ROUNDING_VAL)
+    #     LOGGER.info(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
 
-    # ------------------
-    # Coverage Metrics
-    # ------------------
-    try:
-        # Loop over columns
-        results["coverage"]["domain_coverage"] = {}
-        results["coverage"]["missing_values_coverage"] = {}
-        results["coverage"]["outlier_coverage"] = {}
-        begin_time = time.time()
-        for k, v in col_md.items():
-            real_col = real_data_test[k]
-            synthetic_col = synthetic_data[k]
-            col_data_type = v["sdtype"]
+    #     results["privacy"]["timing"] = time.time() - begin_time
+    #     print(f"SUCCESS: new_row_synthesis: {new_row_synthesis}")
+    # except Exception as e:
+    #     LOGGER.error(e)
+    #     print(f"FAILURE: new_row_synthesis: {e}")
 
-            try:
-                domain_coverage = compute_metric(metric_name="cov_domain",
-                                                 real_col=real_col,
-                                                 synthetic_col=synthetic_col,
-                                                 col_data_type=col_data_type)
-                results["coverage"]["domain_coverage"][k] = round(
-                    domain_coverage, ROUNDING_VAL)
-            except Exception as e:
-                print(e)
-                LOGGER.error(f"compute_domain_coverage error: {e}")
+    # # ------------------
+    # # Coverage Metrics
+    # # ------------------
+    # try:
+    #     # Loop over columns
+    #     results["coverage"]["domain_coverage"] = {}
+    #     results["coverage"]["missing_values_coverage"] = {}
+    #     results["coverage"]["outlier_coverage"] = {}
+    #     begin_time = time.time()
+    #     print("RUNNING coverage metrics")
+    #     for k, v in col_md.items():
+    #         real_col = real_data_test[k]
+    #         synthetic_col = synthetic_data_test[k]
+    #         col_data_type = v["sdtype"]
 
-            try:
-                missing_values_coverage = compute_metric(metric_name="cov_misses",
-                                                         real_col=real_col,
-                                                         synthetic_col=synthetic_col)
-                results["coverage"]["missing_values_coverage"][k] = round(
-                    missing_values_coverage, ROUNDING_VAL)
-            except Exception as e:
-                print(e)
-                LOGGER.error(f"compute_missing_values_coverageerror: {e}")
+    #         try:
+    #             domain_coverage = compute_metric(metric_name="cov_domain",
+    #                                              real_col=real_col,
+    #                                              synthetic_col=synthetic_col,
+    #                                              col_data_type=col_data_type)
+    #             results["coverage"]["domain_coverage"][k] = round(
+    #                 domain_coverage, ROUNDING_VAL)
+    #             # print(f"SUCCESS: domain_coverage: {domain_coverage}")
+    #         except Exception as e:
+    #             print(e)
+    #             LOGGER.error(f"compute_domain_coverage error: {e}")
+    #             # print(f"FAILURE: domain_coverage: {e}")
 
-            try:
-                if col_data_type == "numerical":
-                    outlier_coverage = compute_metric(metric_name="cov_outiers",
-                                                      real_col=real_col,
-                                                      synthetic_col=synthetic_col)
-                    results["coverage"]["outlier_coverage"][k] = outlier_coverage
-            except Exception as e:
-                print(e)
-                LOGGER.error(f"compute_outlier_coverage error: {e}")
-        results["coverage"]["timing"] = time.time() - begin_time
-    except Exception as e:
-        print(e)
-        LOGGER.error(e)
+    #         try:
+    #             missing_values_coverage = compute_metric(metric_name="cov_misses",
+    #                                                      real_col=real_col,
+    #                                                      synthetic_col=synthetic_col)
+    #             results["coverage"]["missing_values_coverage"][k] = round(
+    #                 missing_values_coverage, ROUNDING_VAL)
+    #             # print(f"SUCCESS: cov_misses: {e}")
+    #         except Exception as e:
+    #             print(e)
+    #             LOGGER.error(f"compute_missing_values_coverageerror: {e}")
 
-    # ------------------
-    # Similarity Metrics
-    # ------------------
-    try:
-        cat_cols = []
-        results["similarity"]["statistic"] = {}
-        results["similarity"]["wass_distance"] = {}
-        results["similarity"]["js_distance"] = {}
+    #         try:
+    #             if col_data_type == "numerical":
+    #                 outlier_coverage = compute_metric(metric_name="cov_outiers",
+    #                                                   real_col=real_col,
+    #                                                   synthetic_col=synthetic_col)
+    #                 results["coverage"]["outlier_coverage"][k] = outlier_coverage
+    #         except Exception as e:
+    #             print(e)
+    #             LOGGER.error(f"compute_outlier_coverage error: {e}")
+    #     results["coverage"]["timing"] = time.time() - begin_time
+    # except Exception as e:
+    #     print(e)
+    #     LOGGER.error(e)
 
-        begin_time = time.time()
-        # Loop over columns
-        for k, v in col_md.items():
-            real_col = real_data_test[k]
-            synthetic_col = synthetic_data[k]
-            col_data_type = v["sdtype"]
+    # # ------------------
+    # # Similarity Metrics
+    # # ------------------
+    # try:
+    #     cat_cols = []
+    #     results["similarity"]["statistic"] = {}
+    #     results["similarity"]["wass_distance"] = {}
+    #     results["similarity"]["js_distance"] = {}
 
-            try:
-                # Statistic similarity
-                if col_data_type == "numerical":
-                    results["similarity"]["statistic"][k] = {}
-                    for stat in SIMILARITY_CHECK_STATISTICS:
-                        statistic_similarity = compute_metric(
-                            metric_name="univar_stats_sim",
-                            real_col=real_col,
-                            synthetic_col=synthetic_col,
-                            statistic=stat)
-                        results["similarity"]["statistic"][k][stat] = round(
-                            statistic_similarity, ROUNDING_VAL)
+    #     begin_time = time.time()
+    #     print("RUNNING similarity metrics")
+    #     # Loop over columns
+    #     for k, v in col_md.items():
+    #         real_col = real_data_test[k]
+    #         synthetic_col = synthetic_data_test[k]
+    #         col_data_type = v["sdtype"]
 
-                        # Wasserstein Distance
-                        distance = compute_metric(metric_name="univar_wass_dist",
-                                                  real_col=real_col,
-                                                  synthetic_col=synthetic_col,
-                                                  col_data_type=col_data_type)
-                        results["similarity"]["wass_distance"][k] = distance
+    #         try:
+    #             # Statistic similarity
+    #             if col_data_type == "numerical":
+    #                 results["similarity"]["statistic"][k] = {}
+    #                 for stat in SIMILARITY_CHECK_STATISTICS:
+    #                     statistic_similarity = compute_metric(
+    #                         metric_name="univar_stats_sim",
+    #                         real_col=real_col,
+    #                         synthetic_col=synthetic_col,
+    #                         statistic=stat)
+    #                     results["similarity"]["statistic"][k][stat] = round(
+    #                         statistic_similarity, ROUNDING_VAL)
 
-                        # Jensenshannon Distance
-                        distance = compute_metric(metric_name="univar_js_dist",
-                                                  real_col=real_col,
-                                                  synthetic_col=synthetic_col,
-                                                  col_data_type=col_data_type)
-                        results["similarity"]["js_distance"][k] = distance
+    #                     # Wasserstein Distance
+    #                     distance = compute_metric(metric_name="univar_wass_dist",
+    #                                               real_col=real_col,
+    #                                               synthetic_col=synthetic_col,
+    #                                               col_data_type=col_data_type)
+    #                     results["similarity"]["wass_distance"][k] = distance
 
-                if col_data_type == "categorical":
-                    cat_cols.append(k)
-            except Exception as e:
-                print(e)
-                LOGGER.error(f"Statistic similarity error: {e}")
+    #                     # Jensenshannon Distance
+    #                     distance = compute_metric(metric_name="univar_js_dist",
+    #                                               real_col=real_col,
+    #                                               synthetic_col=synthetic_col,
+    #                                               col_data_type=col_data_type)
+    #                     results["similarity"]["js_distance"][k] = distance
 
-    #     try:
-    #         # ------------------
-    #         # Correlation similarity
-    #         # ------------------
-    #         correlation_similarity, _, _ = compute_metric(
-    #             metric_name="",
-    #             real_data_test=real_data_test,
-    #             synthetic_data=synthetic_data,
-    #             {"categorical": cat_cols})
-    #         results["similarity"]["correlation"] = round(
-    #             correlation_similarity, ROUNDING_VAL)
+    #             if col_data_type == "categorical":
+    #                 cat_cols.append(k)
+    #         except Exception as e:
+    #             print(e)
+    #             LOGGER.error(f"Statistic similarity error: {e}")
 
-    #         # fig = plt.figure()
-    #         # fig.add_axes(ax_real_corr)
-    #         # # fig = ax_real_corr.figure
+    # except Exception as e:
+    #     print(e)
+    #     LOGGER.error(e)
 
-    #     except Exception as e:
-    #         print(e)
-    #         LOGGER.error(f"Correlation similarity error: {e}")
-    #     results["similarity"]["timing"] = time.time() - begin_time
-    except Exception as e:
-        print(e)
-        LOGGER.error(e)
+    #     #     try:
+    # #         # ------------------
+    # #         # Correlation similarity
+    # #         # ------------------
+    # #         correlation_similarity, _, _ = compute_metric(
+    # #             metric_name="",
+    # #             real_data_test=real_data_test,
+    # #             synthetic_data=synthetic_data_test,
+    # #             {"categorical": cat_cols})
+    # #         results["similarity"]["correlation"] = round(
+    # #             correlation_similarity, ROUNDING_VAL)
+
+    # #         # fig = plt.figure()
+    # #         # fig.add_axes(ax_real_corr)
+    # #         # # fig = ax_real_corr.figure
+
+    # #     except Exception as e:
+    # #         print(e)
+    # #         LOGGER.error(f"Correlation similarity error: {e}")
+    # #     results["similarity"]["timing"] = time.time() - begin_time
+
+    # # --------------------------
+    # # SDV Quality Report Metrics
+    # # --------------------------
+    # try:
+    #     print("RUNNING Quality report metrics")
+    #     begin_time = time.time()
+    #     q_report = compute_metric(metric_name="corr_shapes",
+    #                             real_data=real_data_test,
+    #                             synthetic_data=synthetic_data_test,
+    #                             metadata=metadata_class)
+    #     results["sdv_quality_report"]["score"] = q_report.get_score()
+
+    #     # Process and store distribution scores
+    #     q_report_cols_df = q_report.get_details(property_name='Column Shapes')
+    #     dis_dict = {}
+
+    #     print("_"*20)
+    #     print(q_report_cols_df)
+    #     print("_"*20)
+    #     for _, row in q_report_cols_df.iterrows():
+    #         column = row['Column']
+    #         metric = row['Metric']
+    #         quality_score = row['Score']
+    #         dis_dict[column] = {
+    #             "metric": metric,
+    #             "score": quality_score
+    #         }
+    #     results["sdv_quality_report"]["distribution"] = dis_dict
+
+    #     # Store quality report details
+    #     q_report_corr_df = q_report.get_details(
+    #         property_name='Column Pair Trends')
+    #     q_report_corr_df.to_csv(
+    #         f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_correlation.csv", index=False)
+
+    #     results["sdv_quality_report"]["timing"] = time.time() - begin_time
+    #     LOGGER.info(f"q_report: {results['sdv_quality_report']['score']}")
+    #     LOGGER.info(f"q_report: {q_report.get_properties()}")
+    # except Exception as e:
+    #     print(e)
+    #     LOGGER.error(e)
+    # print("DONE WITH THE QUALITY REPORT!-----")
 
     # ------------------
     # ML Efficacy Metrics
     # ------------------
     try:
         results["ml_efficacy"] = {}
-        begin_time = time.time()
+
+        if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS or exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
+            # categorical_columns = real_data_test.select_dtypes(include=['category', 'object']).columns
+            for k, v in col_md.items():
+                if v["sdtype"] != "categorical":
+                    continue
+
+                additional_categories_real = list(
+                    set(real_data_test[k].unique()) - set(real_data_train[k].unique()))
+                additional_categories_syn = list(
+                    set(real_data_test[k].unique()) - set(synthetic_data_test[k].unique()))
+
+                # Drop rows in real_data_test that contain any of these additional categories
+                if additional_categories_real:
+                    real_data_test = real_data_test[~real_data_test[k].isin(
+                        additional_categories_real)]
+
+                if additional_categories_syn:
+                    real_data_test = real_data_test[~real_data_test[k].isin(
+                        additional_categories_syn)]
+
         if exp_dataset_name in ML_CLASSIFICATION_TASK_DATASETS:
+            begin_time = time.time()
+            print("RUNNING machine learning metrics")
             for ml_model in ML_CLASSIFICATION_MODELS:
-                f1_real = compute_metric(metric_name="ml_classify",
-                                         train_data=real_data_train,
-                                         test_data=real_data_test,
-                                         target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
-                                         metadata=metadata_dict,
-                                         ml_model=ml_model)
-                f1_synthetic = compute_metric(metric_name="ml_classify",
-                                              train_data=synthetic_data,
-                                              test_data=real_data_test,
-                                              target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
-                                              metadata=metadata_dict,
-                                              ml_model=ml_model)
-                results["ml_efficacy"][f"{ml_model}_classification"] = {
-                    "synthetic_f1": round(f1_synthetic, ROUNDING_VAL),
-                    "real_f1": round(f1_real, ROUNDING_VAL)}
+                try:
+                    f1_real = compute_metric(metric_name="ml_classify",
+                                             train_data=real_data_train,
+                                             test_data=real_data_test,
+                                             target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                             metadata=metadata_dict,
+                                             ml_model=ml_model)
+                    f1_synthetic = compute_metric(metric_name="ml_classify",
+                                                  train_data=synthetic_data_test,
+                                                  test_data=real_data_test,
+                                                  target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                                  metadata=metadata_dict,
+                                                  ml_model=ml_model)
+                    results["ml_efficacy"][f"{ml_model}_classification"] = {
+                        "synthetic_f1": round(f1_synthetic, ROUNDING_VAL),
+                        "real_f1": round(f1_real, ROUNDING_VAL)}
+                except Exception as e:
+                    print(e)
         elif exp_dataset_name in ML_REGRESSION_TASK_DATASETS:
             for ml_model in ML_REGRESSION_MODELS:
-                r2_real = compute_metric(metric_name="ml_regress",
-                                         train_data=real_data_test,
-                                         test_data=real_data_train,
-                                         target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
-                                         metadata=metadata_dict,
-                                         ml_model=ml_model)
-                r2_synthetic = compute_metric(metric_name="ml_regress",
-                                              train_data=real_data_test,
-                                              test_data=synthetic_data,
-                                              target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
-                                              metadata=metadata_dict,
-                                              ml_model=ml_model)
-                results["ml_efficacy"][f"{ml_model}_regression"] = {
-                    "synthetic_r2": round(r2_synthetic, ROUNDING_VAL),
-                    "real_r2": round(r2_real, ROUNDING_VAL)}
+                try:
+                    r2_real = compute_metric(metric_name="ml_regress",
+                                             train_data=real_data_train,
+                                             test_data=real_data_test,
+                                             target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                             metadata=metadata_dict,
+                                             ml_model=ml_model)
+                    r2_synthetic = compute_metric(metric_name="ml_regress",
+                                                  train_data=synthetic_data_test,
+                                                  test_data=real_data_test,
+                                                  target_column=ML_TASKS_TARGET_CLASS[exp_dataset_name],
+                                                  metadata=metadata_dict,
+                                                  ml_model=ml_model)
+                    results["ml_efficacy"][f"{ml_model}_regression"] = {
+                        "synthetic_r2": round(r2_synthetic, ROUNDING_VAL),
+                        "real_r2": round(r2_real, ROUNDING_VAL)}
+                except Exception as e:
+                    print(e)
+
         results["ml_efficacy"]["timing"] = time.time() - begin_time
     except Exception as e:
         print(e)
         LOGGER.error(e)
-
-    # --------------------------
-    # SDV Quality Report Metrics
-    # --------------------------
-    # try:
-    begin_time = time.time()
-    q_report = compute_metric(metric_name="corr_shapes",
-                              real_data=real_data_test,
-                              synthetic_data=synthetic_data,
-                              metadata=metadata_class)
-    results["sdv_quality_report"]["score"] = q_report.get_score()
-
-    # Process and store distribution scores
-    q_report_cols_df = q_report.get_details(property_name='Column Shapes')
-    dis_dict = {}
-    for _, row in q_report_cols_df.iterrows():
-        column = row['Column']
-        metric = row['Metric']
-        quality_score = row['Quality Score']
-        dis_dict[column] = {
-            "metric": metric,
-            "score": quality_score
-        }
-    results["sdv_quality_report"]["distribution"] = dis_dict
-
-    # Store quality report details
-    q_report_corr_df = q_report.get_details(
-        property_name='Column Pair Trends')
-    q_report_corr_df.to_csv(
-        f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_correlation.csv", index=False)
-
-    results["sdv_quality_report"]["timing"] = time.time() - begin_time
-    LOGGER.info(f"q_report: {results['sdv_quality_report']['score']}")
-    LOGGER.info(f"q_report: {q_report.get_properties()}")
-    # except Exception as e:
-    #     print(e)
-    #     LOGGER.error(e)
 
     results["total_time"] = time.time() - begin_compute_time
 
@@ -346,17 +412,53 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     with open(f"{output_path}/{exp_dataset_name}_{exp_synthesizer}_metrics.json", "w") as json_file:
         json.dump(results, json_file)
 
+    print("FINISHED")
+
 
 if __name__ == "__main__":
     # BASE = "az_outputs_23aug/2023-08-20"
 
-    LIB = "sdv"
-    BASE = f"final_outs/final_{LIB}_tabular"
+    TABULAR_COMPLETED_JOBS = {
+        "gretel": {
+            "actgan": ["adult", "census", "child", "covtype", "credit", "insurance",
+                       "intrusion", "drugs", "loan", "pums"]  # health_insurance
+        },
+        "sdv": {
+            "gaussian_copula": ["adult", "census", "child", "covtype", "credit", "insurance",
+                                "intrusion", "drugs", "loan", "pums", "health_insurance"],
+            "ctgan": ["adult", "census", "child", "covtype", "credit",  # "insurance",
+                      "intrusion", "drugs", "loan", "pums", "health_insurance"],
+            "tvae": ["adult", "census", "child", "covtype", "credit", "insurance",
+                     "intrusion", "drugs", "loan", "pums", "health_insurance"]
+        },
+        "synthcity": {
+            "ddpm": ["adult", "child", "covtype", "insurance",
+                     "drugs", "loan", "health_insurance"],  # credit, intrusion, pums, census
+            "arf": ["adult", "child", "covtype", "credit", "insurance",
+                    "intrusion", "drugs", "loan", "health_insurance"],  # census, pums
+            "nflow": ["adult", "census", "child", "covtype", "credit", "insurance",
+                      "intrusion", "drugs", "loan", "pums", "health_insurance"],
+            "goggle": ["adult", "child", "insurance",
+                       "drugs", "loan", "health_insurance"],  # intrusion, covtype, census, credit, pums
+            "rtvae": ["adult", "child", "covtype", "credit", "insurance",
+                      "drugs", "loan", "health_insurance"],  # census, pums, intrusion
+            "tvae": ["adult", "child", "credit", "insurance",
+                     "intrusion", "drugs", "loan", "health_insurance"],  # census, pums, covtype
+            "ctgan": ["adult", "child", "covtype", "credit", "insurance",
+                      "intrusion", "drugs", "loan", "health_insurance"]  # census, pums
+        },
+        "llm": {
+            "great": ["adult", "health_insurance", "loan"]
+        }
+    }
 
+    lib = "sdv"
+
+    BASE = f"final_outs/{lib}_tabular"
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_set", "--ds", type=str, default="s3",
-                        help="enter set of data. \
-                        Possible values - {s1, s2, s3}")
+    # parser.add_argument("--data_set", "--ds", type=str, default="s3",
+    #                     help="enter set of data. \
+    #                     Possible values - {s1, s2, s3}")
     parser.add_argument("--synthesizer", "--s", type=str, default="ctgan",
                         help="enter synthesizer name \
                             Possible values - {ctgan, tvae, gaussian_copula}")
@@ -365,7 +467,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    exp_data_set_name: str = args.data_set
+    # exp_data_set_name: str = args.data_set
     exp_synthesizer: str = args.synthesizer
     output_folder: str = args.output_folder
 
@@ -376,19 +478,22 @@ if __name__ == "__main__":
     #     os.makedirs(BASE_OUTPUT_PATH)
 
     # temp naming
-    if exp_data_set_name == "s1":
-        exp_data_set = ["adult", "drugs", "intrusion"]
-    elif exp_data_set_name == "s2":
-        exp_data_set = ["loan", "covtype", "child"]
-    elif exp_data_set_name == "llm":
-        exp_data_set = ["adult", "health_insurance", "loan"]
-    else:
-        exp_data_set = ["health_insurance", "census", "credit"]
+    # if exp_data_set_name == "s1":
+    #     exp_data_set = ["adult", "drugs", "intrusion"]
+    # elif exp_data_set_name == "s2":
+    #     exp_data_set = ["loan", "covtype", "child"]
+    # elif exp_data_set_name == "llm":
+    #     exp_data_set = ["adult", "health_insurance", "loan"]
+    # else:
+    #     exp_data_set = ["health_insurance", "census", "credit"]
+
+    exp_data_set = TABULAR_COMPLETED_JOBS[lib][exp_synthesizer]
 
     if not os.path.exists(BASE_OUTPUT_PATH):
         os.makedirs(BASE_OUTPUT_PATH)
 
-    logging.basicConfig(filename=f"{BASE_OUTPUT_PATH}/{exp_synthesizer}_{exp_data_set_name}.log",
+    # exp_data_set_name = "xxx"
+    logging.basicConfig(filename=f"{BASE_OUTPUT_PATH}/{exp_synthesizer}.log",
                         format="%(asctime)s [%(filename)s:%(lineno)d] %(message)s ",
                         datefmt="%Y-%m-%d:%H:%M:%S",
                         filemode="w")
@@ -408,7 +513,7 @@ if __name__ == "__main__":
             run_metrics(output_path=OUTPUT_PATH,
                         exp_dataset_name=dataset_name,
                         exp_synthesizer=exp_synthesizer,
-                        lib=LIB)
+                        lib=lib)
         except Exception as e:
             print(e)
             LOGGER.error(e)
