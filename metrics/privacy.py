@@ -32,6 +32,14 @@ def compute_new_row_synthesis(real_data, synthetic_data, metadata,
     #   synthetic_sample_size: The number of synthetic rows to sample before computing this metric. Use this to speed up the computation time if you have a large amount of synthetic data. Note that the final score may not be as precise if your sample size is low.
 
     # Calculate the New Row Synthesis score using the metric
+    
+    print("~"*20)
+    print(int(len(synthetic_data)*synthetic_sample_percent))
+    print("~"*20)
+
+    print(real_data)
+    print(synthetic_data)
+
     new_row_synthesis_score = NewRowSynthesis.compute(
         real_data=real_data,
         synthetic_data=synthetic_data,
@@ -40,6 +48,7 @@ def compute_new_row_synthesis(real_data, synthetic_data, metadata,
         synthetic_sample_size=int(len(synthetic_data)*synthetic_sample_percent)
     )
 
+    print(f"new_row_synthesis_score: {new_row_synthesis_score}")
     return new_row_synthesis_score
 
 
