@@ -20,7 +20,7 @@ from commons.utils import (detect_metadata_with_sdv, get_dataset_with_sdv,
 from metrics.compute_metrics import compute_metric
 
 
-def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", lib="sdv"):
+def run_metrics(output_path, syn_data_path, exp_dataset_name="adult", exp_synthesizer="ctgan", lib="sdv"):
     """
     Run the various metrics on synthetic and real datasets and save the results to a JSON file.
 
@@ -34,7 +34,6 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     MODALITY = "tabular"
 
     # Load synthetic data
-    syn_data_path = f"{BASE}/{exp_synthesizer}/{exp_dataset_name}/{exp_dataset_name}_{exp_synthesizer}_synthetic_data.csv"
     # syn_data_path = f"{BASE}/{lib}/{MODALITY}/{exp_synthesizer}/{exp_dataset_name}/{exp_dataset_name}_{exp_synthesizer}_synthetic_data.csv"
     # syn_data_path = f"llm_out_25aug/{exp_dataset_name}/{exp_dataset_name}_synthetic_data.csv" # llm
     synthetic_data = pd.read_csv(syn_data_path)
@@ -42,7 +41,7 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         synthetic_data.drop(columns=['Unnamed: 0'], inplace=True)
 
     if 'Unnamed: 0.1' in synthetic_data.columns:
-        synthetic_data.drop(columns=['Unnamed: 0.1'], inplace=True) 
+        synthetic_data.drop(columns=['Unnamed: 0.1'], inplace=True)
 
     # Load real data and metadata
     # if exp_dataset_name == "drugs":
@@ -56,16 +55,18 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
     # /Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/
 
     if exp_dataset_name in ["taxi", "nasdaq"]:
-        real_dataset = pd.read_csv(f"all_sample_datasets/sequential/{exp_dataset_name}.csv")
+        real_dataset = pd.read_csv(
+            f"all_sample_datasets/sequential/{exp_dataset_name}.csv")
     else:
-        real_dataset = pd.read_csv(f"all_sample_datasets/{exp_dataset_name}.csv")
+        real_dataset = pd.read_csv(
+            f"all_sample_datasets/{exp_dataset_name}.csv")
 
     if 'Unnamed: 0' in real_dataset.columns:
         real_dataset.drop(columns=['Unnamed: 0'], inplace=True)
 
     # for llm :(
     if 'Unnamed: 0.1' in real_dataset.columns:
-        real_dataset.drop(columns=['Unnamed: 0.1'], inplace=True) 
+        real_dataset.drop(columns=['Unnamed: 0.1'], inplace=True)
 
     if exp_dataset_name in ["loan", "drugs"]:
         # Check if the column exists in DataFrame
@@ -169,9 +170,9 @@ def run_metrics(output_path, exp_dataset_name="adult", exp_synthesizer="ctgan", 
         # results["privacy"]["timing"] = time.time() - begin_time
 
         # begin_time = time.time()
-        print(real_data_train.columns)
-        print("~"*10)
-        print(synthetic_data_test.columns)
+        # print(real_data_train.columns)
+        # print("~"*10)
+        # print(synthetic_data_test.columns)
 
         synthetic_sample_percent = 0.1
         numerical_match_tolerance = 0.01
@@ -476,7 +477,7 @@ if __name__ == "__main__":
             "arf": ["adult", "child", "covtype", "credit", "insurance",
                     "intrusion", "drugs", "loan", "health_insurance"],  # census@, pums
             "nflow": ["adult", "child", "covtype", "credit", "insurance",
-                      "intrusion", "drugs", "loan", "pums", "health_insurance"], #censusX
+                      "intrusion", "drugs", "loan", "pums", "health_insurance"],  # censusX
             "goggle": ["adult", "child", "insurance",
                        "drugs", "loan", "health_insurance"],  # intrusion, covtype, census, credit, pums
             "rtvae": ["adult", "child", "covtype", "credit", "insurance",
@@ -500,8 +501,10 @@ if __name__ == "__main__":
             "ddpm": ["adult", "loan"],
             "rtvae": ["adult", "loan"],
             "tvae": ["adult", "loan"]
+        },
+        "hyperimpute": {
+            "ctgan": ["drugs"]
         }
-
     }
 
     # TODO: Add sequential metrics
@@ -515,10 +518,8 @@ if __name__ == "__main__":
         }
     }
 
-    lib = "gretel"  # "sdv"
-    modality = "tabular"  # sequential
-
-
+    lib = "hyperimpute"  # "sdv"
+    modality = "hyperimpute"  # sequential
 
     parser = argparse.ArgumentParser()
     # parser.add_argument("--data_set", "--ds", type=str, default="s3",
@@ -540,8 +541,7 @@ if __name__ == "__main__":
     # TODO
     BASE_OUTPUT_PATH = f"{output_folder}/{modality}/{exp_synthesizer}"
 
-
-    if modality in ["tabular", "hpo"]:
+    if modality in ["tabular", "hpo", "hyperimpute"]:
         BASE = f"final_outs/{lib}_tabular"
         exp_data_set = TABULAR_COMPLETED_JOBS[lib][exp_synthesizer]
     else:
@@ -561,8 +561,6 @@ if __name__ == "__main__":
     # else:
     #     exp_data_set = ["health_insurance", "census", "credit"]
 
-    
-
     if not os.path.exists(BASE_OUTPUT_PATH):
         os.makedirs(BASE_OUTPUT_PATH)
 
@@ -574,26 +572,69 @@ if __name__ == "__main__":
     LOGGER = logging.getLogger(__name__)
     LOGGER.setLevel(logging.DEBUG)
 
-    exp_data_set = ["health_insurance"]
+    # exp_data_set = ["pums"]
 
-    for dataset_name in exp_data_set:
-        OUTPUT_PATH = BASE_OUTPUT_PATH + "/" + dataset_name
-        if not os.path.exists(OUTPUT_PATH):
-            os.makedirs(OUTPUT_PATH)
+    IMPUTERS = ["missforest", "ice", "hyperimpute", "simple"]
+    if lib == "hyperimpute":
+        dataset_name = "drugs"
+        for imputer in IMPUTERS:
 
-        LOGGER.info("*"*30)
-        LOGGER.info(f"Running for {dataset_name} {exp_synthesizer}")
-        LOGGER.info("*"*30)
+            # print(BASE_OUTPUT_PATH, dataset_name)
+            cases = {
+                "syn_data": {
+                    "data_path": f"{BASE}/{dataset_name}/{exp_synthesizer}_{imputer}/{dataset_name}/{dataset_name}_{exp_synthesizer}_synthetic_data.csv",
+                    "output_path": BASE_OUTPUT_PATH + "/" + dataset_name + "/" + imputer
+                },
+                "imputed_data": {
+                    "data_path": f"{BASE}/{dataset_name}/{exp_synthesizer}_{imputer}/{dataset_name}/{dataset_name}_imputed_data.csv",
+                    "output_path": BASE_OUTPUT_PATH + "/" + dataset_name + "/only_" + imputer
+                }
+            }
 
-        try:
-            run_metrics(output_path=OUTPUT_PATH,
-                        exp_dataset_name=dataset_name,
-                        exp_synthesizer=exp_synthesizer,
-                        lib=lib)
-        except Exception as e:
-            print(e)
-            LOGGER.error(e)
-        LOGGER.info("*"*30)
-        LOGGER.info(
-            f"SUCCESS: Metrics generated for {dataset_name} {exp_synthesizer} ")
-        LOGGER.info("*"*30)
+            for k, v in cases.items():
+                if not os.path.exists(v["output_path"]):
+                    os.makedirs(v["output_path"])
+
+                LOGGER.info("*"*30)
+                LOGGER.info(
+                    f"Running for {dataset_name} {exp_synthesizer} {imputer}")
+                LOGGER.info("*"*30)
+
+                try:
+                    run_metrics(output_path=v["output_path"],
+                                syn_data_path=v["data_path"],
+                                exp_dataset_name=dataset_name,
+                                exp_synthesizer=exp_synthesizer,
+                                lib=lib)
+                except Exception as e:
+                    print(e)
+                    LOGGER.error(e)
+                LOGGER.info("*"*30)
+                LOGGER.info(
+                    f"SUCCESS: Metrics generated for {dataset_name} {exp_synthesizer} ")
+                LOGGER.info("*"*30)
+    else:
+        for dataset_name in exp_data_set:
+            OUTPUT_PATH = BASE_OUTPUT_PATH + "/" + dataset_name
+            if not os.path.exists(OUTPUT_PATH):
+                os.makedirs(OUTPUT_PATH)
+
+            LOGGER.info("*"*30)
+            LOGGER.info(f"Running for {dataset_name} {exp_synthesizer}")
+            LOGGER.info("*"*30)
+            syn_data_path = f"{BASE}/{exp_synthesizer}/{dataset_name}/{dataset_name}_{exp_synthesizer}_synthetic_data.csv"
+            try:
+                run_metrics(output_path=OUTPUT_PATH,
+                            syn_data_path=syn_data_path,
+                            exp_dataset_name=dataset_name,
+                            exp_synthesizer=exp_synthesizer,
+                            lib=lib)
+            except Exception as e:
+                print(e)
+                LOGGER.error(e)
+            LOGGER.info("*"*30)
+            LOGGER.info(
+                f"SUCCESS: Metrics generated for {dataset_name} {exp_synthesizer} ")
+            LOGGER.info("*"*30)
+
+    # /Users/anshusingh/DPPCC/whitespace/benchmarking-synthetic-data-generators/final_outs/hyperimpute_tabular/drugs/ctgan_missforest/drugs/drugs_ctgan_synthetic_data.csv
