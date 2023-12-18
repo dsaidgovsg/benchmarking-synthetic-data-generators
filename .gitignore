@@ -41,3 +41,4 @@ metrics_out/
 notebooks/final_ana/
 notes.txt
 final_syn_outs/
+sample_datasets/taxi.csv
