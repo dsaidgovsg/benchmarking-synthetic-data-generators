@@ -157,7 +157,7 @@ def run_synthcity_optimizer(
     exp_train_dataset,
     exp_test_dataset,
     output_path,
-    n_trials: int = 25,
+    n_trials: int = 5,
     objective_direction: StudyDirection = StudyDirection.MINIMIZE,
 ) -> None:
     """
