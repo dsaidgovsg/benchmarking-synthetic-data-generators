@@ -97,15 +97,15 @@ def run_model(**kwargs):
         # Tabular denoising diffusion probabilistic models
         # ---------------------
         # - Link to the paper: https://arxiv.org/pdf/2209.15421.pdf
-        if ml_task == MLTasks.CLASSIFICATION.value:
-            is_classification = True
-            # rename target column to 'target'
-            target_class = ML_TASKS_TARGET_CLASS[dataset_name]
-            train_dataset = train_dataset.rename(
-                columns={target_class: "target"})
-            print(f"target_class {target_class}, ml_task: {ml_task}")
-        elif ml_task == MLTasks.REGRESSION.value:
-            ddpm_cond = train_dataset[ML_TASKS_TARGET_CLASS[dataset_name]]
+        # if ml_task == MLTasks.CLASSIFICATION.value:
+        #     is_classification = True
+        #     # rename target column to 'target'
+        #     target_class = ML_TASKS_TARGET_CLASS[dataset_name]
+        #     train_dataset = train_dataset.rename(
+        #         columns={target_class: "target"})
+        #     print(f"target_class {target_class}, ml_task: {ml_task}")
+        # elif ml_task == MLTasks.REGRESSION.value:
+        #     ddpm_cond = train_dataset[ML_TASKS_TARGET_CLASS[dataset_name]]
 
         # synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
         #                             is_classification=is_classification,
@@ -117,7 +117,7 @@ def run_model(**kwargs):
         else:
             print(f"setting default {synthesizer_name} parameters")
             synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,
-                                        is_classification=is_classification,
+                                        is_classification=False, #is_classification,
                                         device=torch.device(device))
     # elif synthesizer_name == "ctgan":
     #     synthesizer = Plugins().get(synthesizer_name, n_iter=num_epochs,

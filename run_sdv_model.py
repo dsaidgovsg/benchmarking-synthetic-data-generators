@@ -96,7 +96,14 @@ def run_model(**kwargs):
         # },
         # One of: "norm" "beta", "truncnorm", "uniform", "gamma" or "gaussian_kde"
         # default_distribution <str> ="beta"
-        synthesizer = synthesizer_class(metadata)
+        synthesizer = synthesizer_class(metadata, 
+                                        enforce_min_max_values=True,
+                                        enforce_rounding=False,
+                                        numerical_distributions={
+                                            'amenities_fee': 'beta',
+                                            'checkin_date': 'uniform'
+                                        },
+                                        default_distribution='norm')
     elif synthesizer_name == "par":  # sequential
         # Note: PAR model works for varying sequence lengths
         # ---------------------------------------------

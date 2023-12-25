@@ -518,8 +518,8 @@ if __name__ == "__main__":
         }
     }
 
-    lib = "hyperimpute"  # "sdv"
-    modality = "hyperimpute"  # sequential
+    lib = "synthcity"  # "sdv"
+    modality = "tabular"  # sequential
 
     parser = argparse.ArgumentParser()
     # parser.add_argument("--data_set", "--ds", type=str, default="s3",
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     LOGGER = logging.getLogger(__name__)
     LOGGER.setLevel(logging.DEBUG)
 
-    # exp_data_set = ["pums"]
+    exp_data_set = ["census"]
 
     IMPUTERS = ["missforest", "ice", "hyperimpute", "simple"]
     if lib == "hyperimpute":
