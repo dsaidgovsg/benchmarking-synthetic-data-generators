@@ -1,4 +1,4 @@
-# benchmarking-synthetic-data-generators
+# Benchmarking Synthetic Data Generation Models 
 
 | Argument | Type | Default Value | Description | Possible Values |
 |----------|------|---------------|-------------|-----------------|
