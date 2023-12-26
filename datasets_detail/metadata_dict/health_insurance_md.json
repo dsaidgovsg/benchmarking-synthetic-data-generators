@@ -1,0 +1,1 @@
+{"METADATA_SPEC_VERSION": "SINGLE_TABLE_V1", "columns": {"age": {"sdtype": "numerical"}, "sex": {"sdtype": "categorical"}, "bmi": {"sdtype": "numerical"}, "children": {"sdtype": "categorical"}, "smoker": {"sdtype": "categorical"}, "region": {"sdtype": "categorical"}, "charges": {"sdtype": "numerical"}}}

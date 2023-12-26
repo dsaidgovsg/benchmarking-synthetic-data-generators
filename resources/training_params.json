@@ -1,0 +1,66 @@
+{
+    "general": {
+        "columns_usecase": {
+            "drop_columns": [],
+            "synthetic_columns": {
+                "column_dtypes": {
+                    "categorical_columns": [],
+                    "continuous_columns": [],
+                    "log_columns": [],
+                    "mixed_columns": {},
+                    "general_columns": [],
+                    "integer_columns": [],
+                    "datetime_columns": {}
+                }
+            }
+        },
+        "categorical_threshold": 50,
+        "unique_percentage": 90,
+        "encodings": "auto",
+        "log_level": "DEBUG"
+    },
+    "train": {
+        "problem_type": {
+            "Classification": ""
+        },
+        "epochs": 200,
+        "batch_size": 128,
+        "private": false
+    },
+    "generate": {
+        "num_rows": 2000
+    },
+    "metrics": {
+        "target_string": "",
+        "multiprocessing": false,
+        "bivariate_pairs": [],
+        "multivariate_dicts": [],
+        "privacy": {
+            "singling_out_univariate": false,
+            "singling_out_univariate_params": {
+                "num_loops": 3
+            },
+            "singling_out_multivariate": false,
+            "singling_out_multivariate_params": {
+                "num_cols": [
+                    3,
+                    4
+                ],
+                "num_loops": 2
+            },
+            "linkability": false,
+            "linkability_params": {
+                "num_neighbours": [
+                    4,
+                    3
+                ],
+                "auxi_cols": [],
+                "num_loops": 2
+            },
+            "inference": false,
+            "inference_params": {
+                "num_loops": 5
+            }
+        }
+    }
+}

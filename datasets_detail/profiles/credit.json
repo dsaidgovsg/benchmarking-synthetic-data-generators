@@ -1,0 +1,312 @@
+{
+    "table": {
+        "n": 284807,
+        "n_var": 31,
+        "memory_size": 70632264,
+        "record_size": 248.00044942715593,
+        "n_cells_missing": 0,
+        "n_vars_with_missing": 0,
+        "n_vars_all_missing": 0,
+        "p_cells_missing": 0.0,
+        "types": {
+            "Numeric": 30,
+            "Categorical": 1
+        },
+        "n_duplicates": 0,
+        "p_duplicates": 0.0
+    },
+    "alerts": [
+        "[V9] is highly overall correlated with [label]",
+        "[V10] is highly overall correlated with [label]",
+        "[V11] is highly overall correlated with [label]",
+        "[V13] is highly overall correlated with [label]",
+        "[V15] is highly overall correlated with [label]",
+        "[V16] is highly overall correlated with [label]",
+        "[label] is highly overall correlated with [V9] and 5 other fields",
+        "[label] is highly imbalanced (0.9816565922901613)",
+        "[V27] is highly skewed(\u03b31 = 24.22601997180367)",
+        "[Unnamed: 0] is uniformly distributed",
+        "[Unnamed: 0] has unique values",
+        "[V0] has 102746 (36.1%) zeros",
+        "[V1] has 187096 (65.7%) zeros",
+        "[V2] has 145542 (51.1%) zeros",
+        "[V3] has 167846 (58.9%) zeros",
+        "[V4] has 193376 (67.9%) zeros",
+        "[V5] has 199632 (70.1%) zeros",
+        "[V6] has 220510 (77.4%) zeros",
+        "[V7] has 256377 (90.0%) zeros",
+        "[V8] has 197196 (69.2%) zeros",
+        "[V9] has 221558 (77.8%) zeros",
+        "[V10] has 184621 (64.8%) zeros",
+        "[V11] has 221583 (77.8%) zeros",
+        "[V12] has 196224 (68.9%) zeros",
+        "[V13] has 228534 (80.2%) zeros",
+        "[V14] has 207800 (73.0%) zeros",
+        "[V15] has 225609 (79.2%) zeros",
+        "[V16] has 247513 (86.9%) zeros",
+        "[V17] has 227975 (80.0%) zeros",
+        "[V18] has 231134 (81.2%) zeros",
+        "[V19] has 267930 (94.1%) zeros",
+        "[V20] has 273193 (95.9%) zeros",
+        "[V21] has 245068 (86.0%) zeros",
+        "[V22] has 275666 (96.8%) zeros",
+        "[V23] has 255919 (89.9%) zeros",
+        "[V24] has 270537 (95.0%) zeros",
+        "[V25] has 272176 (95.6%) zeros",
+        "[V26] has 278147 (97.7%) zeros",
+        "[V27] has 281600 (98.9%) zeros",
+        "[Amount] has 16804 (5.9%) zeros"
+    ],
+    "variables": {
+        "Unnamed: 0": {
+            "type": "Numeric",
+            "n_distinct": 284807,
+            "n_missing": 0,
+            "kurtosis": -1.2,
+            "skewness": 0.0,
+            "monotonic": 2
+        },
+        "V0": {
+            "type": "Numeric",
+            "n_distinct": 44,
+            "n_missing": 0,
+            "kurtosis": 55.89569924993647,
+            "skewness": -4.711200782892952,
+            "monotonic": 0
+        },
+        "V1": {
+            "type": "Numeric",
+            "n_distinct": 71,
+            "n_missing": 0,
+            "kurtosis": 162.90911709415366,
+            "skewness": -6.712426947566599,
+            "monotonic": 0
+        },
+        "V2": {
+            "type": "Numeric",
+            "n_distinct": 40,
+            "n_missing": 0,
+            "kurtosis": 62.259877323065,
+            "skewness": -3.8507129933493647,
+            "monotonic": 0
+        },
+        "V3": {
+            "type": "Numeric",
+            "n_distinct": 21,
+            "n_missing": 0,
+            "kurtosis": 6.6030876311691244,
+            "skewness": 1.0618247558897993,
+            "monotonic": 0
+        },
+        "V4": {
+            "type": "Numeric",
+            "n_distinct": 65,
+            "n_missing": 0,
+            "kurtosis": 447.27022252334194,
+            "skewness": -4.4648020645238455,
+            "monotonic": 0
+        },
+        "V5": {
+            "type": "Numeric",
+            "n_distinct": 45,
+            "n_missing": 0,
+            "kurtosis": 99.75969080152943,
+            "skewness": 2.52044423333458,
+            "monotonic": 0
+        },
+        "V6": {
+            "type": "Numeric",
+            "n_distinct": 64,
+            "n_missing": 0,
+            "kurtosis": 853.4681963516958,
+            "skewness": 4.668193680677366,
+            "monotonic": 0
+        },
+        "V7": {
+            "type": "Numeric",
+            "n_distinct": 59,
+            "n_missing": 0,
+            "kurtosis": 345.3646367152412,
+            "skewness": -11.502924743947212,
+            "monotonic": 0
+        },
+        "V8": {
+            "type": "Numeric",
+            "n_distinct": 24,
+            "n_missing": 0,
+            "kurtosis": 11.074155222850685,
+            "skewness": 0.9790827987601318,
+            "monotonic": 0
+        },
+        "V9": {
+            "type": "Numeric",
+            "n_distinct": 39,
+            "n_missing": 0,
+            "kurtosis": 74.71709027869517,
+            "skewness": 1.721661208729907,
+            "monotonic": 0
+        },
+        "V10": {
+            "type": "Numeric",
+            "n_distinct": 17,
+            "n_missing": 0,
+            "kurtosis": 9.078543650638819,
+            "skewness": 0.8086973974548548,
+            "monotonic": 0
+        },
+        "V11": {
+            "type": "Numeric",
+            "n_distinct": 24,
+            "n_missing": 0,
+            "kurtosis": 60.24540147370197,
+            "skewness": -4.278758912608128,
+            "monotonic": 0
+        },
+        "V12": {
+            "type": "Numeric",
+            "n_distinct": 11,
+            "n_missing": 0,
+            "kurtosis": 2.8058361648244405,
+            "skewness": 0.12691550509275604,
+            "monotonic": 0
+        },
+        "V13": {
+            "type": "Numeric",
+            "n_distinct": 28,
+            "n_missing": 0,
+            "kurtosis": 68.0384074627886,
+            "skewness": -4.111125263287824,
+            "monotonic": 0
+        },
+        "V14": {
+            "type": "Numeric",
+            "n_distinct": 11,
+            "n_missing": 0,
+            "kurtosis": 3.5093653436837053,
+            "skewness": -0.5033786116269349,
+            "monotonic": 0
+        },
+        "V15": {
+            "type": "Numeric",
+            "n_distinct": 24,
+            "n_missing": 0,
+            "kurtosis": 41.68208288298723,
+            "skewness": -2.56867230459479,
+            "monotonic": 0
+        },
+        "V16": {
+            "type": "Numeric",
+            "n_distinct": 35,
+            "n_missing": 0,
+            "kurtosis": 306.979596008677,
+            "skewness": -9.895311991680531,
+            "monotonic": 0
+        },
+        "V17": {
+            "type": "Numeric",
+            "n_distinct": 15,
+            "n_missing": 0,
+            "kurtosis": 12.803608155082758,
+            "skewness": -0.740551871088956,
+            "monotonic": 0
+        },
+        "V18": {
+            "type": "Numeric",
+            "n_distinct": 12,
+            "n_missing": 0,
+            "kurtosis": 7.702223263350534,
+            "skewness": 0.32268998857875564,
+            "monotonic": 0
+        },
+        "V19": {
+            "type": "Numeric",
+            "n_distinct": 50,
+            "n_missing": 0,
+            "kurtosis": 535.4676863492156,
+            "skewness": -3.840595987270802,
+            "monotonic": 0
+        },
+        "V20": {
+            "type": "Numeric",
+            "n_distinct": 44,
+            "n_missing": 0,
+            "kurtosis": 374.65836505813763,
+            "skewness": 5.460833394642565,
+            "monotonic": 0
+        },
+        "V21": {
+            "type": "Numeric",
+            "n_distinct": 20,
+            "n_missing": 0,
+            "kurtosis": 24.79614942355002,
+            "skewness": -0.7678853254871928,
+            "monotonic": 0
+        },
+        "V22": {
+            "type": "Numeric",
+            "n_distinct": 51,
+            "n_missing": 0,
+            "kurtosis": 854.984916986491,
+            "skewness": -9.957140741506231,
+            "monotonic": 0
+        },
+        "V23": {
+            "type": "Numeric",
+            "n_distinct": 7,
+            "n_missing": 0,
+            "kurtosis": 9.897193630367513,
+            "skewness": -0.8658163096851336,
+            "monotonic": 0
+        },
+        "V24": {
+            "type": "Numeric",
+            "n_distinct": 17,
+            "n_missing": 0,
+            "kurtosis": 57.27542003563896,
+            "skewness": -1.9529841351682498,
+            "monotonic": 0
+        },
+        "V25": {
+            "type": "Numeric",
+            "n_distinct": 6,
+            "n_missing": 0,
+            "kurtosis": 26.25939909629532,
+            "skewness": 2.976760607049937,
+            "monotonic": 0
+        },
+        "V26": {
+            "type": "Numeric",
+            "n_distinct": 24,
+            "n_missing": 0,
+            "kurtosis": 792.4086693281408,
+            "skewness": -1.0130779484308923,
+            "monotonic": 0
+        },
+        "V27": {
+            "type": "Numeric",
+            "n_distinct": 27,
+            "n_missing": 0,
+            "kurtosis": 2485.3278823242526,
+            "skewness": 24.22601997180367,
+            "monotonic": 0
+        },
+        "Amount": {
+            "type": "Numeric",
+            "n_distinct": 2383,
+            "n_missing": 0,
+            "kurtosis": 844.7472692712405,
+            "skewness": 16.97309863894702,
+            "monotonic": 0
+        },
+        "label": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "freq_counts": {
+                "0": 284315,
+                "1": 492
+            },
+            "imbalance": 0.9816565922901613
+        }
+    }
+}

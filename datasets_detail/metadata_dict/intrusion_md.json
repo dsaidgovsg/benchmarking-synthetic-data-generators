@@ -1,0 +1,132 @@
+{
+    "METADATA_SPEC_VERSION": "SINGLE_TABLE_V1",
+    "primary_key": "Unnamed: 0",
+    "columns": {
+        "Unnamed: 0": {
+            "sdtype": "id"
+        },
+        "duration": {
+            "sdtype": "numerical"
+        },
+        "protocol_type": {
+            "sdtype": "categorical"
+        },
+        "service": {
+            "sdtype": "categorical"
+        },
+        "flag": {
+            "sdtype": "categorical"
+        },
+        "src_bytes": {
+            "sdtype": "numerical"
+        },
+        "dst_bytes": {
+            "sdtype": "numerical"
+        },
+        "land": {
+            "sdtype": "categorical"
+        },
+        "wrong_fragment": {
+            "sdtype": "categorical"
+        },
+        "urgent": {
+            "sdtype": "categorical"
+        },
+        "hot": {
+            "sdtype": "numerical"
+        },
+        "num_failed_logins": {
+            "sdtype": "categorical"
+        },
+        "logged_in": {
+            "sdtype": "categorical"
+        },
+        "num_compromised": {
+            "sdtype": "numerical"
+        },
+        "root_shell": {
+            "sdtype": "categorical"
+        },
+        "su_attempted": {
+            "sdtype": "categorical"
+        },
+        "num_root": {
+            "sdtype": "numerical"
+        },
+        "num_file_creations": {
+            "sdtype": "numerical"
+        },
+        "num_shells": {
+            "sdtype": "categorical"
+        },
+        "num_access_files": {
+            "sdtype": "categorical"
+        },
+        "is_host_login": {
+            "sdtype": "categorical"
+        },
+        "is_guest_login": {
+            "sdtype": "categorical"
+        },
+        "count": {
+            "sdtype": "numerical"
+        },
+        "srv_count": {
+            "sdtype": "numerical"
+        },
+        "serror_rate": {
+            "sdtype": "categorical"
+        },
+        "srv_serror_rate": {
+            "sdtype": "categorical"
+        },
+        "rerror_rate": {
+            "sdtype": "categorical"
+        },
+        "srv_rerror_rate": {
+            "sdtype": "categorical"
+        },
+        "same_srv_rate": {
+            "sdtype": "categorical"
+        },
+        "diff_srv_rate": {
+            "sdtype": "categorical"
+        },
+        "srv_diff_host_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_count": {
+            "sdtype": "numerical"
+        },
+        "dst_host_srv_count": {
+            "sdtype": "numerical"
+        },
+        "dst_host_same_srv_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_diff_srv_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_same_src_port_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_srv_diff_host_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_serror_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_srv_serror_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_rerror_rate": {
+            "sdtype": "categorical"
+        },
+        "dst_host_srv_rerror_rate": {
+            "sdtype": "categorical"
+        },
+        "label": {
+            "sdtype": "categorical"
+        }
+    }
+}

@@ -27,7 +27,6 @@ final_outs/
 met_out/
 hpo_out/
 hpo_trial/
-*.json
 run_hyperimpute_bck.py
 seq_metrics/
 optuna_generic.py

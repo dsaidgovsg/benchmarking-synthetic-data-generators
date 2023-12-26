@@ -1,0 +1,254 @@
+{
+    "table": {
+        "n": 32561,
+        "n_var": 16,
+        "memory_size": 4167936,
+        "record_size": 128.0039310831977,
+        "n_cells_missing": 0,
+        "n_vars_with_missing": 0,
+        "n_vars_all_missing": 0,
+        "p_cells_missing": 0.0,
+        "types": {
+            "Numeric": 7,
+            "Categorical": 9
+        },
+        "n_duplicates": 0,
+        "p_duplicates": 0.0
+    },
+    "alerts": [
+        "[education-num] is highly overall correlated with [education]",
+        "[education] is highly overall correlated with [education-num]",
+        "[relationship] is highly overall correlated with [sex]",
+        "[sex] is highly overall correlated with [relationship]",
+        "[race] is highly imbalanced (0.6560011256280069)",
+        "[native-country] is highly imbalanced (0.8249740622065667)",
+        "[Unnamed: 0] is uniformly distributed",
+        "[Unnamed: 0] has unique values",
+        "[capital-gain] has 29849 (91.7%) zeros",
+        "[capital-loss] has 31042 (95.3%) zeros"
+    ],
+    "variables": {
+        "Unnamed: 0": {
+            "type": "Numeric",
+            "n_distinct": 32561,
+            "n_missing": 0,
+            "kurtosis": -1.2000000000000002,
+            "skewness": 0.0,
+            "monotonic": 2
+        },
+        "age": {
+            "type": "Numeric",
+            "n_distinct": 73,
+            "n_missing": 0,
+            "kurtosis": -0.16612745957143904,
+            "skewness": 0.5587433694130485,
+            "monotonic": 0
+        },
+        "workclass": {
+            "type": "Categorical",
+            "n_distinct": 9,
+            "n_missing": 0,
+            "freq_counts": {
+                "private": 22696,
+                "self-emp-not-inc": 2541,
+                "local-gov": 2093,
+                "": 1836,
+                "state-gov": 1298,
+                "self-emp-inc": 1116,
+                "federal-gov": 960,
+                "without-pay": 14,
+                "never-worked": 7
+            }
+        },
+        "fnlwgt": {
+            "type": "Numeric",
+            "n_distinct": 21648,
+            "n_missing": 0,
+            "kurtosis": 6.2188109781537975,
+            "skewness": 1.446980094578982,
+            "monotonic": 0
+        },
+        "education": {
+            "type": "Categorical",
+            "n_distinct": 16,
+            "n_missing": 0,
+            "freq_counts": {
+                "hs-grad": 10501,
+                "some-college": 7291,
+                "bachelors": 5355,
+                "masters": 1723,
+                "assoc-voc": 1382,
+                "11th": 1175,
+                "assoc-acdm": 1067,
+                "10th": 933,
+                "7th-8th": 646,
+                "prof-school": 576,
+                "9th": 514,
+                "12th": 433,
+                "doctorate": 413,
+                "5th-6th": 333,
+                "1st-4th": 168,
+                "preschool": 51
+            }
+        },
+        "education-num": {
+            "type": "Numeric",
+            "n_distinct": 16,
+            "n_missing": 0,
+            "kurtosis": 0.6234440747629248,
+            "skewness": -0.3116758679102297,
+            "monotonic": 0
+        },
+        "marital-status": {
+            "type": "Categorical",
+            "n_distinct": 7,
+            "n_missing": 0,
+            "freq_counts": {
+                "married-civ-spouse": 14976,
+                "never-married": 10683,
+                "divorced": 4443,
+                "separated": 1025,
+                "widowed": 993,
+                "married-spouse-absent": 418,
+                "married-af-spouse": 23
+            }
+        },
+        "occupation": {
+            "type": "Categorical",
+            "n_distinct": 15,
+            "n_missing": 0,
+            "freq_counts": {
+                "prof-specialty": 4140,
+                "craft-repair": 4099,
+                "exec-managerial": 4066,
+                "adm-clerical": 3770,
+                "sales": 3650,
+                "other-service": 3295,
+                "machine-op-inspct": 2002,
+                "": 1843,
+                "transport-moving": 1597,
+                "handlers-cleaners": 1370,
+                "farming-fishing": 994,
+                "tech-support": 928,
+                "protective-serv": 649,
+                "priv-house-serv": 149,
+                "armed-forces": 9
+            }
+        },
+        "relationship": {
+            "type": "Categorical",
+            "n_distinct": 6,
+            "n_missing": 0,
+            "freq_counts": {
+                "husband": 13193,
+                "not-in-family": 8305,
+                "own-child": 5068,
+                "unmarried": 3446,
+                "wife": 1568,
+                "other-relative": 981
+            }
+        },
+        "race": {
+            "type": "Categorical",
+            "n_distinct": 5,
+            "n_missing": 0,
+            "freq_counts": {
+                "white": 27816,
+                "black": 3124,
+                "asian-pac-islander": 1039,
+                "amer-indian-eskimo": 311,
+                "other": 271
+            }
+        },
+        "sex": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "freq_counts": {
+                "male": 21790,
+                "female": 10771
+            }
+        },
+        "capital-gain": {
+            "type": "Numeric",
+            "n_distinct": 119,
+            "n_missing": 0,
+            "kurtosis": 154.79943785425334,
+            "skewness": 11.953847687699803,
+            "monotonic": 0
+        },
+        "capital-loss": {
+            "type": "Numeric",
+            "n_distinct": 92,
+            "n_missing": 0,
+            "kurtosis": 20.37680171341221,
+            "skewness": 4.594629121679694,
+            "monotonic": 0
+        },
+        "hours-per-week": {
+            "type": "Numeric",
+            "n_distinct": 94,
+            "n_missing": 0,
+            "kurtosis": 2.9166867960020677,
+            "skewness": 0.22764253680450103,
+            "monotonic": 0
+        },
+        "native-country": {
+            "type": "Categorical",
+            "n_distinct": 42,
+            "n_missing": 0,
+            "freq_counts": {
+                "united-states": 29170,
+                "mexico": 643,
+                "": 583,
+                "philippines": 198,
+                "germany": 137,
+                "canada": 121,
+                "puerto-rico": 114,
+                "el-salvador": 106,
+                "india": 100,
+                "cuba": 95,
+                "england": 90,
+                "jamaica": 81,
+                "south": 80,
+                "china": 75,
+                "italy": 73,
+                "dominican-republic": 70,
+                "vietnam": 67,
+                "guatemala": 64,
+                "japan": 62,
+                "poland": 60,
+                "columbia": 59,
+                "taiwan": 51,
+                "haiti": 44,
+                "iran": 43,
+                "portugal": 37,
+                "nicaragua": 34,
+                "peru": 31,
+                "greece": 29,
+                "france": 29,
+                "ecuador": 28,
+                "ireland": 24,
+                "hong": 20,
+                "trinadad&tobago": 19,
+                "cambodia": 19,
+                "thailand": 18,
+                "laos": 18,
+                "yugoslavia": 16,
+                "outlying-us(guam-usvi-etc": 14,
+                "hungary": 13,
+                "honduras": 13,
+                "scotland": 12,
+                "holand-netherlands": 1
+            }
+        },
+        "label": {
+            "type": "Categorical",
+            "n_distinct": 2,
+            "n_missing": 0,
+            "freq_counts": {
+                "50k": 32561
+            }
+        }
+    }
+}
