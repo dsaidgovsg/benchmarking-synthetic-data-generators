@@ -10,5 +10,5 @@ sdmetrics==0.12.1
 sdv==1.7.0
 seaborn==0.13.0
 synthcity==0.2.9
-torch==1.13.1
+torch==2.2.0
 tqdm==4.66.1
