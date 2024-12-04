@@ -4,7 +4,7 @@ hyperimpute==0.1.17
 numpy==1.23.5
 optuna==3.4.0
 pandas==1.5.3
-scikit-learn==1.2.2
+scikit-learn==1.5.0
 scipy==1.11.4
 sdmetrics==0.12.1
 sdv==1.7.0
